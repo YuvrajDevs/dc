@@ -101,6 +101,18 @@ def main(argv: list[str] | None = None) -> int:
 
     sub.add_parser("lineage", help="Print the table lineage as a Mermaid graph")
 
+    srv = sub.add_parser("serve", help="Serve the dashboard API")
+    srv.add_argument("--db", type=Path, required=True)
+    srv.add_argument("--port", type=int, default=8000)
+    srv.add_argument("--host", default="127.0.0.1")
+
+    aq = sub.add_parser("ask", help="Ask a question in plain English")
+    aq.add_argument("question")
+    aq.add_argument("--db", type=Path, required=True)
+
+    ev = sub.add_parser("ask-eval", help="Grade the assistant on its question set")
+    ev.add_argument("--db", type=Path, required=True)
+
     args = parser.parse_args(argv)
     if args.command == "generate":
         cfg = Config(
@@ -238,6 +250,36 @@ def main(argv: list[str] | None = None) -> int:
     if args.command == "lineage":
         print(lineage.mermaid())
         return 0
+    if args.command == "serve":
+        import uvicorn
+
+        from tally.api import create_app
+
+        uvicorn.run(create_app(args.db), host=args.host, port=args.port, log_level="info")
+        return 0
+    if args.command in ("ask", "ask-eval"):
+        import duckdb
+
+        from tally.ask import ask as ask_question
+        from tally.ask.evalset import run_eval
+        from tally.ask.execute import lock_down
+
+        con = duckdb.connect(str(args.db))
+        lock_down(con)
+        if args.command == "ask":
+            r = ask_question(con, args.question, actor="cli")
+            print(f"[{r.status}] {r.explanation or r.reason}")
+            if r.sql:
+                print(r.sql)
+            for row in r.rows[:20]:
+                print("  ", row)
+            return 0 if r.status == "ok" else 1
+        report = run_eval(con)
+        print(f"{report['passed']}/{report['total']} questions correct ({report['rate']:.1%})")
+        for x in report["results"]:
+            if not x["ok"]:
+                print(f"  FAIL {x['question']}: {x['detail']}")
+        return 0 if report["rate"] >= 0.95 else 1
     if args.command == "bench-run":
         print(json.dumps(bench.scale_one(args.profile, args.rows)))
         return 0

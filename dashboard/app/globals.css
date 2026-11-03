@@ -1,0 +1,52 @@
+@import "tailwindcss";
+
+:root {
+  --page: #dfe9e6;
+  --card: #ffffff;
+  --ink: #0f1f1c;
+  --muted: #5b6f6a;
+  --line: #e4ece9;
+  --teal: #0b5d54;
+  --teal-deep: #08463f;
+  --lime: #c6e69a;
+  --lime-soft: #e7f4d3;
+  --warn: #b4540a;
+  --warn-soft: #fdeed9;
+  --bad: #a3262a;
+  --bad-soft: #fbe4e4;
+}
+
+@theme inline {
+  --font-sans: var(--font-poppins);
+  --color-page: var(--page);
+  --color-card: var(--card);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-teal: var(--teal);
+  --color-teal-deep: var(--teal-deep);
+  --color-lime: var(--lime);
+  --color-lime-soft: var(--lime-soft);
+  --color-warn: var(--warn);
+  --color-warn-soft: var(--warn-soft);
+  --color-bad: var(--bad);
+  --color-bad-soft: var(--bad-soft);
+}
+
+html { background: var(--page); }
+body { background: var(--page); color: var(--ink); font-family: var(--font-poppins), system-ui, sans-serif; }
+
+:focus-visible { outline: 3px solid var(--teal); outline-offset: 2px; border-radius: 8px; }
+::selection { background: var(--lime); color: var(--ink); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
+
+@keyframes shimmer { from { background-position: 200% 0; } to { background-position: -200% 0; } }
+.skeleton {
+  background: linear-gradient(90deg, #eef3f1 25%, #f7faf9 50%, #eef3f1 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.6s linear infinite;
+  border-radius: 12px;
+}
