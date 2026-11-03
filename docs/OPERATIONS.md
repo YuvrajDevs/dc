@@ -33,7 +33,7 @@ python -m tally lineage              # Mermaid graph (below)
 
 Verified on Airflow 3.0.6 (Python 3.12): the DAG registers with no import errors, and `airflow dags test tally_daily <day>` ran ingest, build, reconcile and publish for each of three days. The resulting warehouse was **hash-identical to a clean three-day run across 41 tables**.
 
-Not verified here: a long-running scheduler and webserver, or the Docker image (the sandbox could not run Docker).
+Not verified here: a long-running scheduler and webserver.
 
 ## Freshness
 Each source must have delivered within an allowed lag of the processing date (ledger, transactions and payouts: 2 days; bank: 4 days). A late source raises `freshness_stale`.

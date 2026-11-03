@@ -6,6 +6,8 @@ Most reconciliation demos show a dashboard and ask you to trust it. Tally invent
 
 All data is synthetic. No real customer, bank or employer data is used anywhere.
 
+![Tally dashboard walkthrough](docs/demo.gif)
+
 ## The idea in one paragraph
 Three records of the same money never agree: the internal **ledger**, the **payment processor**, and the **bank**. Payments are booked twice, arrive late, settle in batches, get split, carry fees and rounding differences, and lose their references. Reconciliation finds where the three disagree and why. Tally measures how well it does that.
 
