@@ -8,8 +8,8 @@ Every phase ends with: tests passing in CI, docs updated, a demo you can run, an
 |---|---|---|
 | 0 | Foundation | Done |
 | 1 | Synthetic world and answer key | Done |
-| 2 | Ingestion and warehouse | Next |
-| 3 | Reconciliation engine | |
+| 2 | Ingestion and warehouse | Done |
+| 3 | Reconciliation engine | Next |
 | 4 | Grader and benchmarks | |
 | 5 | Orchestration and operations | |
 | 6 | Product UI | |
@@ -40,6 +40,7 @@ Every phase ends with: tests passing in CI, docs updated, a demo you can run, an
 - Schema contracts and **data-quality gates**: a bad batch (wrong types, missing columns, impossible amounts) is quarantined and never reaches marts.
 - Reference data: fee schedule and FX rates versioned by date.
 - Exit: double-load produces identical table hashes; a deliberately corrupted batch is blocked with a clear reason; dbt tests green.
+- **Result:** all three exit tests are automated (`tests/test_warehouse_pipeline.py`). Late and shuffled deliveries also produce identical marts, and a later delivery of the same id corrects an earlier one while raw keeps the history.
 
 ## Phase 3: Reconciliation engine
 **Goal:** find every disagreement and explain it.

@@ -1,0 +1,20 @@
+name: tally
+version: "0.1.0"
+config-version: 2
+profile: tally
+
+model-paths: ["models"]
+test-paths: ["tests"]
+macro-paths: ["macros"]
+target-path: "../target/dbt"
+log-path: "../logs"
+clean-targets: ["../target/dbt"]
+
+models:
+  tally:
+    staging:
+      +schema: staging
+      +materialized: table
+    marts:
+      +schema: marts
+      +materialized: table

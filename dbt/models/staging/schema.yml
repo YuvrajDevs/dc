@@ -1,0 +1,27 @@
+version: 2
+
+models:
+  - name: stg_ledger_entries
+    columns:
+      - name: ledger_id
+        tests: [unique, not_null]
+      - name: amount_minor
+        tests: [not_null]
+  - name: stg_processor_txns
+    columns:
+      - name: txn_id
+        tests: [unique, not_null]
+      - name: payout_id
+        tests: [not_null]
+  - name: stg_processor_payouts
+    columns:
+      - name: payout_id
+        tests: [unique, not_null]
+  - name: stg_bank_lines
+    columns:
+      - name: bank_line_id
+        tests: [unique, not_null]
+  - name: stg_merchants
+    columns:
+      - name: merchant_id
+        tests: [unique, not_null]

@@ -1,0 +1,44 @@
+version: 2
+
+models:
+  - name: dim_merchant
+    columns:
+      - name: merchant_id
+        tests: [unique, not_null]
+      - name: fee_tier
+        tests:
+          - accepted_values:
+              values: ["A", "B", "C"]
+  - name: dim_fee_schedule
+    columns:
+      - name: valid_from
+        tests: [not_null]
+  - name: fct_ledger_entry
+    columns:
+      - name: ledger_id
+        tests: [unique, not_null]
+      - name: currency
+        tests:
+          - accepted_values:
+              values: ["USD", "EUR", "GBP", "INR"]
+  - name: fct_processor_txn
+    columns:
+      - name: txn_id
+        tests: [unique, not_null]
+      - name: payout_id
+        tests:
+          - relationships:
+              to: ref('fct_payout')
+              field: payout_id
+              config:
+                severity: warn   # a payout can legitimately arrive after its transactions
+      - name: expected_fee_minor
+        tests: [not_null]
+  - name: fct_payout
+    columns:
+      - name: payout_id
+        tests: [unique, not_null]
+  - name: fct_bank_line
+    columns:
+      - name: bank_line_id
+        tests: [unique, not_null]

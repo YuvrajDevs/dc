@@ -306,7 +306,13 @@ def build(cfg: Config) -> dict:
         for (d, c), v in sorted(fx.items())
     ]
     fee_rows = [
-        {"fee_tier": t, "currency": c, "bps": bps, "fixed_minor": fixed}
+        {
+            "fee_tier": t,
+            "currency": c,
+            "bps": bps,
+            "fixed_minor": fixed,
+            "effective_from": cfg.start.isoformat(),
+        }
         for (t, c), (bps, fixed) in sorted(world.FEE_TABLE.items())
     ]
     return {

@@ -1,0 +1,7 @@
+tally:
+  target: dev
+  outputs:
+    dev:
+      type: duckdb
+      path: "{{ env_var('TALLY_DB', 'data/warehouse.duckdb') }}"
+      threads: 1

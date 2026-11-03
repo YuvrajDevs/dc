@@ -14,7 +14,7 @@ Three records of the same money never agree: the internal **ledger**, the **paym
 python -m venv .venv && . .venv/bin/activate
 make install
 make test
-make demo          # writes a synthetic world to data/world-42
+make demo          # world, daily deliveries, quality-gated load, dbt build
 ```
 
 ## Status
@@ -24,7 +24,8 @@ Delivery is planned in phases through to user acceptance testing and release. Se
 |---|---|---|
 | 0 Foundation | Done | repo, CI, tooling |
 | 1 Synthetic world and answer key | Done | 13 defect classes, deterministic, property-tested |
-| 2 to 10 | Planned | warehouse, engine, grader, orchestration, UI, validated Q&A, hardening, UAT, release |
+| 2 Ingestion and warehouse | Done | schema contracts, quality gate, idempotent loads, dbt staging and marts |
+| 3 to 10 | Planned | engine, grader, orchestration, UI, validated Q&A, hardening, UAT, release |
 
 ## Documents
 - [Roadmap](docs/ROADMAP.md): every phase with deliverables and exit criteria
