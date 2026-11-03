@@ -1,6 +1,6 @@
 # Roadmap: from empty repo to a released, user-accepted product
 
-Working title: **Tally**. Reconciliation that is *graded* against a known answer key, so its quality is measured, not claimed.
+Name: **TrueUp** (the code package is still called `tally`). Reconciliation that is *graded* against a known answer key, so its quality is measured, not claimed.
 
 Every phase ends with: tests passing in CI, docs updated, a demo you can run, and its **exit criteria** met. Nothing moves on until the exit criteria are true. Thresholds marked *(provisional)* are set from the first real measurement in Phase 4, then frozen.
 

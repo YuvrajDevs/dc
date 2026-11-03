@@ -18,7 +18,7 @@ from tally.warehouse.split import split_world
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(prog="tally", description="Tally reconciliation toolkit")
+    parser = argparse.ArgumentParser(prog="tally", description="TrueUp reconciliation toolkit")
     sub = parser.add_subparsers(dest="command", required=True)
 
     gen = sub.add_parser("generate", help="Generate a synthetic world with an answer key")

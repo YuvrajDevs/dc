@@ -11,7 +11,7 @@ const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
-  title: { default: "Tally", template: "%s | Tally" },
+  title: { default: "TrueUp", template: "%s | TrueUp" },
   description: "Payments reconciliation, graded against a known answer key.",
 };
 

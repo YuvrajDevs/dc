@@ -28,7 +28,7 @@ export default function ScorecardPage() {
     <>
       <PageHeader
         title="Scorecard"
-        intro="Tally invents its own messy payment data, hides a known set of mistakes in it, and grades the reconciliation like a test. These are the results on a deliberately hard world."
+        intro="TrueUp invents its own messy payment data, hides a known set of mistakes in it, and grades the reconciliation like a test. These are the results on a deliberately hard world."
         actions={<Chip tone="lime">{String(cur.meta.days)} days · seed {String(cur.meta.seed)}</Chip>}
       />
 

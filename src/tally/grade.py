@@ -173,7 +173,7 @@ def grade(wh: Warehouse, world: Path) -> Scorecard:
 def render_markdown(card: Scorecard) -> str:
     d = card.to_dict()
     meta = d["meta"]
-    lines = ["# Tally scorecard", ""]
+    lines = ["# TrueUp scorecard", ""]
     if meta:
         lines += [", ".join(f"{k}: {v}" for k, v in meta.items()), ""]
     s = d["summary"]

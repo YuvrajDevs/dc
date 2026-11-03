@@ -1,4 +1,4 @@
-"""Vercel entry point: serves the Tally API from the bundled demo database.
+"""Vercel entry point: serves the TrueUp API from the bundled demo database.
 
 Vercel's filesystem is read-only except /tmp, so the database is copied there on a cold start.
 Decisions made in the demo live in that copy and reset when the instance is recycled.

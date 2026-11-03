@@ -1,15 +1,17 @@
-# Tally
+# TrueUp
 
 Payments reconciliation that is **graded against a known answer key**.
 
-Most reconciliation demos show a dashboard and ask you to trust it. Tally invents its own messy payment data, hides a known set of mistakes in it, and then scores the reconciliation engine like a test: how many real mistakes did it find, how many false alarms did it raise, and how accurate were its matches, class by class.
+Most reconciliation demos show a dashboard and ask you to trust it. TrueUp invents its own messy payment data, hides a known set of mistakes in it, and then scores the reconciliation engine like a test: how many real mistakes did it find, how many false alarms did it raise, and how accurate were its matches, class by class.
+
+The Python package and command are still called `tally` (`python -m tally`); the product is TrueUp.
 
 All data is synthetic. No real customer, bank or employer data is used anywhere.
 
-![Tally dashboard walkthrough](docs/demo.gif)
+![TrueUp dashboard walkthrough](docs/demo.gif)
 
 ## The idea in one paragraph
-Three records of the same money never agree: the internal **ledger**, the **payment processor**, and the **bank**. Payments are booked twice, arrive late, settle in batches, get split, carry fees and rounding differences, and lose their references. Reconciliation finds where the three disagree and why. Tally measures how well it does that.
+Three records of the same money never agree: the internal **ledger**, the **payment processor**, and the **bank**. Payments are booked twice, arrive late, settle in batches, get split, carry fees and rounding differences, and lose their references. Reconciliation finds where the three disagree and why. TrueUp measures how well it does that.
 
 ## Quick start
 ```bash

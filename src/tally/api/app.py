@@ -70,7 +70,7 @@ def create_app(
     provider: SQLProvider | None = None,
     allow_origins: list[str] | None = None,
 ) -> FastAPI:
-    app = FastAPI(title="Tally", version="0.1.0")
+    app = FastAPI(title="TrueUp", version="0.1.0")
     app.add_middleware(
         CORSMiddleware,
         allow_origins=allow_origins or ["http://localhost:3000", "http://127.0.0.1:3000"],

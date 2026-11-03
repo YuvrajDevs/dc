@@ -1,4 +1,4 @@
-# Tally scorecard
+# TrueUp scorecard
 
 seed: 42, days: 60, profile_hardness: {'bank_ref_missing': 0.06, 'compound_rate': 0.06, 'round_amount_share': 0.25, 'typo_share': 0.4}
 

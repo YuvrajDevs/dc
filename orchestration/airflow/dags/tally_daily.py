@@ -1,4 +1,4 @@
-"""Airflow DAG for the daily Tally pipeline.
+"""Airflow DAG for the daily TrueUp pipeline.
 
 Airflow owns scheduling, ordering and retries. Each task runs exactly one pipeline step through
 ``Pipeline.run_step``, which keeps the same run ledger, input-hash skipping and alerts as the
