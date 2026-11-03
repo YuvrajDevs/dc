@@ -7,7 +7,8 @@ name = "tally"
 version = "0.1.0"
 description = "Payments reconciliation measured against a known answer key"
 requires-python = ">=3.11"
-dependencies = ["duckdb>=1.0"]
+# fastapi and sqlglot are runtime dependencies because Vercel installs from pyproject.toml when it exists
+dependencies = ["duckdb>=1.0", "fastapi>=0.110", "sqlglot>=25"]
 
 [project.optional-dependencies]
 api = ["fastapi>=0.110", "uvicorn>=0.29", "httpx>=0.27", "sqlglot>=25"]
