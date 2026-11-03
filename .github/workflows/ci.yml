@@ -48,3 +48,17 @@ jobs:
           python-version: "3.12"
       - run: pip install -e ".[dev]" pip-audit
       - run: pip-audit
+
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build and start the full stack
+        run: docker compose up --build -d --wait
+      - name: Smoke test through the dashboard proxy
+        run: |
+          curl -sf localhost:3000/api/health
+          curl -sf localhost:3000/api/overview | grep -q open_errors
+          curl -sf localhost:3000/exceptions >/dev/null
+      - if: failure()
+        run: docker compose logs
