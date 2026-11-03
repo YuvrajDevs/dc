@@ -1,0 +1,81 @@
+{
+  "profile": "hard",
+  "days": 60,
+  "runs": [
+    {
+      "seed": 1,
+      "precision": 0.9985,
+      "recall": 0.997,
+      "benign_false_alarm_rate": 0.0,
+      "link_precision": 1.0,
+      "link_recall": 1.0
+    },
+    {
+      "seed": 2,
+      "precision": 0.9985,
+      "recall": 0.997,
+      "benign_false_alarm_rate": 0.0,
+      "link_precision": 1.0,
+      "link_recall": 1.0
+    },
+    {
+      "seed": 3,
+      "precision": 1.0,
+      "recall": 1.0,
+      "benign_false_alarm_rate": 0.0,
+      "link_precision": 1.0,
+      "link_recall": 1.0
+    },
+    {
+      "seed": 4,
+      "precision": 0.9986,
+      "recall": 0.9972,
+      "benign_false_alarm_rate": 0.0,
+      "link_precision": 1.0,
+      "link_recall": 1.0
+    },
+    {
+      "seed": 5,
+      "precision": 1.0,
+      "recall": 1.0,
+      "benign_false_alarm_rate": 0.0,
+      "link_precision": 1.0,
+      "link_recall": 1.0
+    },
+    {
+      "seed": 6,
+      "precision": 0.9969,
+      "recall": 0.9985,
+      "benign_false_alarm_rate": 0.0006,
+      "link_precision": 1.0,
+      "link_recall": 1.0
+    }
+  ],
+  "band": {
+    "precision": {
+      "min": 0.9969,
+      "max": 1.0,
+      "mean": 0.9988
+    },
+    "recall": {
+      "min": 0.997,
+      "max": 1.0,
+      "mean": 0.9983
+    },
+    "benign_false_alarm_rate": {
+      "min": 0.0,
+      "max": 0.0006,
+      "mean": 0.0001
+    },
+    "link_precision": {
+      "min": 1.0,
+      "max": 1.0,
+      "mean": 1.0
+    },
+    "link_recall": {
+      "min": 1.0,
+      "max": 1.0,
+      "mean": 1.0
+    }
+  }
+}

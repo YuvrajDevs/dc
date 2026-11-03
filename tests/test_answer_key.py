@@ -50,7 +50,7 @@ def test_default_world_key_is_consistent(small_cfg):
 def test_every_defect_class_appears_in_a_larger_world():
     t = build(Config(seed=3, days=60, merchants=12, txns_per_day=300))
     seen = Counter(d["class"] for d in t["answer_key"])
-    assert set(seen) == set(DEFECT_CLASSES)
+    assert set(seen) == set(DEFECT_CLASSES) - {"bank_ref_missing"}  # hard profile only
     # enough cases per class to grade meaningfully
     assert min(seen.values()) >= 10, seen
 
@@ -112,3 +112,23 @@ def test_key_integrity_holds_for_random_worlds(seed, days, merchants, per_day):
     check_key_integrity(t)
     assert all(tx["net_minor"] > 0 for tx in t["processor_txns"])
     assert all(isinstance(e["amount_minor"], int) for e in t["ledger_entries"])
+
+
+def test_hard_profile_adds_the_adversarial_cases():
+    from tally.synth.config import HARD
+
+    t = build(Config(seed=3, days=60, merchants=12, txns_per_day=300, hardness=HARD))
+    seen = Counter(d["class"] for d in t["answer_key"])
+    assert set(seen) == set(DEFECT_CLASSES)
+    modes = Counter(
+        json.loads(d["detail"]).get("mode") for d in t["answer_key"] if d["class"] == "ref_noise"
+    )
+    assert modes["typo"] > 10
+    check_key_integrity(t)
+    # compound defects: some payments carry two defects at once
+    by_entity = Counter()
+    for d in t["answer_key"]:
+        if d["level"] == "txn":
+            for e in json.loads(d["entities"]):
+                by_entity[(e["source"], e["id"])] += 1
+    assert any(n > 1 for n in by_entity.values())

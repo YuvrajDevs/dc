@@ -58,3 +58,22 @@ A **batch** is a folder of CSV files. Its identity is a hash of the file content
 
 ### Tests that protect it
 Loading twice, re-delivering the same rows in a new batch, late and shuffled arrival, corrections, a blocked corrupted batch and the payout-total check are all automated.
+
+## Reconciliation engine (Phase 3)
+`recon` schema, rebuilt on every run, written by SQL steps in `src/tally/recon/engine.py`.
+
+**Ledger to transaction**, strongest evidence first, only unmatched records move down:
+1. Reference match (exact, normalised, or prefix-stripped), accepted only if merchant, currency and time also agree.
+2. Strong = reference **and** amount agree. The earliest booking is primary; further strong entries are duplicate bookings.
+3. Attribute match: same merchant, currency and amount inside a time window.
+4. Fuzzy: amount within 12%, tight window, unique from both sides (confidence 0.60).
+5. Last resort: reference-only match between two unclaimed records, reported as an amount mismatch.
+
+**Payout to bank:** payout reference on the bank line, then amount and date, then a fuzzy tier for short payouts. A payout may match several bank lines (a split).
+
+**Findings:** each has a class, category (error or benign), the records involved, amount at stake, currency, confidence, a plain-language reason and a stable id. Benign look-alikes are `explained`; errors are `open`. A payout with no bank line is `pending` until its window has passed (as-of date), then `payout_missing`.
+
+**Exception queue:** `ops.exceptions` holds one row per finding id with a status (open, explained, resolved, auto_cleared) and `ops.exception_events` appends every change with actor, time and note. Re-runs never overwrite a human decision; a finding that stops being reported auto-clears and reopens if it returns.
+
+## Grader (Phase 4)
+`src/tally/grade.py` is the only code that reads `answer_key.csv` and `expected_links.csv`, directly from the world folder. It scores per class, link accuracy and benign false alarms, writes JSON and Markdown scorecards, and checks them against the frozen floors in `benchmarks/floors.json`.

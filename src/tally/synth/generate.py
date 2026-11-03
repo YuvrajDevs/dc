@@ -7,6 +7,7 @@ import hashlib
 import json
 import random
 from collections import defaultdict
+from dataclasses import asdict
 from datetime import date, datetime, timedelta
 from pathlib import Path
 
@@ -68,6 +69,21 @@ def _mangle_ref(rng: random.Random, ref: str) -> tuple[str, str]:
     return ref + " ", mode
 
 
+COMPOUND_ORDER = ["amount_mismatch", "fee_variance", "fx_rounding", "cutoff_timing", "ref_noise"]
+COMPOUNDABLE = set(COMPOUND_ORDER)
+
+
+def _typo_ref(rng: random.Random, ref: str) -> tuple[str, str]:
+    """Swap two neighbouring digits. The result usually names a different, real order."""
+    digits = ref.removeprefix("ord_")
+    spots = [i for i in range(len(digits) - 1) if digits[i] != digits[i + 1]]
+    if not spots:
+        return "", "blank"
+    i = rng.choice(spots)
+    swapped = digits[:i] + digits[i + 1] + digits[i] + digits[i + 2 :]
+    return "ord_" + swapped, "typo"
+
+
 def build(cfg: Config) -> dict:
     """Return all tables plus the answer key. Pure function of the config."""
     r = cfg.rates
@@ -116,6 +132,7 @@ def build(cfg: Config) -> dict:
         )
 
     key = Key()
+    h = cfg.hardness
     inj = _rng(cfg.seed, "inject_txn")
     next_ledger = len(ledger) + 1
     drop_ledger: set[str] = set()
@@ -136,58 +153,77 @@ def build(cfg: Config) -> dict:
         if led["_near_midnight"]:
             options.append(("cutoff_timing", r.cutoff_timing))
         cls = _pick(inj, options)
-        pair = [("ledger", led["ledger_id"]), ("processor", txn["txn_id"])]
+        classes = [cls] if cls else []
+        if cls in COMPOUNDABLE and h.compound_rate and inj.random() < h.compound_rate:
+            others = [
+                c
+                for c in COMPOUND_ORDER
+                if c != cls
+                and not (c == "fx_rounding" and led["currency"] == "USD")
+                and not (c == "cutoff_timing" and not led["_near_midnight"])
+            ]
+            classes.append(inj.choice(others))
+        classes.sort(key=lambda c: COMPOUND_ORDER.index(c) if c in COMPOUND_ORDER else -1)
 
-        if cls is None:
+        pair = [("ledger", led["ledger_id"]), ("processor", txn["txn_id"])]
+        linked = True
+        for cls in classes:
+            if cls == "duplicate_ledger":
+                dup = dict(led)
+                dup["ledger_id"] = f"led_{next_ledger:07d}"
+                next_ledger += 1
+                dup["booked_at"] = led["booked_at"] + timedelta(seconds=inj.randint(1, 5))
+                extra_ledger.append(dup)
+                key.defect(
+                    cls,
+                    [("ledger", led["ledger_id"]), ("ledger", dup["ledger_id"])],
+                    order_ref=led["order_ref"],
+                )
+            elif cls == "missing_in_ledger":
+                drop_ledger.add(led["ledger_id"])
+                linked = False
+                key.defect(cls, [("processor", txn["txn_id"])])
+            elif cls == "missing_in_processor":
+                drop_proc.add(txn["txn_id"])
+                linked = False
+                key.defect(cls, [("ledger", led["ledger_id"])])
+            elif cls == "amount_mismatch":
+                amount = led["amount_minor"]
+                delta = inj.choice([-1, 1]) * max(1, amount * inj.randint(1, 10) // 100)
+                led["amount_minor"] = amount + delta
+                rate = fx[(txn["captured_at"].date(), led["currency"])]
+                led["amount_base_minor"] = world.to_base_minor(led["amount_minor"], rate)
+                key.defect(cls, pair, delta_minor=delta)
+            elif cls == "fee_variance":
+                expected = txn["fee_minor"]
+                actual = expected + max(5, expected * inj.randint(20, 150) // 100)
+                txn["fee_minor"] = actual
+                txn["net_minor"] = txn["gross_minor"] - actual
+                key.defect(
+                    cls,
+                    [("processor", txn["txn_id"])],
+                    expected_fee_minor=expected,
+                    actual_fee_minor=actual,
+                )
+            elif cls == "fx_rounding":
+                delta = inj.choice([-2, -1, 1, 2])
+                led["amount_base_minor"] += delta
+                key.defect(cls, pair, delta_base_minor=delta)
+            elif cls == "cutoff_timing":
+                next_day = datetime.combine(
+                    led["booked_at"].date() + timedelta(days=1), datetime.min.time()
+                )
+                led["booked_at"] = next_day + timedelta(seconds=inj.randint(1, 40))
+                key.defect(cls, pair)
+            elif cls == "ref_noise":
+                original = led["order_ref"]
+                if h.typo_share and inj.random() < h.typo_share:
+                    led["order_ref"], mode = _typo_ref(inj, original)
+                else:
+                    led["order_ref"], mode = _mangle_ref(inj, original)
+                key.defect(cls, pair, mode=mode, original=original)
+        if linked:
             key.link("ledger_txn", led["ledger_id"], txn["txn_id"])
-        elif cls == "duplicate_ledger":
-            dup = dict(led)
-            dup["ledger_id"] = f"led_{next_ledger:07d}"
-            next_ledger += 1
-            dup["booked_at"] = led["booked_at"] + timedelta(seconds=inj.randint(1, 5))
-            extra_ledger.append(dup)
-            key.link("ledger_txn", led["ledger_id"], txn["txn_id"])
-            key.defect(cls, [("ledger", led["ledger_id"]), ("ledger", dup["ledger_id"])],
-                       order_ref=led["order_ref"])  # fmt: skip
-        elif cls == "missing_in_ledger":
-            drop_ledger.add(led["ledger_id"])
-            key.defect(cls, [("processor", txn["txn_id"])])
-        elif cls == "missing_in_processor":
-            drop_proc.add(txn["txn_id"])
-            key.defect(cls, [("ledger", led["ledger_id"])])
-        elif cls == "amount_mismatch":
-            amount = led["amount_minor"]
-            delta = inj.choice([-1, 1]) * max(1, amount * inj.randint(1, 10) // 100)
-            led["amount_minor"] = amount + delta
-            rate = fx[(txn["captured_at"].date(), led["currency"])]
-            led["amount_base_minor"] = world.to_base_minor(led["amount_minor"], rate)
-            key.link("ledger_txn", led["ledger_id"], txn["txn_id"])
-            key.defect(cls, pair, delta_minor=delta)
-        elif cls == "fee_variance":
-            expected = txn["fee_minor"]
-            actual = expected + max(5, expected * inj.randint(20, 150) // 100)
-            txn["fee_minor"] = actual
-            txn["net_minor"] = txn["gross_minor"] - actual
-            key.link("ledger_txn", led["ledger_id"], txn["txn_id"])
-            key.defect(cls, [("processor", txn["txn_id"])],
-                       expected_fee_minor=expected, actual_fee_minor=actual)  # fmt: skip
-        elif cls == "fx_rounding":
-            delta = inj.choice([-2, -1, 1, 2])
-            led["amount_base_minor"] += delta
-            key.link("ledger_txn", led["ledger_id"], txn["txn_id"])
-            key.defect(cls, pair, delta_base_minor=delta)
-        elif cls == "cutoff_timing":
-            next_day = datetime.combine(
-                led["booked_at"].date() + timedelta(days=1), datetime.min.time()
-            )
-            led["booked_at"] = next_day + timedelta(seconds=inj.randint(1, 40))
-            key.link("ledger_txn", led["ledger_id"], txn["txn_id"])
-            key.defect(cls, pair)
-        elif cls == "ref_noise":
-            original = led["order_ref"]
-            led["order_ref"], mode = _mangle_ref(inj, original)
-            key.link("ledger_txn", led["ledger_id"], txn["txn_id"])
-            key.defect(cls, pair, mode=mode, original=original)
 
     ledger = [e for e in ledger if e["ledger_id"] not in drop_ledger] + extra_ledger
     ledger.sort(key=lambda e: (e["booked_at"], e["ledger_id"]))
@@ -279,6 +315,15 @@ def build(cfg: Config) -> dict:
         line = new_line(pid, po["currency"], amount, value, desc)
         bank.append(line)
         key.link("payout_bank", pid, line["bank_line_id"])
+        if (
+            cls in (None, "payout_late", "payout_short")
+            and cfg.hardness.bank_ref_missing
+            and pinj.random() < cfg.hardness.bank_ref_missing
+        ):
+            line["reference"] = ""
+            key.defect(
+                "bank_ref_missing", [("processor_payout", pid), ("bank", line["bank_line_id"])]
+            )
         if cls == "payout_late":
             key.defect(cls, [("processor_payout", pid), ("bank", line["bank_line_id"])],
                        days_late=(value - po["payout_date"]).days - 1)  # fmt: skip
@@ -368,6 +413,7 @@ def generate(cfg: Config, out: Path) -> dict:
         "days": cfg.days,
         "merchants": cfg.merchants,
         "txns_per_day": cfg.txns_per_day,
+        "hardness": asdict(cfg.hardness),
         "row_counts": {k: len(v) for k, v in tables.items()},
         "defect_counts": dict(sorted(counts.items())),
         "sha256": dict(sorted(hashes.items())),

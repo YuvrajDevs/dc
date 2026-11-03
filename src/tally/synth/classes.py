@@ -20,6 +20,7 @@ DEFECT_CLASSES: dict[str, tuple[str, str, str]] = {
     "payout_missing": ("error", "payout", "Payout never reaches the bank"),
     "payout_short": ("error", "payout", "Bank received less than the payout total"),
     "payout_split": ("benign", "payout", "Payout arrives as two bank lines that sum correctly"),
+    "bank_ref_missing": ("benign", "payout", "Bank line arrives without its payout reference"),
     "bank_orphan": ("error", "bank", "Bank line that belongs to no payout"),
 }
 

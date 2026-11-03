@@ -1,0 +1,202 @@
+{
+  "classes": [
+    {
+      "category": "error",
+      "class": "amount_mismatch",
+      "f1": 1.0,
+      "fn": 0,
+      "fp": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "support": 106,
+      "tp": 106
+    },
+    {
+      "category": "error",
+      "class": "bank_orphan",
+      "f1": 0.9767,
+      "fn": 1,
+      "fp": 0,
+      "precision": 1.0,
+      "recall": 0.9545,
+      "support": 22,
+      "tp": 21
+    },
+    {
+      "category": "benign",
+      "class": "bank_ref_missing",
+      "f1": 0.9863,
+      "fn": 0,
+      "fp": 1,
+      "precision": 0.973,
+      "recall": 1.0,
+      "support": 36,
+      "tp": 36
+    },
+    {
+      "category": "benign",
+      "class": "cutoff_timing",
+      "f1": 1.0,
+      "fn": 0,
+      "fp": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "support": 272,
+      "tp": 272
+    },
+    {
+      "category": "error",
+      "class": "duplicate_ledger",
+      "f1": 1.0,
+      "fn": 0,
+      "fp": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "support": 108,
+      "tp": 108
+    },
+    {
+      "category": "error",
+      "class": "fee_variance",
+      "f1": 1.0,
+      "fn": 0,
+      "fp": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "support": 289,
+      "tp": 289
+    },
+    {
+      "category": "benign",
+      "class": "fx_rounding",
+      "f1": 1.0,
+      "fn": 0,
+      "fp": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "support": 516,
+      "tp": 516
+    },
+    {
+      "category": "error",
+      "class": "missing_in_ledger",
+      "f1": 0.9931,
+      "fn": 1,
+      "fp": 0,
+      "precision": 1.0,
+      "recall": 0.9863,
+      "support": 73,
+      "tp": 72
+    },
+    {
+      "category": "error",
+      "class": "missing_in_processor",
+      "f1": 0.9934,
+      "fn": 1,
+      "fp": 0,
+      "precision": 1.0,
+      "recall": 0.9868,
+      "support": 76,
+      "tp": 75
+    },
+    {
+      "category": "benign",
+      "class": "payout_late",
+      "f1": 1.0,
+      "fn": 0,
+      "fp": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "support": 55,
+      "tp": 55
+    },
+    {
+      "category": "error",
+      "class": "payout_missing",
+      "f1": 0.9744,
+      "fn": 1,
+      "fp": 0,
+      "precision": 1.0,
+      "recall": 0.95,
+      "support": 20,
+      "tp": 19
+    },
+    {
+      "category": "error",
+      "class": "payout_short",
+      "f1": 0.9787,
+      "fn": 0,
+      "fp": 1,
+      "precision": 0.9583,
+      "recall": 1.0,
+      "support": 23,
+      "tp": 23
+    },
+    {
+      "category": "benign",
+      "class": "payout_split",
+      "f1": 1.0,
+      "fn": 0,
+      "fp": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "support": 51,
+      "tp": 51
+    },
+    {
+      "category": "benign",
+      "class": "ref_noise",
+      "f1": 0.9993,
+      "fn": 0,
+      "fp": 1,
+      "precision": 0.9986,
+      "recall": 1.0,
+      "support": 724,
+      "tp": 724
+    }
+  ],
+  "links": {
+    "all": {
+      "expected": 24602,
+      "f1": 0.9999,
+      "found": 24604,
+      "precision": 0.9999,
+      "recall": 1.0,
+      "tp": 24602
+    },
+    "ledger_txn": {
+      "expected": 23851,
+      "f1": 1.0,
+      "found": 23852,
+      "precision": 1.0,
+      "recall": 1.0,
+      "tp": 23851
+    },
+    "payout_bank": {
+      "expected": 751,
+      "f1": 0.9993,
+      "found": 752,
+      "precision": 0.9987,
+      "recall": 1.0,
+      "tp": 751
+    }
+  },
+  "meta": {
+    "days": 60,
+    "profile_hardness": {
+      "bank_ref_missing": 0.06,
+      "compound_rate": 0.06,
+      "round_amount_share": 0.25,
+      "typo_share": 0.4
+    },
+    "seed": 42
+  },
+  "summary": {
+    "benign_defects": 1654,
+    "benign_false_alarm_rate": 0.0,
+    "benign_false_alarms": 0,
+    "error_findings_matching_no_defect": 0,
+    "error_micro_precision": 0.9986,
+    "error_micro_recall": 0.9944
+  }
+}

@@ -26,6 +26,21 @@ class Rates:
 
 
 @dataclass(frozen=True)
+class Hardness:
+    """Knobs that make the world adversarial. All zero means the easy world."""
+
+    round_amount_share: float = 0.0  # payments with round amounts, so many look alike
+    compound_rate: float = 0.0  # chance a defective payment gets a second, different defect
+    typo_share: float = 0.0  # share of reference noise that is a digit swap onto another real ref
+    bank_ref_missing: float = 0.0  # bank lines that arrive without their payout reference
+
+
+EASY = Hardness()
+HARD = Hardness(round_amount_share=0.25, compound_rate=0.06, typo_share=0.40, bank_ref_missing=0.06)
+PROFILES = {"easy": EASY, "hard": HARD}
+
+
+@dataclass(frozen=True)
 class Config:
     seed: int = 42
     start: date = date(2026, 1, 1)
@@ -34,3 +49,4 @@ class Config:
     txns_per_day: int = 400
     near_midnight_share: float = 0.02
     rates: Rates = field(default_factory=Rates)
+    hardness: Hardness = field(default_factory=Hardness)

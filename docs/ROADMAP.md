@@ -9,9 +9,9 @@ Every phase ends with: tests passing in CI, docs updated, a demo you can run, an
 | 0 | Foundation | Done |
 | 1 | Synthetic world and answer key | Done |
 | 2 | Ingestion and warehouse | Done |
-| 3 | Reconciliation engine | Next |
-| 4 | Grader and benchmarks | |
-| 5 | Orchestration and operations | |
+| 3 | Reconciliation engine | Done |
+| 4 | Grader and benchmarks | Done |
+| 5 | Orchestration and operations | Next |
 | 6 | Product UI | |
 | 7 | Natural-language questions (validated SQL) | |
 | 8 | Hardening and polish | |
@@ -50,6 +50,7 @@ Every phase ends with: tests passing in CI, docs updated, a demo you can run, an
 - Every finding carries a class, the records involved, an amount at stake, a confidence and a plain-language reason.
 - Exception queue with status (open, explained, resolved) and an audit trail of who changed what.
 - Exit: engine runs end to end on the Phase 1 world and emits findings in the same format as the answer key.
+- **Result:** `src/tally/recon/`. Matching in five tiers with identity validation, a fuzzy tier and a last-resort tier; 14 finding classes with reason, confidence and amount; exception queue with a per-change audit trail (`ops.exceptions`, `ops.exception_events`). Human decisions survive re-runs; findings that disappear auto-clear and reopen if they return.
 
 ## Phase 4: Grader and benchmarks
 **Goal:** prove how good it is, with numbers.
@@ -58,6 +59,7 @@ Every phase ends with: tests passing in CI, docs updated, a demo you can run, an
 - Performance benchmarks at 10k, 100k and 1M rows (throughput, p95, memory) with method documented; query plans inspected and tuned.
 - Acceptance floors *(provisional)*: error-class recall at least 0.95 and precision at least 0.97; link accuracy at least 0.995; benign false alarms at most 2%.
 - Exit: published scorecard, floors frozen, regression gate live.
+- **Result:** see [BENCHMARKS.md](BENCHMARKS.md). A harder world exposed a real weakness in the first engine (error precision 0.561); the fix brought it to 0.999 and is measured, not asserted. Floors are frozen from 8 seeds per profile and enforced in CI. A 1M-row run reconciles in about 7 seconds after a plan-guided tuning that halved it.
 
 ## Phase 5: Orchestration and operations
 **Goal:** run it daily, safely, and see what happened.

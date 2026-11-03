@@ -1,0 +1,203 @@
+{
+  "classes": [
+    {
+      "category": "error",
+      "class": "amount_mismatch",
+      "f1": 0.6483,
+      "fn": 12,
+      "fp": 90,
+      "precision": 0.5109,
+      "recall": 0.8868,
+      "support": 106,
+      "tp": 94
+    },
+    {
+      "category": "error",
+      "class": "bank_orphan",
+      "f1": 1.0,
+      "fn": 0,
+      "fp": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "support": 22,
+      "tp": 22
+    },
+    {
+      "category": "benign",
+      "class": "bank_ref_missing",
+      "f1": 0.0,
+      "fn": 36,
+      "fp": 0,
+      "precision": 1.0,
+      "recall": 0.0,
+      "support": 36,
+      "tp": 0
+    },
+    {
+      "category": "benign",
+      "class": "cutoff_timing",
+      "f1": 0.8985,
+      "fn": 2,
+      "fp": 59,
+      "precision": 0.8207,
+      "recall": 0.9926,
+      "support": 272,
+      "tp": 270
+    },
+    {
+      "category": "error",
+      "class": "duplicate_ledger",
+      "f1": 0.532,
+      "fn": 0,
+      "fp": 190,
+      "precision": 0.3624,
+      "recall": 1.0,
+      "support": 108,
+      "tp": 108
+    },
+    {
+      "category": "error",
+      "class": "fee_variance",
+      "f1": 1.0,
+      "fn": 0,
+      "fp": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "support": 289,
+      "tp": 289
+    },
+    {
+      "category": "error",
+      "class": "fx_mismatch",
+      "f1": 0.0,
+      "fn": 0,
+      "fp": 63,
+      "precision": 0.0,
+      "recall": 1.0,
+      "support": 0,
+      "tp": 0
+    },
+    {
+      "category": "benign",
+      "class": "fx_rounding",
+      "f1": 0.9912,
+      "fn": 8,
+      "fp": 1,
+      "precision": 0.998,
+      "recall": 0.9845,
+      "support": 516,
+      "tp": 508
+    },
+    {
+      "category": "error",
+      "class": "missing_in_ledger",
+      "f1": 0.4186,
+      "fn": 1,
+      "fp": 199,
+      "precision": 0.2657,
+      "recall": 0.9863,
+      "support": 73,
+      "tp": 72
+    },
+    {
+      "category": "error",
+      "class": "missing_in_processor",
+      "f1": 0.9375,
+      "fn": 1,
+      "fp": 9,
+      "precision": 0.8929,
+      "recall": 0.9868,
+      "support": 76,
+      "tp": 75
+    },
+    {
+      "category": "benign",
+      "class": "payout_late",
+      "f1": 1.0,
+      "fn": 0,
+      "fp": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "support": 55,
+      "tp": 55
+    },
+    {
+      "category": "error",
+      "class": "payout_missing",
+      "f1": 1.0,
+      "fn": 0,
+      "fp": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "support": 20,
+      "tp": 20
+    },
+    {
+      "category": "error",
+      "class": "payout_short",
+      "f1": 1.0,
+      "fn": 0,
+      "fp": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "support": 23,
+      "tp": 23
+    },
+    {
+      "category": "benign",
+      "class": "payout_split",
+      "f1": 1.0,
+      "fn": 0,
+      "fp": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "support": 51,
+      "tp": 51
+    },
+    {
+      "category": "benign",
+      "class": "ref_noise",
+      "f1": 0.8382,
+      "fn": 201,
+      "fp": 1,
+      "precision": 0.9981,
+      "recall": 0.7224,
+      "support": 724,
+      "tp": 523
+    }
+  ],
+  "links": {
+    "all": {
+      "expected": 24602,
+      "f1": 0.9922,
+      "found": 24404,
+      "precision": 0.9962,
+      "recall": 0.9882,
+      "tp": 24312
+    },
+    "ledger_txn": {
+      "expected": 23851,
+      "f1": 0.9919,
+      "found": 23653,
+      "precision": 0.9961,
+      "recall": 0.9878,
+      "tp": 23561
+    },
+    "payout_bank": {
+      "expected": 751,
+      "f1": 1.0,
+      "found": 751,
+      "precision": 1.0,
+      "recall": 1.0,
+      "tp": 751
+    }
+  },
+  "meta": {},
+  "summary": {
+    "benign_defects": 1654,
+    "error_findings_matching_no_defect": 0,
+    "error_micro_precision": 0.5606,
+    "error_micro_recall": 0.9805,
+    "note": "Baseline of the first engine (strict tiers, no match validation) on the hard profile, seed 42, 60 days. The benign false-alarm figure is omitted: it was measured with an earlier, flawed definition that also counted correct errors on records carrying a benign quirk, so it is not comparable."
+  }
+}

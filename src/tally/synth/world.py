@@ -21,6 +21,7 @@ FEE_TABLE = {
     ("A", "INR"): (200, 300), ("B", "INR"): (180, 250), ("C", "INR"): (160, 200),
 }  # fmt: skip
 DAY = 86400
+ROUND_AMOUNTS = [500, 1000, 1500, 2000, 2500, 5000, 10000, 20000]
 
 
 def fee_for(amount_minor: int, tier: str, currency: str) -> int:
@@ -68,8 +69,11 @@ def build_payments(rng: random.Random, cfg, merchants: list[dict]) -> list[dict]
         day = datetime.combine(cfg.start + timedelta(days=d), datetime.min.time())
         for _ in range(cfg.txns_per_day):
             m = rng.choice(merchants)
-            major = math.exp(rng.gauss(3.4, 1.0))  # median about 30
-            minor = max(100, min(500_000, int(round(major * 100))))
+            if cfg.hardness.round_amount_share and rng.random() < cfg.hardness.round_amount_share:
+                minor = rng.choice(ROUND_AMOUNTS)
+            else:
+                major = math.exp(rng.gauss(3.4, 1.0))  # median about 30
+                minor = max(100, min(500_000, int(round(major * 100))))
             if m["currency"] == "INR":
                 minor *= 80
             if rng.random() < cfg.near_midnight_share:

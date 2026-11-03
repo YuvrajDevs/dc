@@ -1,0 +1,703 @@
+[
+  {
+    "profile": "hard",
+    "seed": 1,
+    "days": 25,
+    "merchants": 12,
+    "txns_per_day": 400,
+    "rows": {
+      "ledger_entries": 10011,
+      "processor_txns": 9964,
+      "processor_payouts": 300,
+      "bank_lines": 330
+    },
+    "defects_injected": 988,
+    "seconds": {
+      "generate": 0.27,
+      "load_s": 0.42,
+      "dbt_s": 6.293,
+      "reconcile": 0.352
+    },
+    "reconcile_steps": {
+      "match_references": 0.0512,
+      "match_attributes": 0.0372,
+      "resolve_links": 0.0218,
+      "match_bank": 0.0363,
+      "init_findings": 0.0014,
+      "findings_duplicates": 0.0093,
+      "findings_missing": 0.013,
+      "findings_amounts": 0.0164,
+      "findings_fx": 0.0763,
+      "findings_timing_and_refs": 0.023,
+      "findings_payouts": 0.0261,
+      "findings_bank_orphans": 0.0138,
+      "publish": 0.0263
+    },
+    "ledger_rows_per_second": 28432,
+    "peak_memory_mb": 230,
+    "scorecard": {
+      "meta": {},
+      "summary": {
+        "error_micro_precision": 1.0,
+        "error_micro_recall": 1.0,
+        "benign_false_alarm_rate": 0.0,
+        "benign_defects": 711,
+        "benign_false_alarms": 0,
+        "error_findings_matching_no_defect": 0
+      },
+      "classes": [
+        {
+          "class": "amount_mismatch",
+          "category": "error",
+          "support": 44,
+          "tp": 44,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        {
+          "class": "bank_orphan",
+          "category": "error",
+          "support": 9,
+          "tp": 9,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        {
+          "class": "bank_ref_missing",
+          "category": "benign",
+          "support": 16,
+          "tp": 16,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        {
+          "class": "cutoff_timing",
+          "category": "benign",
+          "support": 98,
+          "tp": 98,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        {
+          "class": "duplicate_ledger",
+          "category": "error",
+          "support": 39,
+          "tp": 39,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        {
+          "class": "fee_variance",
+          "category": "error",
+          "support": 100,
+          "tp": 100,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        {
+          "class": "fx_rounding",
+          "category": "benign",
+          "support": 242,
+          "tp": 242,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        {
+          "class": "missing_in_ledger",
+          "category": "error",
+          "support": 28,
+          "tp": 28,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        {
+          "class": "missing_in_processor",
+          "category": "error",
+          "support": 36,
+          "tp": 36,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        {
+          "class": "payout_late",
+          "category": "benign",
+          "support": 32,
+          "tp": 32,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        {
+          "class": "payout_missing",
+          "category": "error",
+          "support": 7,
+          "tp": 7,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        {
+          "class": "payout_short",
+          "category": "error",
+          "support": 14,
+          "tp": 14,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        {
+          "class": "payout_split",
+          "category": "benign",
+          "support": 28,
+          "tp": 28,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        {
+          "class": "ref_noise",
+          "category": "benign",
+          "support": 295,
+          "tp": 295,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      ],
+      "links": {
+        "ledger_txn": {
+          "expected": 9936,
+          "found": 9936,
+          "tp": 9936,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "payout_bank": {
+          "expected": 321,
+          "found": 321,
+          "tp": 321,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "all": {
+          "expected": 10257,
+          "found": 10257,
+          "tp": 10257,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      }
+    }
+  },
+  {
+    "profile": "hard",
+    "seed": 1,
+    "days": 100,
+    "merchants": 12,
+    "txns_per_day": 1000,
+    "rows": {
+      "ledger_entries": 100150,
+      "processor_txns": 99711,
+      "processor_payouts": 1200,
+      "bank_lines": 1300
+    },
+    "defects_injected": 9195,
+    "seconds": {
+      "generate": 3.17,
+      "load_s": 2.14,
+      "dbt_s": 7.554,
+      "reconcile": 1.618
+    },
+    "reconcile_steps": {
+      "match_references": 0.3353,
+      "match_attributes": 0.1657,
+      "resolve_links": 0.5547,
+      "match_bank": 0.0413,
+      "init_findings": 0.001,
+      "findings_duplicates": 0.0188,
+      "findings_missing": 0.0447,
+      "findings_amounts": 0.0673,
+      "findings_fx": 0.1068,
+      "findings_timing_and_refs": 0.099,
+      "findings_payouts": 0.0272,
+      "findings_bank_orphans": 0.0137,
+      "publish": 0.1429
+    },
+    "ledger_rows_per_second": 61882,
+    "peak_memory_mb": 375,
+    "scorecard": {
+      "meta": {},
+      "summary": {
+        "error_micro_precision": 0.9981,
+        "error_micro_recall": 0.9966,
+        "benign_false_alarm_rate": 0.0002,
+        "benign_defects": 6543,
+        "benign_false_alarms": 1,
+        "error_findings_matching_no_defect": 0
+      },
+      "classes": [
+        {
+          "class": "amount_mismatch",
+          "category": "error",
+          "support": 439,
+          "tp": 439,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        {
+          "class": "bank_orphan",
+          "category": "error",
+          "support": 36,
+          "tp": 33,
+          "fp": 1,
+          "fn": 3,
+          "precision": 0.9706,
+          "recall": 0.9167,
+          "f1": 0.9429
+        },
+        {
+          "class": "bank_ref_missing",
+          "category": "benign",
+          "support": 57,
+          "tp": 56,
+          "fp": 3,
+          "fn": 1,
+          "precision": 0.9492,
+          "recall": 0.9825,
+          "f1": 0.9656
+        },
+        {
+          "class": "cutoff_timing",
+          "category": "benign",
+          "support": 988,
+          "tp": 988,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        {
+          "class": "duplicate_ledger",
+          "category": "error",
+          "support": 425,
+          "tp": 425,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        {
+          "class": "fee_variance",
+          "category": "error",
+          "support": 1115,
+          "tp": 1115,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        {
+          "class": "fx_rounding",
+          "category": "benign",
+          "support": 2225,
+          "tp": 2225,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        {
+          "class": "missing_in_ledger",
+          "category": "error",
+          "support": 275,
+          "tp": 274,
+          "fp": 0,
+          "fn": 1,
+          "precision": 1.0,
+          "recall": 0.9964,
+          "f1": 0.9982
+        },
+        {
+          "class": "missing_in_processor",
+          "category": "error",
+          "support": 289,
+          "tp": 288,
+          "fp": 0,
+          "fn": 1,
+          "precision": 1.0,
+          "recall": 0.9965,
+          "f1": 0.9982
+        },
+        {
+          "class": "payout_late",
+          "category": "benign",
+          "support": 106,
+          "tp": 106,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        {
+          "class": "payout_missing",
+          "category": "error",
+          "support": 36,
+          "tp": 33,
+          "fp": 1,
+          "fn": 3,
+          "precision": 0.9706,
+          "recall": 0.9167,
+          "f1": 0.9429
+        },
+        {
+          "class": "payout_short",
+          "category": "error",
+          "support": 37,
+          "tp": 36,
+          "fp": 3,
+          "fn": 1,
+          "precision": 0.9231,
+          "recall": 0.973,
+          "f1": 0.9474
+        },
+        {
+          "class": "payout_split",
+          "category": "benign",
+          "support": 100,
+          "tp": 100,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        {
+          "class": "ref_noise",
+          "category": "benign",
+          "support": 3067,
+          "tp": 3067,
+          "fp": 1,
+          "fn": 0,
+          "precision": 0.9997,
+          "recall": 1.0,
+          "f1": 0.9998
+        }
+      ],
+      "links": {
+        "ledger_txn": {
+          "expected": 99436,
+          "found": 99437,
+          "tp": 99436,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "payout_bank": {
+          "expected": 1264,
+          "found": 1266,
+          "tp": 1263,
+          "precision": 0.9976,
+          "recall": 0.9992,
+          "f1": 0.9984
+        },
+        "all": {
+          "expected": 100700,
+          "found": 100703,
+          "tp": 100699,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      }
+    }
+  },
+  {
+    "profile": "hard",
+    "seed": 1,
+    "days": 100,
+    "merchants": 12,
+    "txns_per_day": 10000,
+    "rows": {
+      "ledger_entries": 1000917,
+      "processor_txns": 996934,
+      "processor_payouts": 1200,
+      "bank_lines": 1300
+    },
+    "defects_injected": 90493,
+    "seconds": {
+      "generate": 41.92,
+      "load_s": 5.093,
+      "dbt_s": 9.212,
+      "reconcile": 14.294
+    },
+    "reconcile_steps": {
+      "match_references": 2.0346,
+      "match_attributes": 0.4915,
+      "resolve_links": 6.2954,
+      "match_bank": 0.0426,
+      "init_findings": 0.0013,
+      "findings_duplicates": 0.069,
+      "findings_missing": 0.2915,
+      "findings_amounts": 0.287,
+      "findings_fx": 0.5224,
+      "findings_timing_and_refs": 3.3445,
+      "findings_payouts": 0.0305,
+      "findings_bank_orphans": 0.0167,
+      "publish": 0.8671
+    },
+    "ledger_rows_per_second": 70023,
+    "peak_memory_mb": 1678,
+    "scorecard": {
+      "meta": {},
+      "summary": {
+        "error_micro_precision": 0.9953,
+        "error_micro_recall": 0.9901,
+        "benign_false_alarm_rate": 0.0004,
+        "benign_defects": 64243,
+        "benign_false_alarms": 27,
+        "error_findings_matching_no_defect": 0
+      },
+      "classes": [
+        {
+          "class": "amount_mismatch",
+          "category": "error",
+          "support": 4538,
+          "tp": 4460,
+          "fp": 8,
+          "fn": 78,
+          "precision": 0.9982,
+          "recall": 0.9828,
+          "f1": 0.9904
+        },
+        {
+          "class": "bank_orphan",
+          "category": "error",
+          "support": 36,
+          "tp": 36,
+          "fp": 1,
+          "fn": 0,
+          "precision": 0.973,
+          "recall": 1.0,
+          "f1": 0.9863
+        },
+        {
+          "class": "bank_ref_missing",
+          "category": "benign",
+          "support": 57,
+          "tp": 56,
+          "fp": 0,
+          "fn": 1,
+          "precision": 1.0,
+          "recall": 0.9825,
+          "f1": 0.9912
+        },
+        {
+          "class": "cutoff_timing",
+          "category": "benign",
+          "support": 10054,
+          "tp": 10049,
+          "fp": 60,
+          "fn": 5,
+          "precision": 0.9941,
+          "recall": 0.9995,
+          "f1": 0.9968
+        },
+        {
+          "class": "duplicate_ledger",
+          "category": "error",
+          "support": 3971,
+          "tp": 3971,
+          "fp": 1,
+          "fn": 0,
+          "precision": 0.9997,
+          "recall": 1.0,
+          "f1": 0.9998
+        },
+        {
+          "class": "fee_variance",
+          "category": "error",
+          "support": 11512,
+          "tp": 11512,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        {
+          "class": "fx_mismatch",
+          "category": "error",
+          "support": 0,
+          "tp": 0,
+          "fp": 30,
+          "fn": 0,
+          "precision": 0.0,
+          "recall": 1.0,
+          "f1": 0.0
+        },
+        {
+          "class": "fx_rounding",
+          "category": "benign",
+          "support": 23265,
+          "tp": 23260,
+          "fp": 15,
+          "fn": 5,
+          "precision": 0.9994,
+          "recall": 0.9998,
+          "f1": 0.9996
+        },
+        {
+          "class": "missing_in_ledger",
+          "category": "error",
+          "support": 3054,
+          "tp": 2996,
+          "fp": 8,
+          "fn": 58,
+          "precision": 0.9973,
+          "recall": 0.981,
+          "f1": 0.9891
+        },
+        {
+          "class": "missing_in_processor",
+          "category": "error",
+          "support": 3066,
+          "tp": 2942,
+          "fp": 73,
+          "fn": 124,
+          "precision": 0.9758,
+          "recall": 0.9596,
+          "f1": 0.9676
+        },
+        {
+          "class": "payout_late",
+          "category": "benign",
+          "support": 106,
+          "tp": 106,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        {
+          "class": "payout_missing",
+          "category": "error",
+          "support": 36,
+          "tp": 36,
+          "fp": 1,
+          "fn": 0,
+          "precision": 0.973,
+          "recall": 1.0,
+          "f1": 0.9863
+        },
+        {
+          "class": "payout_short",
+          "category": "error",
+          "support": 37,
+          "tp": 36,
+          "fp": 0,
+          "fn": 1,
+          "precision": 1.0,
+          "recall": 0.973,
+          "f1": 0.9863
+        },
+        {
+          "class": "payout_split",
+          "category": "benign",
+          "support": 100,
+          "tp": 100,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        {
+          "class": "ref_noise",
+          "category": "benign",
+          "support": 30661,
+          "tp": 30645,
+          "fp": 130,
+          "fn": 16,
+          "precision": 0.9958,
+          "recall": 0.9995,
+          "f1": 0.9976
+        }
+      ],
+      "links": {
+        "ledger_txn": {
+          "expected": 993880,
+          "found": 993930,
+          "tp": 993799,
+          "precision": 0.9999,
+          "recall": 0.9999,
+          "f1": 0.9999
+        },
+        "payout_bank": {
+          "expected": 1264,
+          "found": 1263,
+          "tp": 1263,
+          "precision": 1.0,
+          "recall": 0.9992,
+          "f1": 0.9996
+        },
+        "all": {
+          "expected": 995144,
+          "found": 995193,
+          "tp": 995062,
+          "precision": 0.9999,
+          "recall": 0.9999,
+          "f1": 0.9999
+        }
+      }
+    }
+  }
+]

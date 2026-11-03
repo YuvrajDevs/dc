@@ -1,0 +1,23 @@
+{
+  "_note": "Frozen from 8 seeds per profile at 60 days (benchmarks/floor-evidence.json), each set a little below the worst value seen. Never move a floor to make a build pass: fix the engine, or record why the world changed.",
+  "easy": {
+    "min_support": 30,
+    "micro_precision_min": 0.995,
+    "micro_recall_min": 0.99,
+    "class_precision_min": 0.98,
+    "class_recall_min": 0.98,
+    "link_ledger_txn_min": 0.999,
+    "link_payout_bank_min": 0.995,
+    "benign_false_alarm_max": 0.002
+  },
+  "hard": {
+    "min_support": 30,
+    "micro_precision_min": 0.99,
+    "micro_recall_min": 0.99,
+    "class_precision_min": 0.98,
+    "class_recall_min": 0.98,
+    "link_ledger_txn_min": 0.999,
+    "link_payout_bank_min": 0.99,
+    "benign_false_alarm_max": 0.005
+  }
+}
