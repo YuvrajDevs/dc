@@ -10,6 +10,8 @@ from __future__ import annotations
 import csv
 import io
 import json
+import logging
+import time
 from datetime import date
 from pathlib import Path
 from typing import Literal
@@ -33,7 +35,7 @@ BENCH_DIR = Path(__file__).resolve().parents[3] / "benchmarks"
 
 class StatusUpdate(BaseModel):
     status: Literal["open", "explained", "resolved"]
-    note: str = ""
+    note: str = Field(default="", max_length=2000)
     actor: str = Field(min_length=1, max_length=80)
 
 
@@ -59,6 +61,9 @@ class _Handle:
         self.con = cur
 
 
+log = logging.getLogger("tally.api")
+
+
 def create_app(
     db_path: str | Path,
     bench_dir: Path | None = None,
@@ -72,6 +77,25 @@ def create_app(
         allow_methods=["GET", "POST", "PATCH"],
         allow_headers=["content-type"],
     )
+
+    @app.middleware("http")
+    async def access_log(request, call_next):
+        # one structured line per request: method, path, status, milliseconds (no query text, no bodies)
+        t0 = time.perf_counter()
+        response = await call_next(request)
+        log.info(
+            json.dumps(
+                {
+                    "event": "request",
+                    "method": request.method,
+                    "path": request.url.path,
+                    "status": response.status_code,
+                    "ms": round((time.perf_counter() - t0) * 1000),
+                }
+            )
+        )
+        return response
+
     bench = bench_dir or BENCH_DIR
     wh = Warehouse(db_path)
     xq.ensure_tables(wh)
@@ -120,6 +144,18 @@ def create_app(
               (SELECT count(*) FROM marts.fct_bank_line) AS bank_lines,
               (SELECT count(*) FROM recon.pending_items) AS pending_payouts""",
         )[0]
+        flow = _rows(
+            c,
+            "WITH "
+            + queries.FX
+            + """
+            SELECT
+              (SELECT round(sum(l.amount_minor * coalesce(fx.micro, 1000000) / 100000000.0), 2)
+                 FROM marts.fct_ledger_entry l LEFT JOIN fx ON fx.currency = l.currency) AS booked_usd,
+              (SELECT round(sum(b.amount_minor * coalesce(fx.micro, 1000000) / 100000000.0), 2)
+                 FROM marts.fct_bank_line b LEFT JOIN fx ON fx.currency = b.currency) AS received_usd""",
+        )[0]
+        flow["difference_usd"] = round((flow["booked_usd"] or 0) - (flow["received_usd"] or 0), 2)
         by_class = _rows(
             c,
             queries.EXCEPTIONS
@@ -151,7 +187,7 @@ def create_app(
             if _table_exists(c, "ops", "runs")
             else []
         )
-        return {"as_of": str(as_of) if as_of else None, "kpi": kpi, "counts": counts,
+        return {"as_of": str(as_of) if as_of else None, "kpi": kpi, "flow": flow, "counts": counts,
                 "by_class": by_class, "trend": trend, "top": top, "last_run": runs[0] if runs else None}  # fmt: skip
 
     # -- exceptions --------------------------------------------------------------------

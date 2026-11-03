@@ -31,7 +31,7 @@ export function DailyBars({ data }: { data: { day: string; errors: number; benig
 export function Meter({ value, max, tone = "teal" }: { value: number; max: number; tone?: "teal" | "lime" }) {
   const pct = max ? Math.min(100, (value / max) * 100) : 0;
   return (
-    <div role="meter" aria-valuenow={value} aria-valuemin={0} aria-valuemax={max} className="h-2.5 w-full overflow-hidden rounded-full bg-black/10">
+    <div aria-hidden="true" className="h-2.5 w-full overflow-hidden rounded-full bg-black/10">
       <div className={cx("h-full rounded-full", tone === "lime" ? "bg-lime" : "bg-teal")} style={{ width: `${pct}%` }} />
     </div>
   );

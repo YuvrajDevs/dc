@@ -53,6 +53,7 @@ export function useApi<T>(path: string | null) {
 export type Overview = {
   as_of: string | null;
   kpi: { open_errors: number; open_amount_usd: number; resolved: number; explained_errors: number; benign_explained: number };
+  flow: { booked_usd: number; received_usd: number; difference_usd: number };
   counts: { ledger_entries: number; transactions: number; payouts: number; bank_lines: number; pending_payouts: number };
   by_class: { class: string; findings: number; amount_usd: number }[];
   trend: { day: string; errors: number; benign: number }[];

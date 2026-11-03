@@ -45,6 +45,20 @@ Priority: **P1** must pass to ship, **P2** should pass, **P3** nice to have.
 | X1 | All | Empty state (no data loaded) | Helpful message, not a blank page | P2 |
 | X2 | All | Error state (service down) | Clear message and a way to retry | P2 |
 
+## Automated acceptance (run `make uat`)
+Browser tests drive the real dashboard against a throwaway copy of the demo database; engine tests cover the data scenarios.
+
+| Scenario | Covered by | Result |
+|---|---|---|
+| A1, A2, A3, A5, A8, A9, A10, A11 | `dashboard/e2e/uat.mjs` | Pass |
+| R2, R4, D1, X2 | `dashboard/e2e/uat.mjs` | Pass |
+| R5 (automated part only) | `dashboard/e2e/uat.mjs` (axe-core, WCAG 2.1 AA, all pages) | Pass; manual screen-reader pass still due |
+| A4, A6, A7 | `tests/test_engine.py` (benign look-alikes explained; payout missing only after its window) | Pass |
+| D2, D5 | `tests/test_warehouse_pipeline.py`, `tests/test_warehouse_gate.py` | Pass |
+| D3, D4, D6, D7 | `tests/test_ops.py` (also run for real under Airflow) | Pass |
+| R3 | `benchmarks/` stability over 8 seeds per profile, enforced by `python -m tally check` | Pass |
+| A7 (UI), X1, R1 | Manual only | **Not yet run** |
+
 ## Defect severity
 | Level | Meaning | Rule |
 |---|---|---|
@@ -68,10 +82,12 @@ Priority: **P1** must pass to ship, **P2** should pass, **P3** nice to have.
 ## Defect log
 | ID | Scenario | Severity | Description | Status |
 |---|---|---|---|---|
-| | | | | |
+| UAT-1 | R5 / A1 | S2 | Muted and warning text under 4.5:1 contrast; meters unnamed (found by axe) | Fixed, retested |
+| UAT-2 | A1 | S2 | Overview had no expected/received/difference figures as the scenario requires | Fixed, retested |
+| UAT-3 | A9 | S3 | Esc did not close the exception drawer when focus was outside it | Fixed, retested |
 
 ## Sign-off
 | Role | Name | Date | Decision |
 |---|---|---|---|
-| Product owner | | | |
-| Tester | | | |
+| Product owner | Yuvraj Singh Shekhawat | | **Pending** manual pass |
+| Tester | | | **Pending** |

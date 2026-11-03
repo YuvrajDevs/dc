@@ -78,6 +78,21 @@ export default function OverviewPage() {
           </ul>
         </section>
 
+        <Card className="lg:col-span-12">
+          <CardTitle>Money flow</CardTitle>
+          <dl className="grid gap-4 sm:grid-cols-3">
+            {[["Expected (booked in the ledger)", data.flow.booked_usd], ["Received (landed at the bank)", data.flow.received_usd], ["Difference", data.flow.difference_usd]].map(([k, v]) => (
+              <div key={k as string}>
+                <dt className="text-[12px] font-light text-muted">{k}</dt>
+                <dd className="text-[26px] font-medium tabular-nums">{usd(v as number)}</dd>
+              </div>
+            ))}
+          </dl>
+          <p className="mt-3 text-[12px] font-light text-muted">
+            The gap is mostly processor fees; the rest is timing and what the exceptions explain. Everything converted at the latest rate.
+          </p>
+        </Card>
+
         <Card className="lg:col-span-4">
           <CardTitle>What we reconciled</CardTitle>
           <dl className="grid grid-cols-2 gap-x-4 gap-y-5">

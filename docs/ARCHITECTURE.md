@@ -77,3 +77,8 @@ Loading twice, re-delivering the same rows in a new batch, late and shuffled arr
 
 ## Grader (Phase 4)
 `src/tally/grade.py` is the only code that reads `answer_key.csv` and `expected_links.csv`, directly from the world folder. It scores per class, link accuracy and benign false alarms, writes JSON and Markdown scorecards, and checks them against the frozen floors in `benchmarks/floors.json`.
+
+## Service, dashboard and assistant (Phases 6 and 7)
+- `src/tally/api/` is a FastAPI app holding **one locked-down DuckDB connection** (external access off, configuration locked) and giving each request its own cursor. Endpoints: `/api/overview`, `/api/exceptions` (+ `.csv`, detail, decision), `/api/payouts`, `/api/scorecard`, `/api/runs`, `/api/ask`.
+- `dashboard/` is a Next.js App Router app. Next proxies `/api/*` to the service, so the browser talks to a single origin.
+- `src/tally/ask/` turns a question into SQL and validates it three ways before it runs; see [ASSISTANT.md](ASSISTANT.md).

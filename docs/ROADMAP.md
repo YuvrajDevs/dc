@@ -12,6 +12,11 @@ Every phase ends with: tests passing in CI, docs updated, a demo you can run, an
 | 3 | Reconciliation engine | Done |
 | 4 | Grader and benchmarks | Done |
 | 5 | Orchestration and operations | Done |
+| 6 | Product UI | Done |
+| 7 | Natural-language questions | Done |
+| 8 | Hardening and polish | Done |
+| 9 | User acceptance testing | Automated done; manual pending |
+| 10 | Release | Release candidate; hosted demo pending |
 | 6 | Product UI | Next |
 | 7 | Natural-language questions (validated SQL) | |
 | 8 | Hardening and polish | |
@@ -75,6 +80,7 @@ Every phase ends with: tests passing in CI, docs updated, a demo you can run, an
 - Screens: **Overview** (balance, expected versus received, trend), **Exceptions** (filter, sort, explain, resolve), **Payouts**, **Scorecard** (the grader results), **Runs** (health and freshness).
 - Empty, loading and error states for every screen; CSV export; keyboard navigation.
 - Exit: every UAT scenario in `docs/UAT.md` marked UI-covered is possible; accessibility checks pass (see Phase 8).
+- **Result:** FastAPI service plus a Next.js dashboard (Overview, Exceptions with decision drawer and CSV export, Payouts, Scorecard, Runs, Ask). Start with `make demo-ui`, `make serve`, `make dashboard`.
 
 ## Phase 7: Natural-language questions (validated SQL)
 **Goal:** ask "which payouts are missing from the bank this week?" and get a trustworthy answer.
@@ -82,6 +88,7 @@ Every phase ends with: tests passing in CI, docs updated, a demo you can run, an
 - Every query validated before running: read-only, allow-listed tables and columns, row and time limits, cost estimate from the query plan, and an audit log.
 - Evaluation set of at least 40 questions with expected results; the assistant is graded like the engine is.
 - Exit: evaluation set at or above its floor; every unsafe query in the red-team set is refused.
+- **Result:** see [ASSISTANT.md](ASSISTANT.md). 45 of 45 evaluation questions correct; 54 of 54 unsafe queries and 14 of 14 unsafe questions refused.
 
 ## Phase 8: Hardening and polish
 **Goal:** production-grade, not demo-grade.
@@ -89,6 +96,7 @@ Every phase ends with: tests passing in CI, docs updated, a demo you can run, an
 - Security review of the app itself, dependency audit in CI, secrets handling, input validation.
 - Structured logging and metrics, clear error messages, docs (architecture, runbook, data dictionary, how to read the scorecard).
 - Exit: audit checklist signed off; no known S1 or S2 defects; cold start to demo in one command.
+- **Result:** see [SECURITY.md](SECURITY.md). Dependency audits in CI, security headers, request logging, axe-core accessibility checks on every page (which found and fixed real contrast and labelling defects). Known limits, notably no authentication, are listed there.
 
 ## Phase 9: User acceptance testing (UAT)
 **Goal:** a real person, doing real tasks, confirms it is fit for purpose. Full plan in `docs/UAT.md`.
@@ -97,6 +105,7 @@ Every phase ends with: tests passing in CI, docs updated, a demo you can run, an
 - Automated acceptance: end-to-end browser tests mapped to scenarios, plus golden-dataset acceptance on the scorecard.
 - Manual UAT: you run the scenarios; defects are logged, fixed and retested.
 - Exit: all S1 and S2 scenarios pass, no open S1 or S2 defects, sign-off recorded.
+- **Status:** `make uat` passes 14 of 14 browser scenarios and the engine tests cover the data scenarios (mapping in [UAT.md](UAT.md)). The manual pass and the sign-off are **not done**; they need a person.
 
 ## Phase 10: Release
 **Goal:** ship it and make it easy to understand.
@@ -104,6 +113,7 @@ Every phase ends with: tests passing in CI, docs updated, a demo you can run, an
 - Walkthrough video or GIF, a one-page architecture diagram, and the portfolio case study in the same compact format as the other projects.
 - Retrospective: what the benchmark taught us, what we would change.
 - Exit: a stranger can go from the README to a running demo in under ten minutes.
+- **Status:** changelog and release candidate tag done. Still open: hosted demo (needs a hosting choice), walkthrough GIF, portfolio case study, final retrospective after manual UAT.
 
 ---
 

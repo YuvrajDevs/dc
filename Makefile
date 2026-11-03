@@ -2,7 +2,7 @@ PY ?= python3
 SEED ?= 42
 AS_OF ?= 2026-02-05
 
-.PHONY: install lint test generate warehouse reconcile grade check benchmark demo clean
+.PHONY: demo-ui serve dashboard uat audit install lint test generate warehouse reconcile grade check benchmark demo clean
 install:
 	$(PY) -m pip install -e ".[dev]"
 
@@ -40,3 +40,26 @@ demo: grade
 
 clean:
 	rm -rf data .pytest_cache .ruff_cache
+
+# --- product UI -----------------------------------------------------------------------
+# Builds a 60-day demo world through the real pipeline (backfill), then you start the two servers.
+demo-ui:
+	rm -rf data/ui && mkdir -p data/ui
+	$(PY) -m tally generate --seed $(SEED) --days 60 --out data/ui/world
+	$(PY) -m tally split --world data/ui/world --out data/ui/batches --late-rate 0.05 --seed 1
+	$(PY) -m tally backfill --db data/ui/serve.duckdb --batches data/ui/batches --start 2026-01-01 --end 2026-03-04
+	@echo "Now run:  make serve   (API, port 8000)   and   make dashboard   (UI, port 3000)"
+
+serve:
+	$(PY) -m tally serve --db data/ui/serve.duckdb --port 8000
+
+dashboard:
+	cd dashboard && npm install && npm run build && npm run start -p 3000
+
+# Browser acceptance tests mapped to docs/UAT.md scenario IDs (boots and stops its own servers)
+uat:
+	PY=$(PY) scripts/uat.sh
+
+audit:
+	pip-audit
+	cd dashboard && npm audit --omit=dev
