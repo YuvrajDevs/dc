@@ -11,8 +11,8 @@ Every phase ends with: tests passing in CI, docs updated, a demo you can run, an
 | 2 | Ingestion and warehouse | Done |
 | 3 | Reconciliation engine | Done |
 | 4 | Grader and benchmarks | Done |
-| 5 | Orchestration and operations | Next |
-| 6 | Product UI | |
+| 5 | Orchestration and operations | Done |
+| 6 | Product UI | Next |
 | 7 | Natural-language questions (validated SQL) | |
 | 8 | Hardening and polish | |
 | 9 | User acceptance testing (UAT) | |
@@ -67,6 +67,7 @@ Every phase ends with: tests passing in CI, docs updated, a demo you can run, an
 - Idempotent re-runs and **backfills**: re-running a day, or a range, gives the same result as a clean run.
 - Run ledger (what ran, when, inputs, outputs, row counts), freshness checks and lineage.
 - Exit: a three-day backfill equals a clean three-day run (hash-identical); a killed run resumes without duplicating work; failures raise an alert.
+- **Result:** see [OPERATIONS.md](OPERATIONS.md). All three exit tests are automated, and the DAG was also run for real under Airflow 3.0.6: three daily runs gave a warehouse hash-identical to a clean run (41 tables).
 
 ## Phase 6: Product UI
 **Goal:** a calm, minimal tool a finance analyst can use without training.

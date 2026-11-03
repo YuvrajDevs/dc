@@ -7,6 +7,8 @@ from pathlib import Path
 
 from tally import bench
 from tally.grade import check_floors, grade, render_markdown
+from tally.ops import Pipeline, PipelineConfig, freshness, lineage
+from tally.ops.ledger import Ledger
 from tally.recon import ReconConfig, reconcile
 from tally.recon import queue as exception_queue
 from tally.synth.config import PROFILES, Config
@@ -75,6 +77,29 @@ def main(argv: list[str] | None = None) -> int:
     one = sub.add_parser("bench-run", help=argparse.SUPPRESS)
     one.add_argument("--profile", choices=sorted(PROFILES), required=True)
     one.add_argument("--rows", type=int, required=True)
+
+    run = sub.add_parser("run", help="Run the daily pipeline for one or more days")
+    run.add_argument("--db", type=Path, required=True)
+    run.add_argument("--batches", type=Path, required=True)
+    run.add_argument("--day", type=date.fromisoformat, nargs="+", required=True)
+    run.add_argument("--force", action="store_true")
+
+    bf = sub.add_parser("backfill", help="Re-process a range of days")
+    bf.add_argument("--db", type=Path, required=True)
+    bf.add_argument("--batches", type=Path, required=True)
+    bf.add_argument("--start", type=date.fromisoformat, required=True)
+    bf.add_argument("--end", type=date.fromisoformat, required=True)
+    bf.add_argument("--per-day", action="store_true")
+
+    for name, text in (("runs", "Show the run ledger"), ("alerts", "Show recent alerts")):
+        q = sub.add_parser(name, help=text)
+        q.add_argument("--db", type=Path, required=True)
+
+    fr = sub.add_parser("freshness", help="Check how fresh each source is")
+    fr.add_argument("--db", type=Path, required=True)
+    fr.add_argument("--as-of", type=date.fromisoformat, required=True)
+
+    sub.add_parser("lineage", help="Print the table lineage as a Mermaid graph")
 
     args = parser.parse_args(argv)
     if args.command == "generate":
@@ -182,6 +207,36 @@ def main(argv: list[str] | None = None) -> int:
         if args.out:
             args.out.write_text(text + "\n")
         print(text)
+        return 0
+    if args.command in ("run", "backfill"):
+        pipe = Pipeline(args.db, PipelineConfig(batches_dir=args.batches))
+        if args.command == "run":
+            results = [pipe.run(args.day, force=args.force)]
+        else:
+            results = pipe.backfill(args.start, args.end, per_day=args.per_day)
+        for r in results:
+            print(f"{r.run_id}: {r.status}  ran={r.executed} skipped={r.skipped}")
+            if r.error:
+                print(f"    error: {r.error}")
+        return 0 if all(r.status == "succeeded" for r in results) else 1
+    if args.command == "runs":
+        for r in Ledger(args.db).runs():
+            print(f"{r['run_id']:<34}{r['status']:<12}{r['started_at']}  {r['error'] or ''}")
+        return 0
+    if args.command == "alerts":
+        for a in Ledger(args.db).alerts():
+            print(f"{a['raised_at']}  {a['severity']:<9}{a['kind']:<18}{a['message']}")
+        return 0
+    if args.command == "freshness":
+        with Warehouse(args.db) as wh:
+            for f in freshness.check(wh, args.as_of):
+                print(
+                    f"{f.source:<20}{f.status:<7}latest={f.latest} lag={f.lag_days}d "
+                    f"(allowed {f.allowed_days}d)"
+                )
+        return 0
+    if args.command == "lineage":
+        print(lineage.mermaid())
         return 0
     if args.command == "bench-run":
         print(json.dumps(bench.scale_one(args.profile, args.rows)))
