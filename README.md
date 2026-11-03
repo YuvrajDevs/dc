@@ -16,10 +16,7 @@ make install
 make test
 make demo          # world, daily deliveries, gated load, dbt, reconcile, scorecard
 
-# the product, one command (needs Docker)
-docker compose up --build     # then open http://localhost:3000
-
-# or without Docker
+# the product
 make demo-ui       # 60-day world through the real daily pipeline
 make serve         # API on :8000        (one terminal)
 make dashboard     # UI on :3000         (another terminal)
