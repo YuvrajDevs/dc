@@ -49,6 +49,7 @@ On a deliberately hard synthetic world (typo'd references that point at other re
 - [Assistant](docs/ASSISTANT.md): how questions become safe SQL, and how it is graded
 - [Operations](docs/OPERATIONS.md): runs, backfills, alerts, lineage
 - [Security and accessibility](docs/SECURITY.md): what was checked and the known limits
+- [Deploying on Vercel](docs/DEPLOY.md)
 - [Changelog](CHANGELOG.md)
 - [Benchmarks](docs/BENCHMARKS.md): accuracy, stability, speed, and what this does not show
 - [Roadmap](docs/ROADMAP.md): every phase with deliverables and exit criteria

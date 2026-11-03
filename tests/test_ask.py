@@ -180,3 +180,10 @@ def test_every_question_is_logged_with_its_outcome(con):
         "SELECT status, code FROM ops.ask_log WHERE actor = 'amina' ORDER BY asked_at DESC LIMIT 2"
     ).fetchall()
     assert ("refused", "unsafe_request") in rows and ("ok", "") in rows
+
+
+def test_a_database_file_name_with_a_hyphen_does_not_confuse_the_plan_check():
+    """Found when deploying: a file called tally-demo.duckdb made every question refused."""
+    check_plan("Table: tally-demo.recon.findings\n~120 rows")  # must not raise
+    with pytest.raises(Refused):
+        check_plan("Table: tally-demo.secret.passwords")

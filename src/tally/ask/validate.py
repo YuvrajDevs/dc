@@ -132,7 +132,7 @@ def _apply_row_cap(tree: exp.Query, cap: int) -> tuple[str, str]:
 
 
 # ---- layer 2: the plan ---------------------------------------------------------------------
-_TABLE = re.compile(r"Table:\s+([\w\.\"]+)")
+_TABLE = re.compile(r"Table:\s+([\w\.\"\-]+)")
 _ROWS = re.compile(r"~([\d,]+)\s+rows?", re.I)
 
 

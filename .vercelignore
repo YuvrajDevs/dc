@@ -1,0 +1,10 @@
+dashboard
+data
+tests
+docs
+dbt
+orchestration
+scripts
+target
+logs
+.github
