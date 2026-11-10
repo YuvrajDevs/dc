@@ -1,0 +1,33 @@
+version: 2
+
+models:
+  - name: fct_authorization
+    description: Every authorization attempt with card, issuer, merchant and decision.
+    columns:
+      - name: auth_id
+        tests: [unique, not_null]
+      - name: response_label
+        description: Every response code must be in the reference table.
+        tests: [not_null]
+      - name: channel
+        tests:
+          - accepted_values: {values: ['cp', 'cnp']}
+  - name: fct_clearing
+    description: Cleared transactions with the interchange the rate card says they owe.
+    columns:
+      - name: clearing_id
+        tests: [unique, not_null]
+      - name: expected_interchange_minor
+        tests: [not_null]
+  - name: fct_dispute
+    columns:
+      - name: dispute_id
+        tests: [unique, not_null]
+      - name: deadline_state
+        tests:
+          - accepted_values: {values: ['overdue', 'due_in_7_days', 'open', 'closed']}
+  - name: mart_dispute_monitoring
+    columns:
+      - name: programme_status
+        tests:
+          - accepted_values: {values: ['ok', 'warning', 'excessive']}

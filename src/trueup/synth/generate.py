@@ -11,7 +11,7 @@ from dataclasses import asdict
 from datetime import date, datetime, timedelta
 from pathlib import Path
 
-from trueup.synth import world
+from trueup.synth import network, world
 from trueup.synth.classes import DEFECT_CLASSES
 from trueup.synth.config import Config
 
@@ -130,6 +130,10 @@ def build(cfg: Config) -> dict:
                 "_fee_tier": p["fee_tier"],
             }
         )
+
+    # Card-network history around the clean payments (own random streams, so the
+    # reconciliation tables are identical with or without it).
+    net = network.build(cfg, network.NetworkConfig(), merchants, payments, processor)
 
     key = Key()
     h = cfg.hardness
@@ -370,6 +374,8 @@ def build(cfg: Config) -> dict:
         "fee_schedule": fee_rows,
         "answer_key": _number_defects(key.defects),
         "expected_links": key.links,
+        **{k: v for k, v in net.items() if not k.startswith("_")},
+        "_network": {k.lstrip("_"): v for k, v in net.items() if k.startswith("_")},
     }
 
 
@@ -387,7 +393,15 @@ def _cell(v):
 
 
 def _write_csv(path: Path, rows: list[dict]) -> None:
-    fields = [k for k in rows[0] if not k.startswith("_")] if rows else []
+    if rows:
+        fields = [k for k in rows[0] if not k.startswith("_")]
+    else:
+        # An empty table still needs its header, or the loader rejects the file
+        # (a quiet day with no disputes is normal).
+        from trueup.warehouse.contracts import CONTRACTS
+
+        contract = CONTRACTS.get(path.stem)
+        fields = contract.names if contract else []
     with path.open("w", newline="", encoding="utf-8") as f:
         w = csv.DictWriter(f, fieldnames=fields, lineterminator="\n")
         w.writeheader()
@@ -399,6 +413,7 @@ def generate(cfg: Config, out: Path) -> dict:
     tables = build(cfg)
     out.mkdir(parents=True, exist_ok=True)
     hashes: dict[str, str] = {}
+    network_meta = tables.pop("_network", {})
     for name, rows in tables.items():
         path = out / f"{name}.csv"
         _write_csv(path, rows)
@@ -417,6 +432,8 @@ def generate(cfg: Config, out: Path) -> dict:
         "row_counts": {k: len(v) for k, v in tables.items()},
         "defect_counts": dict(sorted(counts.items())),
         "sha256": dict(sorted(hashes.items())),
+        # Planted card-network incidents: the analytics' answer key. Never loaded.
+        "network": network_meta,
     }
     (out / "manifest.json").write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n")
     return manifest

@@ -6,6 +6,7 @@ profile: trueup
 model-paths: ["models"]
 test-paths: ["tests"]
 macro-paths: ["macros"]
+seed-paths: ["seeds"]
 target-path: "../target/dbt"
 log-path: "../logs"
 clean-targets: ["../target/dbt"]
@@ -18,3 +19,16 @@ models:
     marts:
       +schema: marts
       +materialized: table
+  # Reference data shipped with the project.
+seeds:
+  trueup:
+    +schema: reference
+    response_codes:
+      +column_types: {code: varchar, label: varchar, soft: boolean}
+
+vars:
+  # Dispute monitoring thresholds (ratio in basis points). Counts are scaled to the
+  # synthetic volume; real network programmes use much larger minimum counts.
+  monitor_warning_ratio_bps: 65
+  monitor_excessive_ratio_bps: 90
+  monitor_min_disputes: 10

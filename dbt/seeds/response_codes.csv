@@ -1,0 +1,11 @@
+code,label,soft
+00,Approved,false
+05,Do not honor,true
+14,Invalid card number,false
+51,Insufficient funds,true
+54,Expired card,false
+59,Suspected fraud,false
+61,Exceeds withdrawal limit,true
+65,Exceeds frequency limit,true
+91,Issuer or switch unavailable,true
+N7,CVV2 mismatch,false

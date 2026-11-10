@@ -1,0 +1,37 @@
+version: 2
+
+models:
+  - name: stg_authorizations
+    columns:
+      - name: auth_id
+        tests: [unique, not_null]
+      - name: bin
+        tests:
+          - relationships: {to: ref('stg_card_bins'), field: bin}
+  - name: stg_clearing_records
+    columns:
+      - name: clearing_id
+        tests: [unique, not_null]
+      - name: auth_id
+        tests:
+          - unique
+          - relationships: {to: ref('stg_authorizations'), field: auth_id}
+  - name: stg_disputes
+    columns:
+      - name: dispute_id
+        tests: [unique, not_null]
+      - name: order_ref
+        tests:
+          - relationships: {to: ref('stg_clearing_records'), field: order_ref}
+  - name: stg_refunds
+    columns:
+      - name: refund_id
+        tests: [unique, not_null]
+  - name: stg_card_bins
+    columns:
+      - name: bin
+        tests: [unique, not_null]
+  - name: stg_merchant_profiles
+    columns:
+      - name: merchant_id
+        tests: [unique, not_null]

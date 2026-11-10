@@ -9,6 +9,17 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 CURRENCIES = ("USD", "EUR", "GBP", "INR")
+REGIONS = ("NA", "EU", "AP", "LA")
+NETWORKS = ("visa", "mastercard")
+PRODUCTS = ("debit", "credit_classic", "credit_premium", "commercial")
+DISPUTE_CATEGORIES = (
+    "fraud_cnp",
+    "not_received",
+    "not_as_described",
+    "credit_not_processed",
+    "duplicate",
+    "cancelled_recurring",
+)
 
 
 @dataclass(frozen=True)
@@ -126,6 +137,149 @@ CONTRACTS: dict[str, Contract] = {
             _c("usd_micro_per_unit", "BIGINT", minimum=1),
         ),
         key="rate_date",
+    ),
+    # ---- card network --------------------------------------------------------------------
+    "merchant_profiles": Contract(
+        "merchant_profiles",
+        (
+            _c("merchant_id"),
+            _c("mcc"),
+            _c("mcc_description"),
+            _c("mcc_group", allowed=("everyday", "retail", "travel", "digital", "high_risk")),
+            _c("country"),
+            _c("region", allowed=REGIONS),
+            _c("cnp_share_bps", "BIGINT", minimum=0),
+        ),
+        key="merchant_id",
+        row_rules=(("mcc must be four digits", "regexp_full_match(mcc, '[0-9]{4}')"),),
+    ),
+    "card_bins": Contract(
+        "card_bins",
+        (
+            _c("bin"),
+            _c("network", allowed=NETWORKS),
+            _c("product", allowed=PRODUCTS),
+            _c("issuer_id"),
+            _c("issuer_name"),
+            _c("issuer_country"),
+            _c("issuer_region", allowed=REGIONS),
+        ),
+        key="bin",
+        row_rules=(("bin must be six digits", "regexp_full_match(bin, '[0-9]{6}')"),),
+    ),
+    "authorizations": Contract(
+        "authorizations",
+        (
+            _c("auth_id"),
+            _c("order_ref", nullable=True),
+            _c("merchant_id"),
+            _c("card_token"),
+            _c("bin"),
+            _c("currency", allowed=CURRENCIES),
+            _c("amount_minor", "BIGINT", minimum=1),
+            _c("entry_mode", allowed=("chip", "contactless", "magstripe", "ecommerce")),
+            _c("card_present", allowed=("true", "false")),
+            _c("three_ds", allowed=("authenticated", "none", "n/a")),
+            _c("response_code"),
+            _c("approved", allowed=("true", "false")),
+            _c("requested_at", "TIMESTAMP"),
+            _c("retry_of", nullable=True),
+        ),
+        key="auth_id",
+        row_rules=(
+            (
+                "approved must agree with response code 00",
+                "(approved = 'true') = (response_code = '00')",
+            ),
+            (
+                "card-present payments cannot be e-commerce",
+                "NOT (card_present = 'true' AND entry_mode = 'ecommerce')",
+            ),
+        ),
+    ),
+    "clearing_records": Contract(
+        "clearing_records",
+        (
+            _c("clearing_id"),
+            _c("auth_id"),
+            _c("order_ref"),
+            _c("txn_id"),
+            _c("merchant_id"),
+            _c("network", allowed=NETWORKS),
+            _c("currency", allowed=CURRENCIES),
+            _c("amount_minor", "BIGINT", minimum=1),
+            _c("interchange_bps", "BIGINT", minimum=0),
+            _c("interchange_minor", "BIGINT", minimum=0),
+            _c("scheme_fee_minor", "BIGINT", minimum=0),
+            _c("qualification", allowed=("standard", "downgraded")),
+            _c("cleared_at", "TIMESTAMP"),
+        ),
+        key="clearing_id",
+        row_rules=(
+            (
+                "fees cannot exceed the amount",
+                "interchange_minor + scheme_fee_minor < amount_minor",
+            ),
+        ),
+    ),
+    "refunds": Contract(
+        "refunds",
+        (
+            _c("refund_id"),
+            _c("order_ref"),
+            _c("merchant_id"),
+            _c("currency", allowed=CURRENCIES),
+            _c("amount_minor", "BIGINT", minimum=1),
+            _c("refunded_at", "TIMESTAMP"),
+        ),
+        key="refund_id",
+        allow_empty=True,
+    ),
+    "disputes": Contract(
+        "disputes",
+        (
+            _c("dispute_id"),
+            _c("order_ref"),
+            _c("merchant_id"),
+            _c("network", allowed=NETWORKS),
+            _c("reason_category", allowed=DISPUTE_CATEGORIES),
+            _c("reason_code"),
+            _c("reason_label"),
+            _c("currency", allowed=CURRENCIES),
+            _c("amount_minor", "BIGINT", minimum=1),
+            _c("fee_minor", "BIGINT", minimum=0),
+            _c("opened_at", "TIMESTAMP"),
+            _c("response_due", "DATE"),
+            _c("responded_on", "DATE", nullable=True),
+            _c("status", allowed=("open", "closed")),
+            _c(
+                "outcome",
+                allowed=("pending", "won", "lost", "accepted", "reversed_liability_shift"),
+            ),
+        ),
+        key="dispute_id",
+        allow_empty=True,
+        row_rules=(
+            ("an open dispute must be pending", "status = 'closed' OR outcome = 'pending'"),
+            (
+                "a won or lost dispute needs a response date",
+                "outcome NOT IN ('won', 'lost') OR responded_on IS NOT NULL",
+            ),
+        ),
+    ),
+    "interchange_schedule": Contract(
+        "interchange_schedule",
+        (
+            _c("product", allowed=PRODUCTS),
+            _c("channel", allowed=("cp", "cnp")),
+            _c("base_bps", "BIGINT", minimum=0),
+            _c("fixed_minor", "BIGINT", minimum=0),
+            _c("eu_cap_bps", "BIGINT", minimum=0),
+            _c("cross_border_add_bps", "BIGINT", minimum=0),
+            _c("everyday_discount_bps", "BIGINT", minimum=0),
+            _c("effective_from", "DATE"),
+        ),
+        key="product",
     ),
 }
 

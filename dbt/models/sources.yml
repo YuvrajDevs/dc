@@ -12,3 +12,10 @@ sources:
       - name: merchants
       - name: fee_schedule
       - name: fx_rates
+      - name: merchant_profiles
+      - name: card_bins
+      - name: authorizations
+      - name: clearing_records
+      - name: refunds
+      - name: disputes
+      - name: interchange_schedule
