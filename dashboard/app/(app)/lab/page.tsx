@@ -91,7 +91,7 @@ function evidenceText(r: Result) {
         : "No detector fired: at this volume the spike is within chance variation. Raise it, or add days or volume.";
     return "No detector fired.";
   }
-  if (r.kind === "issuer_outage") return `${e.entity} · ${e.day}: ${e.unavailable} of ${e.attempts} attempts timed out`;
+  if (r.kind === "issuer_outage") return `${e.entity} · ${e.day}: ${e.unavailable} “issuer unavailable” timeouts, ${String(e.first_at).slice(11, 16)}–${String(e.last_at).slice(11, 16)} UTC`;
   if (r.kind === "card_testing") return `${e.entity} · ${String(e.hour).slice(0, 13).replace("T", " ")}:00 — ${e.attempts} attempts, ${e.approvals} approved, z = ${e.zscore}`;
   if (r.kind === "interchange_downgrade") return `${e.entity}: ${num(Number(e.over_rate_card))} of ${num(Number(e.transactions))} sales above the rate card`;
   return `${e.entity}: ${e.disputes} disputes where its category would expect ${e.expected} (p = ${e.p_value})`;
