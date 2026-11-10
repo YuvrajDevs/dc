@@ -4,6 +4,7 @@ import { Logo } from "@/components/nav";
 const REPO = "https://github.com/YuvrajDevs/dc";
 
 const TOPICS = [
+  { href: "/lab", label: "Try the lab" },
   { href: "/approvals", label: "Approvals" },
   { href: "/disputes", label: "Disputes" },
   { href: "/fees", label: "Fees" },
@@ -43,7 +44,7 @@ export default function Landing() {
         </header>
 
         <main id="main" className="rise">
-          <section className="mt-10 grid items-end gap-8 lg:grid-cols-[1.4fr_auto_1fr_1fr_1fr]">
+          <section className="mt-10 grid items-end gap-8 lg:grid-cols-[1.3fr_2fr]">
             <div>
               <p className="mb-3 inline-flex items-center gap-2 rounded-full bg-card px-3 py-1 text-[13px] text-on-panel-muted">
                 <span className="h-1.5 w-1.5 rounded-full bg-lime" /> Live demo · synthetic data, no sign-in
@@ -57,6 +58,7 @@ export default function Landing() {
                 Card approvals, disputes, interchange and reconciliation in one place, with every number graded against a known answer key.
               </p>
             </div>
+            <div className="grid grid-cols-2 items-end gap-6 sm:grid-cols-4">
             <figure className="relative h-28 w-28 shrink-0" role="img" aria-label="Error precision 99.9%">
               <svg viewBox="0 0 100 100" className="h-full w-full -rotate-90">
                 <circle cx="50" cy="50" r="42" fill="none" stroke="var(--lime-soft)" strokeWidth="10" />
@@ -71,10 +73,11 @@ export default function Landing() {
             ].map(([l, v, h]) => (
               <div key={l}>
                 <p className="text-[13px] font-medium text-on-panel-muted">{l}</p>
-                <p className="num mt-1 text-[44px] font-light leading-none text-ink sm:text-[52px]">{v}</p>
+                <p className="num mt-1 text-[40px] font-light leading-none text-ink xl:text-[52px]">{v}</p>
                 <p className="mt-1.5 text-[12.5px] text-on-panel-muted">{h}</p>
               </div>
             ))}
+            </div>
           </section>
 
           <div className="mt-9 flex flex-wrap items-center gap-2">
@@ -93,8 +96,8 @@ export default function Landing() {
             ))}
           </div>
 
-          <section className="mt-5 grid gap-4 lg:grid-cols-12">
-            <div className="rounded-[26px] bg-teal p-6 text-white lg:col-span-8">
+          <section className="mt-5 grid gap-4 md:grid-cols-12">
+            <div className="rounded-[26px] bg-teal p-6 text-white md:col-span-7 lg:col-span-8">
               <div className="mb-4 flex items-center justify-between">
                 <h2 className="text-[16px] font-semibold">What it finds on its own</h2>
                 <span className="text-[12px] text-on-dark-muted">planted in the data, found by SQL, checked by tests</span>
@@ -125,10 +128,10 @@ export default function Landing() {
               </div>
             </div>
 
-            <div className="grid gap-4 lg:col-span-4">
+            <div className="grid gap-4 md:col-span-5 lg:col-span-4">
               <div className="rounded-[26px] bg-card p-6 text-ink">
                 <p className="text-[13px] font-medium text-muted">Graded, not claimed</p>
-                <p className="num mt-2 text-[44px] font-light leading-none">0.561 → 0.999</p>
+                <p className="num mt-2 text-[34px] font-light xl:text-[44px] leading-none">0.561 → 0.999</p>
                 <p className="mt-2 text-[13px] text-muted">The first engine fell for typo&apos;d references on the hard world. The rewrite is measured on 8 seeds and floors are enforced in CI.</p>
               </div>
               <div className="rounded-[26px] bg-card p-6 text-ink">
@@ -141,7 +144,7 @@ export default function Landing() {
 
           <section id="how" className="mt-10 scroll-mt-6">
             <h2 className="text-[26px] font-semibold tracking-tight text-ink">How it works</h2>
-            <ol className="mt-4 grid gap-3 sm:grid-cols-5">
+            <ol className="mt-4 grid gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
               {STEPS.map(([t, d], i) => (
                 <li key={t} className="rounded-[20px] bg-card p-4">
                   <span className="num text-[12px] text-on-panel-muted">0{i + 1}</span>

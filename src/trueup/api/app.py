@@ -11,6 +11,7 @@ import csv
 import io
 import json
 import logging
+import threading
 import time
 from datetime import date
 from pathlib import Path
@@ -430,6 +431,26 @@ def create_app(
         return res.__dict__
 
     network_api.register(app, cur, _rows)
+
+    lab_lock = threading.Lock()
+
+    @app.post("/api/lab/run")
+    def lab_run(body: dict):
+        """Generate a fresh world with the caller's planted incidents and grade the detectors."""
+        from trueup.lab import LabSettings, run
+
+        allowed = set(LabSettings.LIMITS)
+        try:
+            settings = LabSettings(**{k: v for k, v in (body or {}).items() if k in allowed})
+            settings = settings.clamped()
+        except (TypeError, ValueError) as e:
+            raise HTTPException(422, f"Bad settings: {e}") from e
+        if not lab_lock.acquire(timeout=20):
+            raise HTTPException(429, "The lab is busy; try again in a few seconds")
+        try:
+            return run(settings)
+        finally:
+            lab_lock.release()
 
     @app.get("/api/ask/log")
     def ask_log(limit: int = Query(20, ge=1, le=100)):

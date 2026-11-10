@@ -9,6 +9,7 @@ const GROUPS = [
     title: "Card network",
     links: [
       { href: "/dashboard", label: "Dashboard" },
+      { href: "/lab", label: "Lab" },
       { href: "/approvals", label: "Approvals" },
       { href: "/disputes", label: "Disputes" },
       { href: "/fees", label: "Fees" },

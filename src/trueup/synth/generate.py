@@ -84,7 +84,7 @@ def _typo_ref(rng: random.Random, ref: str) -> tuple[str, str]:
     return "ord_" + swapped, "typo"
 
 
-def build(cfg: Config) -> dict:
+def build(cfg: Config, ncfg: network.NetworkConfig | None = None) -> dict:
     """Return all tables plus the answer key. Pure function of the config."""
     r = cfg.rates
     merchants = world.build_merchants(_rng(cfg.seed, "merchants"), cfg.merchants)
@@ -133,7 +133,7 @@ def build(cfg: Config) -> dict:
 
     # Card-network history around the clean payments (own random streams, so the
     # reconciliation tables are identical with or without it).
-    net = network.build(cfg, network.NetworkConfig(), merchants, payments, processor)
+    net = network.build(cfg, ncfg or network.NetworkConfig(), merchants, payments, processor)
 
     key = Key()
     h = cfg.hardness

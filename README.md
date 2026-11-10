@@ -31,6 +31,10 @@ Four incidents are planted and recorded in the manifest, never loaded. Tests pro
 
 The dashboard turns these into plain-language insights, and found one that was not planted: the processor loses money on two merchants whose interchange exceeds what they are charged.
 
+## The lab: try to beat the detectors
+
+`/lab` in the dashboard (`POST /api/lab/run`) lets anyone plant their own incidents: outage length, card-testing attack size, interchange downgrade share, dispute risk, history and volume, plus a seed. The API generates a fresh world from those settings in well under a second, runs the four detection rules in DuckDB, and grades each one against what was planted: found, missed, false alarm, or correctly quiet. Turn the attacks down far enough and the detectors miss, which shows where their thresholds sit.
+
 ## The idea in one paragraph
 Three records of the same money never agree: the internal **ledger**, the **payment processor**, and the **bank**. Payments are booked twice, arrive late, settle in batches, get split, carry fees and rounding differences, and lose their references. Reconciliation finds where the three disagree and why. TrueUp measures how well it does that.
 
