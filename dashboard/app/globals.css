@@ -8,14 +8,14 @@
   --page: #ffffff;
   --panel: #4a6238;
   --panel-2: #557044;
-  --card: #eef2e4; /* cream: side cards, tables */
+  --card: #dde5cc; /* cream: side cards, tables */
   --ink: #0f130d;
-  --muted: #535d49; /* on cream: 6.1:1 */
-  --line: #d9e0cc;
+  --muted: #4c5643; /* on cream: 6.2:1 */
+  --line: #c9d3b4;
   --teal: #121611; /* "dark": black cards and primary buttons */
   --teal-deep: #0b0e0a;
   --lime: #a8d67c;
-  --lime-soft: #dcebc9;
+  --lime-soft: #cfe3b4;
   --warn: #8a4a0c;
   --warn-soft: #f5e6cd;
   --bad: #ad2229;
@@ -122,7 +122,7 @@ input {
   border-radius: 14px;
 }
 .bg-card .skeleton {
-  background: linear-gradient(90deg, #e2e8d6 25%, #eef2e4 50%, #e2e8d6 75%);
+  background: linear-gradient(90deg, #d2dbbf 25%, #dde5cc 50%, #d2dbbf 75%);
   background-size: 200% 100%;
 }
 
