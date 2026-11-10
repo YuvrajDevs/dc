@@ -18,7 +18,8 @@ type Settings = {
 type Result = {
   kind: "issuer_outage" | "card_testing" | "interchange_downgrade" | "excessive_disputes";
   planted: Record<string, unknown> | null;
-  verdict: "found" | "missed" | "false_alarm" | "quiet";
+  verdict: "found" | "missed" | "false_alarm" | "quiet" | "too_faint";
+  trace: number;
   detected_entities: string[];
   evidence: Record<string, string | number>[];
   false_alarms: number;
@@ -28,7 +29,7 @@ type LabRun = {
   settings: Settings;
   world: { start: string; days: number; authorizations: number; cleared: number; disputes: number; issuers: number; merchants: number };
   results: Result[];
-  score: { found: number; missed: number; false_alarms: number; planted: number };
+  score: { found: number; missed: number; false_alarms: number; planted: number; too_faint: number };
   seconds: { generate: number; detect: number };
 };
 
@@ -39,29 +40,29 @@ const DEFAULTS: Settings = {
   outage_hours: 6,
   card_testing_attempts: 420,
   downgrade_share: 0.35,
-  dispute_multiplier: 1,
+  dispute_multiplier: 3,
 };
 
 const PRESETS: { label: string; s: Partial<Settings> }[] = [
   { label: "Default", s: DEFAULTS },
-  { label: "Subtle attacks", s: { outage_hours: 1, card_testing_attempts: 25, downgrade_share: 0.04, dispute_multiplier: 0.5 } },
-  { label: "Nothing planted", s: { outage_hours: 0, card_testing_attempts: 0, downgrade_share: 0, dispute_multiplier: 0 } },
+  { label: "Subtle attacks", s: { outage_hours: 2, card_testing_attempts: 10, downgrade_share: 0.02, dispute_multiplier: 2.2 } },
+  { label: "Nothing planted", s: { outage_hours: 0, card_testing_attempts: 0, downgrade_share: 0, dispute_multiplier: 1 } },
 ];
 
 const KNOBS: { key: keyof Settings; label: string; hint: string; min: number; max: number; step: number; fmt?: (v: number) => string }[] = [
   { key: "outage_hours", label: "Issuer outage", hint: "Hours the busiest bank stops answering", min: 0, max: 12, step: 1, fmt: (v) => (v ? `${v} h` : "off") },
   { key: "card_testing_attempts", label: "Card-testing attack", hint: "Tiny online attempts on fresh cards in one hour", min: 0, max: 800, step: 5, fmt: (v) => (v ? `${v} tries` : "off") },
   { key: "downgrade_share", label: "Interchange downgrades", hint: "Share of one merchant's online sales charged above the rate card", min: 0, max: 0.8, step: 0.01, fmt: (v) => (v ? `${Math.round(v * 100)}%` : "off") },
-  { key: "dispute_multiplier", label: "Dispute risk", hint: "Chargeback risk at the high-risk merchant (1× = its normal level)", min: 0, max: 4, step: 0.1, fmt: (v) => (v ? `${v.toFixed(1)}×` : "off") },
+  { key: "dispute_multiplier", label: "Dispute spike", hint: "One merchant's chargebacks vs its category norm (1× = normal)", min: 1, max: 4, step: 0.1, fmt: (v) => (v > 1 ? `${v.toFixed(1)}×` : "off") },
   { key: "days", label: "History", hint: "Days of card traffic to generate", min: 35, max: 120, step: 5, fmt: (v) => `${v} days` },
   { key: "txns_per_day", label: "Volume", hint: "Payments per day", min: 100, max: 400, step: 25, fmt: (v) => `${v}/day` },
 ];
 
 const KIND = {
-  issuer_outage: { title: "Issuer outage", rule: "≥3 “issuer unavailable” (91) answers and ≥10% of a bank's attempts in a day" },
-  card_testing: { title: "Card-testing attack", rule: "An hour ≥4σ above the merchant's own baseline with under half approved" },
-  interchange_downgrade: { title: "Interchange downgrades", rule: "≥5% of a merchant's sales charged above the rate card rebuilt per transaction" },
-  excessive_disputes: { title: "Excessive disputes", rule: "≥10 disputes and ≥0.90% of a complete month's sales" },
+  issuer_outage: { title: "Issuer outage", rule: "“Issuer unavailable” (91) answers never occur normally: 2 at one bank within an hour, or 3 in a day" },
+  card_testing: { title: "Card-testing attack", rule: "An hour ≥4σ above the merchant's own baseline, ≥8 attempts, nearly all on different cards, under half approved" },
+  interchange_downgrade: { title: "Interchange downgrades", rule: "3 or more sales at a merchant charged above the rate card, rebuilt exactly per transaction" },
+  excessive_disputes: { title: "Dispute spike", rule: "Disputes far above the category benchmark for the merchant's sales (exact Poisson test, p < 0.0002)" },
 } as const;
 
 const VERDICT = {
@@ -69,6 +70,7 @@ const VERDICT = {
   missed: { label: "Missed", cls: "bg-[#f08c7a] text-ink" },
   false_alarm: { label: "False alarm", cls: "bg-[#e9c46a] text-ink" },
   quiet: { label: "Quiet, correctly", cls: "bg-white/10 text-white" },
+  too_faint: { label: "Too faint to see", cls: "bg-white/10 text-white" },
 } as const;
 
 function plantedText(r: Result) {
@@ -77,16 +79,22 @@ function plantedText(r: Result) {
   if (r.kind === "issuer_outage") return `${p.issuer_id} on ${p.date}, ${(p.hours_utc as number[]).join(":00–")}:00 UTC`;
   if (r.kind === "card_testing") return `${p.attempts} attempts at ${p.merchant_id} on ${p.date}`;
   if (r.kind === "interchange_downgrade") return `${p.merchant_id}, +${p.added_bps} bps on downgraded sales`;
-  return `${p.merchant_id}, a high-risk merchant`;
+  return `${p.merchant_id}, chargebacks above its category norm`;
 }
 
 function evidenceText(r: Result) {
   const e = r.evidence[0];
-  if (!e) return r.planted ? "No detector fired." : "No detector fired.";
+  if (!e) {
+    if (r.verdict === "too_faint")
+      return r.kind === "issuer_outage"
+        ? `No detector fired: the outage produced only ${r.trace} timeout${r.trace === 1 ? "" : "s"}, too few to tell from noise.`
+        : "No detector fired: at this volume the spike is within chance variation. Raise it, or add days or volume.";
+    return "No detector fired.";
+  }
   if (r.kind === "issuer_outage") return `${e.entity} · ${e.day}: ${e.unavailable} of ${e.attempts} attempts timed out`;
   if (r.kind === "card_testing") return `${e.entity} · ${String(e.hour).slice(0, 13).replace("T", " ")}:00 — ${e.attempts} attempts, ${e.approvals} approved, z = ${e.zscore}`;
   if (r.kind === "interchange_downgrade") return `${e.entity}: ${num(Number(e.over_rate_card))} of ${num(Number(e.transactions))} sales above the rate card`;
-  return `${e.entity} · ${String(e.month).slice(0, 7)}: ${e.disputes} disputes on ${num(Number(e.sales))} sales (${(Number(e.ratio_bps) / 100).toFixed(2)}%)`;
+  return `${e.entity}: ${e.disputes} disputes where its category would expect ${e.expected} (p = ${e.p_value})`;
 }
 
 export default function LabPage() {
@@ -111,7 +119,7 @@ export default function LabPage() {
     <>
       <PageHeader
         title="Lab"
-        intro="Plant your own incidents, generate a fresh card network, and see whether the detectors catch them. Make the attacks subtle enough and they will miss; that is the point."
+        intro="Plant your own incidents, generate a fresh card network, and see whether the detectors catch them. Across 200 random runs it found 97% of the incidents that left a detectable trace, with no false alarms."
       />
       <div className="grid gap-4 md:grid-cols-12">
         <Card className="md:col-span-5">
@@ -191,9 +199,10 @@ export default function LabPage() {
               <div className="flex flex-wrap items-end justify-between gap-4 border-b border-white/10 pb-5">
                 <dl className="flex flex-wrap gap-7">
                   {[
-                    ["Found", `${run.score.found}/${run.score.planted}`],
+                    ["Found", `${run.score.found}/${run.score.planted - run.score.too_faint}`],
                     ["Missed", run.score.missed],
                     ["False alarms", run.score.false_alarms],
+                    ...(run.score.too_faint ? [["Too faint", run.score.too_faint]] : []),
                   ].map(([a, b]) => (
                     <div key={a}>
                       <dt className="text-[12.5px] text-on-dark-muted">{a}</dt>

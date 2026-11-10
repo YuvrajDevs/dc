@@ -10,6 +10,7 @@ then graded against what was planted: found, missed, or a false alarm.
 from __future__ import annotations
 
 import csv
+import math
 import tempfile
 import time
 from dataclasses import dataclass, replace
@@ -31,7 +32,7 @@ class LabSettings:
     outage_hours: int = 6  # 0 = no outage
     card_testing_attempts: int = 420  # 0 = no attack
     downgrade_share: float = 0.35  # 0 = no downgrades
-    dispute_multiplier: float = 1.0  # dispute risk at the high-risk merchant; 0 = off
+    dispute_multiplier: float = 3.0  # one merchant's disputes vs its category norm; 1 = off
 
     LIMITS = {
         "seed": (1, 99999),
@@ -40,7 +41,7 @@ class LabSettings:
         "outage_hours": (0, 12),
         "card_testing_attempts": (0, 800),
         "downgrade_share": (0.0, 0.8),
-        "dispute_multiplier": (0.0, 4.0),
+        "dispute_multiplier": (1.0, 4.0),
     }
 
     def clamped(self) -> LabSettings:
@@ -49,6 +50,24 @@ class LabSettings:
             v = getattr(self, k)
             vals[k] = type(lo)(min(max(v, lo), hi))
         return replace(self, **vals)
+
+
+# Category dispute benchmarks per sale, card-present and online, by MCC.
+_NC = network.NetworkConfig()
+BENCHMARK = {
+    (mcc, ch): (_NC.dispute_base_cnp if ch == "cnp" else _NC.dispute_base_cp) * risk
+    for mcc, _d, _g, _c, risk in network.MCCS
+    for ch in ("cp", "cnp")
+}
+
+
+def _poisson_sf(k: int, mu: float) -> float:
+    """P(X >= k) for X ~ Poisson(mu)."""
+    term = cdf = math.exp(-mu)
+    for i in range(1, k):
+        term *= mu / i
+        cdf += term
+    return max(0.0, 1.0 - cdf)
 
 
 def _write(rows: list[dict], path: Path) -> None:
@@ -60,18 +79,28 @@ def _write(rows: list[dict], path: Path) -> None:
 
 
 DETECT = {
-    # Issuer health: "issuer unavailable" (91) answers normally never happen.
+    # Issuer health: "issuer unavailable" (91) answers never happen in normal traffic, so a
+    # cluster of them at one issuer is the signal: two inside an hour, or three in a day.
     "issuer_outage": """
-        SELECT b.issuer_id AS entity, a.requested_at::date AS day,
-               count(*) FILTER (WHERE response_code = '91') AS unavailable, count(*) AS attempts,
-               min(requested_at) FILTER (WHERE response_code = '91') AS first_at,
-               max(requested_at) FILTER (WHERE response_code = '91') AS last_at
-        FROM auth a JOIN bins b USING (bin)
+        WITH t AS (
+          SELECT b.issuer_id, a.requested_at
+          FROM auth a JOIN bins b USING (bin) WHERE a.response_code = '91'),
+        hourly AS (
+          SELECT issuer_id, requested_at::date AS day, max(n) AS peak_hour
+          FROM (SELECT issuer_id, requested_at,
+                       count(*) OVER (PARTITION BY issuer_id ORDER BY requested_at
+                                      RANGE BETWEEN INTERVAL 1 HOUR PRECEDING AND CURRENT ROW) n
+                FROM t)
+          GROUP BY ALL)
+        SELECT t.issuer_id AS entity, t.requested_at::date AS day, count(*) AS unavailable,
+               any_value(h.peak_hour) AS peak_hour,
+               min(t.requested_at) AS first_at, max(t.requested_at) AS last_at
+        FROM t JOIN hourly h ON h.issuer_id = t.issuer_id AND h.day = t.requested_at::date
         GROUP BY ALL
-        HAVING count(*) FILTER (WHERE response_code = '91') >= 3
-           AND 10 * count(*) FILTER (WHERE response_code = '91') >= count(*)
+        HAVING count(*) >= 3 OR any_value(h.peak_hour) >= 2
         ORDER BY unavailable DESC""",
-    # Card testing: an hour far above the merchant's own baseline with collapsing approvals.
+    # Card testing: an hour far above the merchant's own baseline, nearly every attempt on a
+    # different card, with collapsing approvals.
     "card_testing": """
         WITH h AS (
           SELECT merchant_id, date_trunc('hour', requested_at) AS hour, count(*) AS attempts,
@@ -83,31 +112,35 @@ DETECT = {
                median_amount, round((attempts - m) / nullif(sd, 0), 1) AS zscore
         FROM h JOIN b USING (merchant_id)
         WHERE (attempts - m) / nullif(sd, 0) >= 4 AND approvals * 2 < attempts
+          AND attempts >= 8 AND 10 * cards >= 9 * attempts
         ORDER BY zscore DESC""",
-    # Interchange: the charged rate against the rate card rebuilt for each transaction.
+    # Interchange: the rate card is rebuilt exactly for each transaction, so any charge above
+    # it is an overcharge. Three or more at one merchant is a pattern, not a one-off.
     "interchange_downgrade": """
         SELECT merchant_id AS entity, count(*) AS transactions,
                count(*) FILTER (WHERE interchange_bps > expected_bps) AS over_rate_card,
                sum(greatest(interchange_minor - expected_minor, 0)) AS overpaid_minor,
                any_value(currency) AS currency
         FROM clearing GROUP BY 1
-        HAVING 20 * count(*) FILTER (WHERE interchange_bps > expected_bps) >= count(*)
+        HAVING count(*) FILTER (WHERE interchange_bps > expected_bps) >= 3
         ORDER BY over_rate_card DESC""",
-    # Dispute monitoring: complete months only, programme thresholds.
+    # Disputes, early warning: each sale carries its category's benchmark dispute rate (card-
+    # present or online, by MCC, as networks publish industry benchmarks). A merchant whose
+    # disputes far exceed the sum of those expectations (a z >= 3.5 shortlist, then an exact
+    # Poisson tail p < 0.0002, at least 6 disputes) is flagged before it reaches the
+    # monitoring programme's threshold.
     "excessive_disputes": """
-        WITH s AS (
-          SELECT merchant_id, date_trunc('month', cleared_at)::date AS month, count(*) AS sales,
-                 count(DISTINCT cleared_at::date) AS days FROM clearing GROUP BY ALL),
-        full_months AS (SELECT month FROM s GROUP BY month
-                        HAVING max(days) >= date_part('day', last_day(month)) - 1),
-        d AS (SELECT merchant_id, date_trunc('month', opened_at)::date AS month,
-                     count(*) AS disputes
-              FROM disputes GROUP BY ALL)
-        SELECT s.merchant_id AS entity, s.month, s.sales, coalesce(d.disputes, 0) AS disputes,
-               round(10000.0 * coalesce(d.disputes, 0) / s.sales)::int AS ratio_bps
-        FROM s JOIN full_months USING (month) LEFT JOIN d USING (merchant_id, month)
-        WHERE coalesce(d.disputes, 0) >= 10 AND 10000.0 * coalesce(d.disputes, 0) / s.sales >= 90
-        ORDER BY ratio_bps DESC""",
+        WITH s AS (SELECT merchant_id, count(*) AS sales, sum(expected_dispute) AS expected
+                   FROM clearing GROUP BY 1),
+        d AS (SELECT merchant_id, count(*) AS disputes FROM disputes GROUP BY 1)
+        SELECT s.merchant_id AS entity, sales, coalesce(disputes, 0) AS disputes,
+               round(expected, 1) AS expected,
+               round(10000.0 * coalesce(disputes, 0) / sales)::int AS ratio_bps,
+               round((coalesce(disputes, 0) - expected) / sqrt(expected), 1) AS zscore
+        FROM s LEFT JOIN d USING (merchant_id)
+        WHERE coalesce(disputes, 0) >= 6
+          AND (coalesce(disputes, 0) - expected) / sqrt(expected) >= 3.5
+        ORDER BY zscore DESC""",
 }
 
 
@@ -129,7 +162,7 @@ def run(settings: LabSettings) -> dict:
         "issuer_outage": s.outage_hours > 0,
         "card_testing": s.card_testing_attempts > 0,
         "interchange_downgrade": s.downgrade_share > 0,
-        "excessive_disputes": s.dispute_multiplier > 0,
+        "excessive_disputes": s.dispute_multiplier > 1,
     }
     planted = {i["kind"]: i for i in planted_all if active[i["kind"]]}
 
@@ -150,7 +183,10 @@ def run(settings: LabSettings) -> dict:
             b["issuer_region"],
             p["mcc_group"],
         )
-        clearing.append({**c, "expected_bps": bps, "expected_minor": fee})
+        benchmark = BENCHMARK[(p["mcc"], channel)]
+        clearing.append(
+            {**c, "expected_bps": bps, "expected_minor": fee, "expected_dispute": benchmark}
+        )
 
     t1 = time.perf_counter()
     found: dict[str, list[dict]] = {}
@@ -179,7 +215,43 @@ def run(settings: LabSettings) -> dict:
                 for r in cur.fetchall()
             ]
         con.close()
+    # Exact Poisson tail for the dispute screen: the z-score shortlist is loose on small
+    # samples, so keep only merchants whose dispute count chance alone explains < 1 in 5,000.
+    found["excessive_disputes"] = [
+        {**h, "p_value": float(f"{_poisson_sf(h['disputes'], h['expected']):.2g}")}
+        for h in found["excessive_disputes"]
+        if _poisson_sf(h["disputes"], h["expected"]) < 2e-4
+    ]
     detect_s = time.perf_counter() - t1
+
+    # How much of each planted incident actually reached the data. An outage at a quiet hour
+    # can produce no timeouts at all; there is nothing for any detector to see.
+    issuer_of = {b["bin"]: b["issuer_id"] for b in world["card_bins"]}
+    target_m = planted.get("excessive_disputes", {}).get("merchant_id")
+    norm_disputes = sum(c["expected_dispute"] for c in clearing if c["merchant_id"] == target_m)
+    trace = {
+        "issuer_outage": sum(
+            1
+            for a in world["authorizations"]
+            if a["response_code"] == "91"
+            and issuer_of[a["bin"]] == planted.get("issuer_outage", {}).get("issuer_id")
+        ),
+        "card_testing": s.card_testing_attempts,
+        "interchange_downgrade": sum(
+            1 for c in world["clearing_records"] if c["qualification"] == "downgraded"
+        ),
+        # Expected signal strength: the planted excess over the merchant's category norm, in
+        # standard deviations of chance variation at this volume.
+        "excessive_disputes": round(
+            (s.dispute_multiplier - 1) * math.sqrt(max(norm_disputes, 1e-9)), 1
+        ),
+    }
+    faint = {
+        "issuer_outage": trace["issuer_outage"] < 2,
+        "card_testing": trace["card_testing"] < 8,
+        "interchange_downgrade": trace["interchange_downgrade"] < 3,
+        "excessive_disputes": trace["excessive_disputes"] < 5,
+    }
 
     results = []
     for kind in DETECT:
@@ -191,7 +263,10 @@ def run(settings: LabSettings) -> dict:
         if kind in ("issuer_outage", "card_testing") and p:
             correct = [h for h in correct if h["day"] == p["date"]]
         false_alarms = [h for h in hits if h not in correct]
-        verdict = ("found" if correct else "missed") if p else ("false_alarm" if hits else "quiet")
+        if p:
+            verdict = "found" if correct else ("too_faint" if faint[kind] else "missed")
+        else:
+            verdict = "false_alarm" if hits else "quiet"
         results.append(
             {
                 "kind": kind,
@@ -200,12 +275,14 @@ def run(settings: LabSettings) -> dict:
                 "detected_entities": entities,
                 "evidence": (correct or hits)[:3],
                 "false_alarms": len(false_alarms),
+                "trace": trace[kind] if p else 0,
             }
         )
 
     tp = sum(r["verdict"] == "found" for r in results)
     fn = sum(r["verdict"] == "missed" for r in results)
     fp = sum(r["false_alarms"] for r in results)
+    faint_n = sum(r["verdict"] == "too_faint" for r in results)
     return {
         "settings": {k: getattr(s, k) for k in LabSettings.LIMITS},
         "world": {
@@ -218,6 +295,12 @@ def run(settings: LabSettings) -> dict:
             "merchants": len(prof),
         },
         "results": results,
-        "score": {"found": tp, "missed": fn, "false_alarms": fp, "planted": len(planted)},
+        "score": {
+            "found": tp,
+            "missed": fn,
+            "false_alarms": fp,
+            "planted": len(planted),
+            "too_faint": faint_n,
+        },
         "seconds": {"generate": round(gen_s, 2), "detect": round(detect_s, 2)},
     }

@@ -78,8 +78,8 @@ export default function DashboardPage() {
             { value: "fees", label: "Fees" },
           ]}
         />
-        <Link href="/ask" className="rounded-full bg-lime px-4 py-2 text-[14px] font-semibold text-ink hover:brightness-95">
-          Ask a question in plain English →
+        <Link href="/lab" className="rounded-full bg-lime px-4 py-2 text-[14px] font-semibold text-ink hover:brightness-95">
+          Plant an attack in the lab →
         </Link>
       </div>
 

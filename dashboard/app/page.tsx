@@ -4,27 +4,26 @@ import { Logo } from "@/components/nav";
 const REPO = "https://github.com/YuvrajDevs/dc";
 
 const TOPICS = [
-  { href: "/lab", label: "Try the lab" },
+  { href: "/lab", label: "Lab" },
   { href: "/approvals", label: "Approvals" },
   { href: "/disputes", label: "Disputes" },
   { href: "/fees", label: "Fees" },
   { href: "/exceptions", label: "Reconciliation" },
   { href: "/scorecard", label: "Scorecard" },
-  { href: "/ask", label: "Ask in English" },
 ];
 
 const FINDS = [
-  { dot: "bg-[#f08c7a]", title: "An issuer stops answering", body: "Timeouts spike for one bank for a few hours and its approval rate falls; the dashboard names the bank and the window." },
-  { dot: "bg-[#f08c7a]", title: "A card-testing attack", body: "Hundreds of tiny online attempts on fresh cards in one hour, scored against the merchant's own baseline." },
-  { dot: "bg-[#e9c46a]", title: "A merchant over the dispute threshold", body: "Monthly chargeback ratio against monitoring thresholds, with reason codes, win rates and response deadlines." },
-  { dot: "bg-lime", title: "Interchange above the rate card", body: "The rate card is rebuilt in SQL, so every downgraded transaction and overpaid dollar is traceable." },
+  { dot: "bg-[#f08c7a]", title: "A card-testing attack", body: "A burst of tiny online attempts on fresh cards, scored against the merchant's own hourly baseline." },
+  { dot: "bg-[#f08c7a]", title: "An issuer stops answering", body: "A cluster of “issuer unavailable” timeouts at one bank; the dashboard names the bank and the window." },
+  { dot: "bg-[#e9c46a]", title: "A merchant's disputes spike", body: "Chargebacks far above the category benchmark, flagged before the network's monitoring threshold." },
+  { dot: "bg-lime", title: "Interchange above the rate card", body: "The rate card is rebuilt per transaction in SQL, so every overcharged dollar is traceable." },
 ];
 
 const STEPS = [
-  ["Generate", "Messy card and payment data with a hidden answer key"],
+  ["Generate", "Card and payment data with a hidden answer key"],
   ["Gate", "Schema contracts and quality checks; bad rows quarantined"],
   ["Model", "dbt staging, facts and analytics marts on DuckDB"],
-  ["Reconcile", "Ledger, processor and bank matched in five tiers"],
+  ["Detect", "Fraud, outage, dispute and fee rules in SQL"],
   ["Grade", "Every finding scored against the answer key in CI"],
 ];
 
@@ -44,100 +43,89 @@ export default function Landing() {
         </header>
 
         <main id="main" className="rise">
-          <section className="mt-10 grid items-end gap-8 lg:grid-cols-[1.3fr_2fr]">
-            <div>
-              <p className="mb-3 inline-flex items-center gap-2 rounded-full bg-card px-3 py-1 text-[13px] text-on-panel-muted">
-                <span className="h-1.5 w-1.5 rounded-full bg-lime" /> Live demo · synthetic data, no sign-in
+          <section className="mt-10 grid items-stretch gap-6 md:grid-cols-12">
+            <div className="flex flex-col justify-end md:col-span-7">
+              <p className="mb-3 inline-flex w-fit items-center gap-2 rounded-full bg-card px-3 py-1 text-[13px] text-on-panel-muted">
+                <span className="h-1.5 w-1.5 rounded-full bg-lime" /> For payment operations and risk analysts
               </p>
-              <h1 className="text-[44px] font-semibold leading-[1.0] tracking-tight text-ink sm:text-[60px]">
-                Payments,
-                <br />
-                explained.
+              <h1 className="text-[40px] font-semibold leading-[1.02] tracking-tight text-ink sm:text-[56px]">
+                Find where card payments leak money, and prove the detector is right.
               </h1>
-              <p className="mt-3 max-w-md text-[15px] text-on-panel-muted">
-                Card approvals, disputes, interchange and reconciliation in one place, with every number graded against a known answer key.
+              <p className="mt-4 max-w-xl text-[15px] text-on-panel-muted">
+                Card-testing fraud, issuer outages, dispute spikes and interchange overcharges, found by SQL over approvals, clearing, disputes and
+                reconciliation, with every finding graded against a known answer key.
               </p>
             </div>
-            <div className="grid grid-cols-2 items-end gap-6 sm:grid-cols-4">
-            <figure className="relative h-28 w-28 shrink-0" role="img" aria-label="Error precision 99.9%">
-              <svg viewBox="0 0 100 100" className="h-full w-full -rotate-90">
-                <circle cx="50" cy="50" r="42" fill="none" stroke="var(--lime-soft)" strokeWidth="10" />
-                <circle cx="50" cy="50" r="42" fill="none" stroke="var(--teal)" strokeWidth="10" strokeLinecap="round" strokeDasharray={`${2 * Math.PI * 42 * 0.999} 999`} />
-              </svg>
-              <span className="num absolute inset-0 grid place-items-center text-[17px] font-semibold text-ink">99.9%</span>
-            </figure>
-            {[
-              ["Error precision", "0.999", "graded vs answer key"],
-              ["Error recall", "0.994", "on the hard world"],
-              ["1M ledger rows", "~7", "seconds to reconcile"],
-            ].map(([l, v, h]) => (
-              <div key={l}>
-                <p className="text-[13px] font-medium text-on-panel-muted">{l}</p>
-                <p className="num mt-1 text-[40px] font-light leading-none text-ink xl:text-[52px]">{v}</p>
-                <p className="mt-1.5 text-[12.5px] text-on-panel-muted">{h}</p>
+
+            <div className="flex flex-col justify-between rounded-[26px] bg-teal p-6 text-white md:col-span-5">
+              <div>
+                <p className="text-[13px] font-medium text-on-dark-muted">Try it: the lab</p>
+                <p className="mt-2 text-[26px] font-semibold leading-tight">Plant a fraud attack. See if it gets caught.</p>
+                <p className="mt-2 text-[13.5px] text-on-dark-muted">
+                  Set the attack size, outage length, dispute spike and fee overcharge. A fresh card network is generated and four detectors are graded
+                  on it in seconds.
+                </p>
               </div>
-            ))}
+              <dl className="mt-6 grid grid-cols-3 gap-4 border-t border-white/10 pt-5">
+                {[
+                  ["97%", "detectable incidents found"],
+                  ["0", "false alarms in 200 runs"],
+                  ["100%", "card-testing attacks caught"],
+                ].map(([v, l]) => (
+                  <div key={l} className="flex flex-col-reverse">
+                    <dt className="mt-1 text-[12px] leading-snug text-on-dark-muted">{l}</dt>
+                    <dd className="num text-[30px] font-light leading-none">{v}</dd>
+                  </div>
+                ))}
+              </dl>
+              <Link href="/lab" className="mt-6 inline-flex w-fit items-center gap-2 rounded-full bg-lime px-5 py-2.5 text-[14px] font-semibold text-ink hover:brightness-95">
+                Open the lab <span aria-hidden>→</span>
+              </Link>
             </div>
           </section>
 
-          <div className="mt-9 flex flex-wrap items-center gap-2">
-            {TOPICS.map((t, i) => (
-              <Link
-                key={t.href}
-                href={t.href}
-                className={
-                  i === 0
-                    ? "rounded-full bg-teal px-5 py-2.5 text-[15px] font-medium text-white"
-                    : "rounded-full px-5 py-2.5 text-[15px] font-medium text-ink ring-1 ring-ink/20 hover:bg-ink/5"
-                }
-              >
+          <div className="mt-8 flex flex-wrap items-center gap-2">
+            {TOPICS.map((t) => (
+              <Link key={t.href} href={t.href} className="rounded-full px-5 py-2.5 text-[15px] font-medium text-ink ring-1 ring-ink/20 hover:bg-ink/5">
                 {t.label}
               </Link>
             ))}
           </div>
 
           <section className="mt-5 grid gap-4 md:grid-cols-12">
-            <div className="rounded-[26px] bg-teal p-6 text-white md:col-span-7 lg:col-span-8">
-              <div className="mb-4 flex items-center justify-between">
-                <h2 className="text-[16px] font-semibold">What it finds on its own</h2>
-                <span className="text-[12px] text-on-dark-muted">planted in the data, found by SQL, checked by tests</span>
+            <div className="rounded-[26px] bg-card p-6 text-ink md:col-span-7 lg:col-span-8">
+              <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+                <h2 className="text-[16px] font-semibold">What it catches</h2>
+                <span className="text-[12px] text-muted">rules in SQL, checked by tests</span>
               </div>
-              <ul className="divide-y divide-white/10">
+              <ul className="divide-y divide-line">
                 {FINDS.map((f) => (
                   <li key={f.title} className="flex gap-3 py-3">
                     <span className={`mt-1.5 h-2.5 w-2.5 shrink-0 rounded-full ${f.dot}`} aria-hidden />
                     <span>
                       <span className="block text-[15px] font-semibold">{f.title}</span>
-                      <span className="block text-[13.5px] leading-snug text-on-dark-muted">{f.body}</span>
+                      <span className="block text-[13.5px] leading-snug text-muted">{f.body}</span>
                     </span>
                   </li>
                 ))}
               </ul>
-              <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-white/10 pt-5">
-                <dl className="flex flex-wrap gap-8">
-                  {[["Authorizations", "54k"], ["Disputes", "200+"], ["Issuers", "20"], ["Tests", "216"]].map(([a, b]) => (
-                    <div key={a}>
-                      <dt className="text-[12.5px] text-on-dark-muted">{a}</dt>
-                      <dd className="num text-[30px] font-light leading-none">{b}</dd>
-                    </div>
-                  ))}
-                </dl>
-                <Link href="/dashboard" className="grid h-12 w-12 place-items-center rounded-full bg-lime text-[20px] text-ink hover:brightness-95" aria-label="Open the dashboard">
-                  →
-                </Link>
-              </div>
             </div>
 
             <div className="grid gap-4 md:col-span-5 lg:col-span-4">
               <div className="rounded-[26px] bg-card p-6 text-ink">
-                <p className="text-[13px] font-medium text-muted">Graded, not claimed</p>
-                <p className="num mt-2 text-[34px] font-light xl:text-[44px] leading-none">0.561 → 0.999</p>
-                <p className="mt-2 text-[13px] text-muted">The first engine fell for typo&apos;d references on the hard world. The rewrite is measured on 8 seeds and floors are enforced in CI.</p>
+                <p className="text-[13px] font-medium text-muted">Reconciliation, graded</p>
+                <p className="num mt-2 text-[34px] font-light leading-none xl:text-[44px]">0.561 → 0.999</p>
+                <p className="mt-2 text-[13px] text-muted">
+                  Error precision of the ledger, processor and bank matcher. The first engine fell for typo&apos;d references; the rewrite holds 0.999
+                  precision and 0.994 recall on 8 seeds, and 1M rows reconcile in about 7 seconds.
+                </p>
               </div>
               <div className="rounded-[26px] bg-card p-6 text-ink">
-                <p className="text-[13px] font-medium text-muted">Plain-English questions</p>
-                <p className="mt-2 text-[22px] font-semibold leading-tight">&ldquo;Approval rate by issuer last week&rdquo;</p>
-                <p className="mt-2 text-[13px] text-muted">Becomes validated, read-only SQL: 45 of 45 evaluation questions answered, 68 of 68 unsafe requests refused.</p>
+                <p className="text-[13px] font-medium text-muted">Why synthetic data</p>
+                <p className="mt-2 text-[15px] font-semibold leading-snug">
+                  Real card data is private, and with real data nobody knows the right answer. Generated data with a hidden answer key is the only way to
+                  measure a detector honestly.
+                </p>
               </div>
             </div>
           </section>
@@ -154,14 +142,14 @@ export default function Landing() {
               ))}
             </ol>
             <p className="mt-4 text-[13px] text-on-panel-muted">
-              Python · DuckDB · dbt · FastAPI · Airflow · Next.js. All data is synthetic; codes follow ISO 8583, Visa and Mastercard conventions.
+              Python · SQL · DuckDB · dbt · FastAPI · Airflow · Next.js. Codes follow ISO 8583, Visa and Mastercard conventions.
             </p>
           </section>
         </main>
       </div>
       <footer className="flex flex-wrap items-center justify-between gap-2 px-4 py-5 text-[12.5px] text-muted">
         <span>TrueUp · a portfolio project by Yuvraj Singh Shekhawat</span>
-        <Link href="/dashboard" className="font-semibold text-ink hover:underline">Open the dashboard →</Link>
+        <Link href="/lab" className="font-semibold text-ink hover:underline">Open the lab →</Link>
       </footer>
     </div>
   );

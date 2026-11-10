@@ -8,8 +8,8 @@ const GROUPS = [
   {
     title: "Card network",
     links: [
-      { href: "/dashboard", label: "Dashboard" },
       { href: "/lab", label: "Lab" },
+      { href: "/dashboard", label: "Dashboard" },
       { href: "/approvals", label: "Approvals" },
       { href: "/disputes", label: "Disputes" },
       { href: "/fees", label: "Fees" },
@@ -19,15 +19,12 @@ const GROUPS = [
     title: "Reconciliation",
     links: [
       { href: "/exceptions", label: "Exceptions" },
-      { href: "/payouts", label: "Payouts" },
     ],
   },
   {
     title: "Quality",
     links: [
       { href: "/scorecard", label: "Scorecard" },
-      { href: "/runs", label: "Runs" },
-      { href: "/ask", label: "Ask" },
     ],
   },
 ];

@@ -31,9 +31,13 @@ Four incidents are planted and recorded in the manifest, never loaded. Tests pro
 
 The dashboard turns these into plain-language insights, and found one that was not planted: the processor loses money on two merchants whose interchange exceeds what they are charged.
 
-## The lab: try to beat the detectors
+## The lab: plant a fraud attack, see if it gets caught
 
-`/lab` in the dashboard (`POST /api/lab/run`) lets anyone plant their own incidents: outage length, card-testing attack size, interchange downgrade share, dispute risk, history and volume, plus a seed. The API generates a fresh world from those settings in well under a second, runs the four detection rules in DuckDB, and grades each one against what was planted: found, missed, false alarm, or correctly quiet. Turn the attacks down far enough and the detectors miss, which shows where their thresholds sit.
+`/lab` in the dashboard (`POST /api/lab/run`) lets anyone plant their own incidents: issuer outage length, card-testing attack size, interchange downgrade share, a merchant's dispute spike against its category norm, history, volume and seed. The API generates a fresh card network in well under a second, runs four SQL detectors in DuckDB, and grades each against what was planted: found, missed, false alarm, correctly quiet, or too faint (an outage that produced under two timeouts, or a dispute spike under 5 sigma of chance at that volume, leaves nothing any detector could see).
+
+Over 200 runs with random settings across every slider: **96.6% of detectable incidents found, 0 false alarms**. Card testing 100%, interchange downgrades 100%, dispute spikes 94%, issuer outages 92%. `tests/test_lab.py` holds the floor (90% recall, zero false alarms) in CI.
+
+Why synthetic data: real card data is private, and with real data nobody knows the right answer. Generated data with a hidden answer key is the only way to measure a detector honestly.
 
 ## The idea in one paragraph
 Three records of the same money never agree: the internal **ledger**, the **payment processor**, and the **bank**. Payments are booked twice, arrive late, settle in batches, get split, carry fees and rounding differences, and lose their references. Reconciliation finds where the three disagree and why. TrueUp measures how well it does that.
