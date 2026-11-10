@@ -2,7 +2,7 @@ from dataclasses import fields
 
 import pytest
 
-from tally.synth.config import Config, Rates
+from trueup.synth.config import Config, Rates
 
 
 def zero_rates() -> Rates:

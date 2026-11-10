@@ -12,7 +12,7 @@ trap 'for f in "$TMP"/*.pid; do kill -- -"$(cat "$f")" 2>/dev/null || true; done
 DB=${DB:-data/ui/serve.duckdb}
 [ -f "$DB" ] || { echo "No demo database at $DB. Run: make demo-ui"; exit 2; }
 cp "$DB" "$TMP/serve.duckdb"; [ -f "$DB.wal" ] && cp "$DB.wal" "$TMP/serve.duckdb.wal" || true
-setsid $PY -m tally serve --db "$TMP/serve.duckdb" --port 8000 >"$TMP/api.log" 2>&1 & echo $! >"$TMP/api.pid"
+setsid $PY -m trueup serve --db "$TMP/serve.duckdb" --port 8000 >"$TMP/api.log" 2>&1 & echo $! >"$TMP/api.pid"
 (cd dashboard && [ -d .next ] || npm run build >/dev/null; setsid npx next start -p 3000 >"$TMP/web.log" 2>&1 & echo $! >"$TMP/web.pid")
 for i in $(seq 1 60); do curl -sf localhost:8000/api/health >/dev/null && curl -sf localhost:3000 >/dev/null && break; sleep 1; done
 node dashboard/e2e/uat.mjs

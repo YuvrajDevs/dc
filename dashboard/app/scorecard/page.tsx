@@ -11,7 +11,7 @@ export default function ScorecardPage() {
   if (loading || !data) return <><PageHeader title="Scorecard" /><CardSkeleton lines={6} /></>;
 
   const key = Object.keys(data.profiles)[0];
-  if (!key) return <><PageHeader title="Scorecard" /><Card><EmptyState title="No scorecard saved yet" hint="Run python -m tally grade ... --json benchmarks/scorecard-hard-seed42.json" /></Card></>;
+  if (!key) return <><PageHeader title="Scorecard" /><Card><EmptyState title="No scorecard saved yet" hint="Run python -m trueup grade ... --json benchmarks/scorecard-hard-seed42.json" /></Card></>;
   const cur = data.profiles[key];
   const s = cur.summary;
   const base = data.baseline?.summary;

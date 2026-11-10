@@ -6,13 +6,13 @@ from datetime import timedelta
 import pytest
 from fastapi.testclient import TestClient
 
-from tally.api import create_app
-from tally.pipeline import load_world
-from tally.recon import ReconConfig, reconcile
-from tally.recon import queue as xq
-from tally.synth.config import HARD, Config
-from tally.synth.generate import generate
-from tally.warehouse import Warehouse
+from trueup.api import create_app
+from trueup.pipeline import load_world
+from trueup.recon import ReconConfig, reconcile
+from trueup.recon import queue as xq
+from trueup.synth.config import HARD, Config
+from trueup.synth.generate import generate
+from trueup.warehouse import Warehouse
 
 
 @pytest.fixture(scope="module")

@@ -5,10 +5,10 @@ from pathlib import Path
 
 import pytest
 
-from tally.grade import check_floors, grade, load_key, load_links
-from tally.synth.config import Config
-from tally.synth.generate import generate
-from tally.warehouse import Warehouse
+from trueup.grade import check_floors, grade, load_key, load_links
+from trueup.synth.config import Config
+from trueup.synth.generate import generate
+from trueup.warehouse import Warehouse
 
 FLOORS = {
     "min_support": 10, "micro_precision_min": 0.99, "micro_recall_min": 0.99,
@@ -98,7 +98,7 @@ def test_alarming_on_a_benign_record_counts_as_a_false_alarm(tmp_path, world):
 
 def test_a_correct_error_on_a_record_with_a_benign_quirk_is_not_a_false_alarm(tmp_path):
     """Compound defects: the error is real, so flagging it must not be punished."""
-    from tally.synth.config import HARD
+    from trueup.synth.config import HARD
 
     root = tmp_path / "w"
     generate(Config(seed=3, days=30, merchants=10, txns_per_day=300, hardness=HARD), root)

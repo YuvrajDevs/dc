@@ -3,7 +3,7 @@ requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "tally"
+name = "trueup"
 version = "0.1.0"
 description = "Payments reconciliation measured against a known answer key"
 requires-python = ">=3.11"
@@ -30,12 +30,12 @@ select = ["E", "F", "I", "B", "UP", "SIM"]
 
 [tool.ruff.lint.per-file-ignores]
 # the engine is SQL in strings; wrapping it would hurt readability
-"src/tally/recon/engine.py" = ["E501"]
-"src/tally/ask/planner.py" = ["E501"]
-"src/tally/ask/evalset.py" = ["E501"]
-"src/tally/ask/redteam.py" = ["E501"]
-"src/tally/api/app.py" = ["E501", "E702", "E701"]
-"src/tally/api/queries.py" = ["E501"]
-"src/tally/ask/schema.py" = ["E501"]
-"src/tally/ask/provider.py" = ["E501"]
-"src/tally/ask/service.py" = ["E501"]
+"src/trueup/recon/engine.py" = ["E501"]
+"src/trueup/ask/planner.py" = ["E501"]
+"src/trueup/ask/evalset.py" = ["E501"]
+"src/trueup/ask/redteam.py" = ["E501"]
+"src/trueup/api/app.py" = ["E501", "E702", "E701"]
+"src/trueup/api/queries.py" = ["E501"]
+"src/trueup/ask/schema.py" = ["E501"]
+"src/trueup/ask/provider.py" = ["E501"]
+"src/trueup/ask/service.py" = ["E501"]

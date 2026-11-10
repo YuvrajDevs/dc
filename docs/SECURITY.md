@@ -12,7 +12,7 @@ Scope: the code in this repository running locally against **synthetic data**. T
 | Input validation | Request bodies are typed (pydantic); statuses are enumerated; notes and names have length limits; the form requires a name and, for explained or resolved, a note. |
 | Browser | Security headers on every page (`nosniff`, frame denial, same-origin referrer, restricted permissions); `X-Powered-By` removed; CORS limited to the local dashboard origin and three methods. |
 | Secrets | None in the repository. The optional model key is read from the environment only. |
-| Logging | One structured JSON line per API request (method, path, status, milliseconds); no query text or request bodies are logged. Pipeline alerts go through `tally.alerts`. |
+| Logging | One structured JSON line per API request (method, path, status, milliseconds); no query text or request bodies are logged. Pipeline alerts go through `trueup.alerts`. |
 | Data | Synthetic only. No customer, bank or employer data anywhere. |
 
 ## Known limits (stated, not hidden)

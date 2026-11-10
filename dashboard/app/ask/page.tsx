@@ -22,7 +22,7 @@ export default function AskPage() {
     if (!text) return;
     setBusy(true); setErr(null); setCopied(false);
     try {
-      setRes(await api<AskResult>("/api/ask", { method: "POST", body: JSON.stringify({ question: text, actor: localStorage.getItem("tally.actor") || "analyst" }) }));
+      setRes(await api<AskResult>("/api/ask", { method: "POST", body: JSON.stringify({ question: text, actor: localStorage.getItem("trueup.actor") || "analyst" }) }));
     } catch (e) {
       setErr(e instanceof Error ? e.message : "Could not reach the assistant.");
     } finally { setBusy(false); }

@@ -81,7 +81,7 @@ export function ErrorState({ message, onRetry }: { message: string; onRetry?: ()
     <Card role="alert" className="border border-bad/20 bg-bad-soft">
       <h2 className="text-[15px] font-medium text-bad">Something went wrong</h2>
       <p className="mt-1 text-[14px] text-ink">{message}</p>
-      <p className="mt-1 text-[13px] text-muted">Check that the TrueUp API is running (python -m tally serve) and try again.</p>
+      <p className="mt-1 text-[13px] text-muted">Check that the TrueUp API is running (python -m trueup serve) and try again.</p>
       {onRetry && (
         <Button variant="ghost" className="mt-4" onClick={onRetry}>
           Try again

@@ -1,6 +1,6 @@
 # Roadmap: from empty repo to a released, user-accepted product
 
-Name: **TrueUp** (the code package is still called `tally`). Reconciliation that is *graded* against a known answer key, so its quality is measured, not claimed.
+Name: **TrueUp** (Python package `trueup`). Reconciliation that is *graded* against a known answer key, so its quality is measured, not claimed.
 
 Every phase ends with: tests passing in CI, docs updated, a demo you can run, and its **exit criteria** met. Nothing moves on until the exit criteria are true. Thresholds marked *(provisional)* are set from the first real measurement in Phase 4, then frozen.
 
@@ -55,7 +55,7 @@ Every phase ends with: tests passing in CI, docs updated, a demo you can run, an
 - Every finding carries a class, the records involved, an amount at stake, a confidence and a plain-language reason.
 - Exception queue with status (open, explained, resolved) and an audit trail of who changed what.
 - Exit: engine runs end to end on the Phase 1 world and emits findings in the same format as the answer key.
-- **Result:** `src/tally/recon/`. Matching in five tiers with identity validation, a fuzzy tier and a last-resort tier; 14 finding classes with reason, confidence and amount; exception queue with a per-change audit trail (`ops.exceptions`, `ops.exception_events`). Human decisions survive re-runs; findings that disappear auto-clear and reopen if they return.
+- **Result:** `src/trueup/recon/`. Matching in five tiers with identity validation, a fuzzy tier and a last-resort tier; 14 finding classes with reason, confidence and amount; exception queue with a per-change audit trail (`ops.exceptions`, `ops.exception_events`). Human decisions survive re-runs; findings that disappear auto-clear and reopen if they return.
 
 ## Phase 4: Grader and benchmarks
 **Goal:** prove how good it is, with numbers.

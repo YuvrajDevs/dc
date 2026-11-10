@@ -7,13 +7,13 @@ from pathlib import Path
 
 import pytest
 
-from tally.grade import check_floors, grade, load_key
-from tally.pipeline import load_world
-from tally.recon import ReconConfig, reconcile
-from tally.recon import queue as xq
-from tally.synth.config import HARD, Config
-from tally.synth.generate import generate
-from tally.warehouse import Warehouse
+from trueup.grade import check_floors, grade, load_key
+from trueup.pipeline import load_world
+from trueup.recon import ReconConfig, reconcile
+from trueup.recon import queue as xq
+from trueup.synth.config import HARD, Config
+from trueup.synth.generate import generate
+from trueup.warehouse import Warehouse
 
 FLOORS = json.loads((Path(__file__).parents[1] / "benchmarks" / "floors.json").read_text())
 
@@ -84,7 +84,7 @@ def test_mistyped_references_are_matched_to_the_right_payment(hard):
 
 
 def test_engine_never_reads_the_answer_key():
-    import tally.recon.engine as engine
+    import trueup.recon.engine as engine
 
     source = Path(engine.__file__).read_text()
     assert "answer_key" not in source and "expected_links" not in source

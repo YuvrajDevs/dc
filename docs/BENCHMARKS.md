@@ -44,7 +44,7 @@ False alarms and misses per class (seed 42, hard):
 
 **Why it failed:** a mistyped reference usually names another real order. The first engine linked the payment to that other order, which made a false duplicate, a false "missing in ledger" for the order it should have matched, and a wrong amount mismatch.
 
-**What fixed it** (all in `src/tally/recon/engine.py`):
+**What fixed it** (all in `src/trueup/recon/engine.py`):
 1. A reference match must also agree on merchant, currency and time to be believed.
 2. Strong evidence (reference *and* amount agree) is accepted first; an extra strong entry is a duplicate, a weak one is not.
 3. Records still unmatched get attribute matching (merchant, currency, amount, time window), then a low-confidence fuzzy tier (amount within 12%, tight window, unique from both sides).
@@ -59,7 +59,7 @@ The benign false-alarm metric was also corrected along the way: it first counted
 | easy | 0.9983 to 1.0000 | 0.9966 to 1.0000 | 0.0000 to 0.0000 | 1.0000 to 1.0000 | 0.9987 to 1.0000 | 1.000 / 1.000 |
 | hard | 0.9969 to 1.0000 | 0.9941 to 1.0000 | 0.0000 to 0.0006 | 1.0000 to 1.0000 | 0.9974 to 1.0000 | 1.000 / 1.000 |
 
-The frozen floors in `benchmarks/floors.json` come from this evidence, each set a little below the worst value seen. They are enforced by `python -m tally check` in CI and by `tests/test_engine.py`. A test confirms a deliberately crippled engine fails them. **Floors are not moved to make a build pass.**
+The frozen floors in `benchmarks/floors.json` come from this evidence, each set a little below the worst value seen. They are enforced by `python -m trueup check` in CI and by `tests/test_engine.py`. A test confirms a deliberately crippled engine fails them. **Floors are not moved to make a build pass.**
 
 ## Speed and memory (hard profile, one machine, 4 cores)
 Per size, reconcile time before and after the one tuning change below:

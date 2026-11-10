@@ -13,3 +13,4 @@ node_modules/
 .env.*
 !.env.example
 dbt/.user.yml
+build/

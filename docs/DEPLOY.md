@@ -11,7 +11,7 @@ How it works: `api/index.py` copies the database to `/tmp` on a cold start (Verc
 
 ## 2. Dashboard project
 1. **Add New Project**, import the same repository, set **Root Directory** to `dashboard`.
-2. Add the environment variable `TALLY_API` = `https://<api-project>.vercel.app` (no trailing slash).
+2. Add the environment variable `TRUEUP_API` = `https://<api-project>.vercel.app` (no trailing slash).
 3. Deploy. The dashboard proxies `/api/*` to the API, so the browser only talks to one site.
 
 ## What to expect

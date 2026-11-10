@@ -1,6 +1,6 @@
 import type { NextConfig } from "next";
 
-const API = process.env.TALLY_API ?? "http://127.0.0.1:8000";
+const API = process.env.TRUEUP_API ?? process.env.TALLY_API ?? "http://127.0.0.1:8000";
 
 const securityHeaders = [
   { key: "X-Content-Type-Options", value: "nosniff" },

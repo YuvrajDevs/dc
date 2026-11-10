@@ -5,8 +5,8 @@ from dataclasses import replace
 
 from conftest import zero_rates
 
-from tally.synth import world
-from tally.synth.generate import build
+from trueup.synth import world
+from trueup.synth.generate import build
 
 
 def test_clean_world_reconciles_perfectly(small_cfg):

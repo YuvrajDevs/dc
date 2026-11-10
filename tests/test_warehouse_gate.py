@@ -6,9 +6,9 @@ from pathlib import Path
 
 import pytest
 
-from tally.synth.generate import generate
-from tally.warehouse import Warehouse
-from tally.warehouse.split import split_world
+from trueup.synth.generate import generate
+from trueup.warehouse import Warehouse
+from trueup.warehouse.split import split_world
 
 FIELDS_TXN = (
     "txn_id,order_ref,merchant_id,currency,gross_minor,fee_minor,net_minor,captured_at,payout_id"
@@ -25,7 +25,7 @@ def batches(tmp_path_factory, small_cfg):
 
 @pytest.fixture(scope="module")
 def big_batches(tmp_path_factory):
-    from tally.synth.config import Config
+    from trueup.synth.config import Config
 
     root = tmp_path_factory.mktemp("gate_big")
     generate(Config(seed=9, days=4, merchants=8, txns_per_day=700), root / "world")

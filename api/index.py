@@ -11,9 +11,9 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
-from tally.api import create_app  # noqa: E402
+from trueup.api import create_app  # noqa: E402
 
-DB = Path("/tmp/tally_demo.duckdb")
+DB = Path("/tmp/trueup_demo.duckdb")
 if not DB.exists():
     shutil.copyfile(ROOT / "demo" / "serve.duckdb", DB)
 

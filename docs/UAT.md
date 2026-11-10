@@ -56,7 +56,7 @@ Browser tests drive the real dashboard against a throwaway copy of the demo data
 | A4, A6, A7 | `tests/test_engine.py` (benign look-alikes explained; payout missing only after its window) | Pass |
 | D2, D5 | `tests/test_warehouse_pipeline.py`, `tests/test_warehouse_gate.py` | Pass |
 | D3, D4, D6, D7 | `tests/test_ops.py` (also run for real under Airflow) | Pass |
-| R3 | `benchmarks/` stability over 8 seeds per profile, enforced by `python -m tally check` | Pass |
+| R3 | `benchmarks/` stability over 8 seeds per profile, enforced by `python -m trueup check` | Pass |
 | A7 (UI), X1, R1 | Manual only | **Not yet run** |
 
 ## Defect severity

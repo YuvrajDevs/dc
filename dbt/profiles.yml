@@ -1,7 +1,7 @@
-tally:
+trueup:
   target: dev
   outputs:
     dev:
       type: duckdb
-      path: "{{ env_var('TALLY_DB', 'data/warehouse.duckdb') }}"
+      path: "{{ env_var('TRUEUP_DB', 'data/warehouse.duckdb') }}"
       threads: 1

@@ -21,4 +21,4 @@ Ask in plain English ("Which payouts are missing from the bank?"). You get the a
 
 Both are enforced by `tests/test_ask.py`. What this does **not** show: the evaluation questions were written by the same people who wrote the planner, so 45 of 45 measures regression protection and coverage of the supported vocabulary, not how it copes with arbitrary phrasing. The language-model path is untested against a live model.
 
-Run it yourself: `python -m tally ask-eval --db data/ui/serve.duckdb`, `python -m tally ask --db data/ui/serve.duckdb "How many open exceptions are there?"`.
+Run it yourself: `python -m trueup ask-eval --db data/ui/serve.duckdb`, `python -m trueup ask --db data/ui/serve.duckdb "How many open exceptions are there?"`.

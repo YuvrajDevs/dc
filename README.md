@@ -4,7 +4,7 @@ Payments reconciliation that is **graded against a known answer key**.
 
 Most reconciliation demos show a dashboard and ask you to trust it. TrueUp invents its own messy payment data, hides a known set of mistakes in it, and then scores the reconciliation engine like a test: how many real mistakes did it find, how many false alarms did it raise, and how accurate were its matches, class by class.
 
-The Python package and command are still called `tally` (`python -m tally`); the product is TrueUp.
+The Python package and command are both `trueup` (`python -m trueup`).
 
 All data is synthetic. No real customer, bank or employer data is used anywhere.
 

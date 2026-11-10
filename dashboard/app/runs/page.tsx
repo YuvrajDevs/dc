@@ -50,7 +50,7 @@ export default function RunsPage() {
 
         <Card className="lg:col-span-12">
           <CardTitle>Pipeline runs</CardTitle>
-          {data.runs.length === 0 ? <EmptyState title="No runs recorded" hint="Run python -m tally run ... to record one." /> : (
+          {data.runs.length === 0 ? <EmptyState title="No runs recorded" hint="Run python -m trueup run ... to record one." /> : (
             <ul className="divide-y divide-line">
               {data.runs.map((r) => (
                 <li key={r.run_id} className="flex flex-wrap items-center gap-x-4 gap-y-2 py-3 text-[13px]">

@@ -8,9 +8,9 @@ import pytest
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
-from tally.synth.classes import DEFECT_CLASSES
-from tally.synth.config import Config
-from tally.synth.generate import build
+from trueup.synth.classes import DEFECT_CLASSES
+from trueup.synth.config import Config
+from trueup.synth.generate import build
 
 ID_COLUMN = {
     "ledger": ("ledger_entries", "ledger_id"),
@@ -115,7 +115,7 @@ def test_key_integrity_holds_for_random_worlds(seed, days, merchants, per_day):
 
 
 def test_hard_profile_adds_the_adversarial_cases():
-    from tally.synth.config import HARD
+    from trueup.synth.config import HARD
 
     t = build(Config(seed=3, days=60, merchants=12, txns_per_day=300, hardness=HARD))
     seen = Counter(d["class"] for d in t["answer_key"])

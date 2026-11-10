@@ -18,9 +18,9 @@ jobs:
       - run: ruff format --check src tests
       - run: pytest
       - name: Accuracy regression gate (easy and hard profiles)
-        run: python -m tally check
+        run: python -m trueup check
       - name: Smoke test the generator
-        run: python -m tally generate --seed 1 --days 5 --out data/smoke
+        run: python -m trueup generate --seed 1 --days 5 --out data/smoke
 
   dashboard:
     runs-on: ubuntu-latest

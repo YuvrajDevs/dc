@@ -13,27 +13,27 @@ test:
 	pytest
 
 generate:
-	$(PY) -m tally generate --seed $(SEED) --days 30 --out data/world-$(SEED)
+	$(PY) -m trueup generate --seed $(SEED) --days 30 --out data/world-$(SEED)
 
 warehouse: generate
-	$(PY) -m tally split --world data/world-$(SEED) --out data/batches-$(SEED) --late-rate 0.05 --seed 1
+	$(PY) -m trueup split --world data/world-$(SEED) --out data/batches-$(SEED) --late-rate 0.05 --seed 1
 	rm -f data/warehouse.duckdb
-	$(PY) -m tally ingest --db data/warehouse.duckdb data/batches-$(SEED)/*
-	$(PY) -m tally build --db data/warehouse.duckdb
-	$(PY) -m tally status --db data/warehouse.duckdb
+	$(PY) -m trueup ingest --db data/warehouse.duckdb data/batches-$(SEED)/*
+	$(PY) -m trueup build --db data/warehouse.duckdb
+	$(PY) -m trueup status --db data/warehouse.duckdb
 
 reconcile: warehouse
-	$(PY) -m tally reconcile --db data/warehouse.duckdb --as-of $(AS_OF)
+	$(PY) -m trueup reconcile --db data/warehouse.duckdb --as-of $(AS_OF)
 
 grade: reconcile
-	$(PY) -m tally grade --db data/warehouse.duckdb --world data/world-$(SEED) --floors benchmarks/floors.json --profile easy
+	$(PY) -m trueup grade --db data/warehouse.duckdb --world data/world-$(SEED) --floors benchmarks/floors.json --profile easy
 
 check:
-	$(PY) -m tally check
+	$(PY) -m trueup check
 
 benchmark:
-	$(PY) -m tally stability --profile hard --seeds 1 2 3 4 5 6 7 8 --days 60
-	$(PY) -m tally scale --profile hard --out benchmarks/results/scale-hard.json
+	$(PY) -m trueup stability --profile hard --seeds 1 2 3 4 5 6 7 8 --days 60
+	$(PY) -m trueup scale --profile hard --out benchmarks/results/scale-hard.json
 
 demo: grade
 	@echo "Demo ready: warehouse at data/warehouse.duckdb, scorecard above"
@@ -45,13 +45,13 @@ clean:
 # Builds a 60-day demo world through the real pipeline (backfill), then you start the two servers.
 demo-ui:
 	rm -rf data/ui && mkdir -p data/ui
-	$(PY) -m tally generate --seed $(SEED) --days 60 --out data/ui/world
-	$(PY) -m tally split --world data/ui/world --out data/ui/batches --late-rate 0.05 --seed 1
-	$(PY) -m tally backfill --db data/ui/serve.duckdb --batches data/ui/batches --start 2026-01-01 --end 2026-03-04
+	$(PY) -m trueup generate --seed $(SEED) --days 60 --out data/ui/world
+	$(PY) -m trueup split --world data/ui/world --out data/ui/batches --late-rate 0.05 --seed 1
+	$(PY) -m trueup backfill --db data/ui/serve.duckdb --batches data/ui/batches --start 2026-01-01 --end 2026-03-04
 	@echo "Now run:  make serve   (API, port 8000)   and   make dashboard   (UI, port 3000)"
 
 serve:
-	$(PY) -m tally serve --db data/ui/serve.duckdb --port 8000
+	$(PY) -m trueup serve --db data/ui/serve.duckdb --port 8000
 
 dashboard:
 	cd dashboard && npm install && npm run build && npm run start -p 3000

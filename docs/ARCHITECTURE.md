@@ -60,7 +60,7 @@ A **batch** is a folder of CSV files. Its identity is a hash of the file content
 Loading twice, re-delivering the same rows in a new batch, late and shuffled arrival, corrections, a blocked corrupted batch and the payout-total check are all automated.
 
 ## Reconciliation engine (Phase 3)
-`recon` schema, rebuilt on every run, written by SQL steps in `src/tally/recon/engine.py`.
+`recon` schema, rebuilt on every run, written by SQL steps in `src/trueup/recon/engine.py`.
 
 **Ledger to transaction**, strongest evidence first, only unmatched records move down:
 1. Reference match (exact, normalised, or prefix-stripped), accepted only if merchant, currency and time also agree.
@@ -76,9 +76,9 @@ Loading twice, re-delivering the same rows in a new batch, late and shuffled arr
 **Exception queue:** `ops.exceptions` holds one row per finding id with a status (open, explained, resolved, auto_cleared) and `ops.exception_events` appends every change with actor, time and note. Re-runs never overwrite a human decision; a finding that stops being reported auto-clears and reopens if it returns.
 
 ## Grader (Phase 4)
-`src/tally/grade.py` is the only code that reads `answer_key.csv` and `expected_links.csv`, directly from the world folder. It scores per class, link accuracy and benign false alarms, writes JSON and Markdown scorecards, and checks them against the frozen floors in `benchmarks/floors.json`.
+`src/trueup/grade.py` is the only code that reads `answer_key.csv` and `expected_links.csv`, directly from the world folder. It scores per class, link accuracy and benign false alarms, writes JSON and Markdown scorecards, and checks them against the frozen floors in `benchmarks/floors.json`.
 
 ## Service, dashboard and assistant (Phases 6 and 7)
-- `src/tally/api/` is a FastAPI app holding **one locked-down DuckDB connection** (external access off, configuration locked) and giving each request its own cursor. Endpoints: `/api/overview`, `/api/exceptions` (+ `.csv`, detail, decision), `/api/payouts`, `/api/scorecard`, `/api/runs`, `/api/ask`.
+- `src/trueup/api/` is a FastAPI app holding **one locked-down DuckDB connection** (external access off, configuration locked) and giving each request its own cursor. Endpoints: `/api/overview`, `/api/exceptions` (+ `.csv`, detail, decision), `/api/payouts`, `/api/scorecard`, `/api/runs`, `/api/ask`.
 - `dashboard/` is a Next.js App Router app. Next proxies `/api/*` to the service, so the browser talks to a single origin.
-- `src/tally/ask/` turns a question into SQL and validates it three ways before it runs; see [ASSISTANT.md](ASSISTANT.md).
+- `src/trueup/ask/` turns a question into SQL and validates it three ways before it runs; see [ASSISTANT.md](ASSISTANT.md).

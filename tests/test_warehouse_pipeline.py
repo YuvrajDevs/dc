@@ -7,10 +7,10 @@ from pathlib import Path
 
 import pytest
 
-from tally.synth.config import Config
-from tally.synth.generate import generate
-from tally.warehouse import Warehouse, dbt_runner
-from tally.warehouse.split import split_world
+from trueup.synth.config import Config
+from trueup.synth.generate import generate
+from trueup.warehouse import Warehouse, dbt_runner
+from trueup.warehouse.split import split_world
 
 CFG = Config(seed=11, days=6, merchants=8, txns_per_day=120)
 NOISE = ("_batch_id", "_batch_seq", "_row_number", "_loaded_at", "_source_file")

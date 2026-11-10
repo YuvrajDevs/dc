@@ -2,7 +2,7 @@ import hashlib
 import json
 from dataclasses import replace
 
-from tally.synth.generate import generate
+from trueup.synth.generate import generate
 
 
 def test_same_seed_gives_identical_files(tmp_path, small_cfg):

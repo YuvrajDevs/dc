@@ -55,7 +55,7 @@ export function ExceptionDrawer({ id, onClose, onChanged }: { id: string; onClos
 
   useEffect(() => {
     opener.current = document.activeElement;
-    setActor(localStorage.getItem("tally.actor") ?? "");
+    setActor(localStorage.getItem("trueup.actor") ?? "");
     dialog.current?.focus();
     return () => {
       if (opener.current instanceof HTMLElement) opener.current.focus();
@@ -96,7 +96,7 @@ export function ExceptionDrawer({ id, onClose, onChanged }: { id: string; onClos
     if (needsNote && !note.trim()) return setMsg({ ok: false, text: `Add a short note explaining why this is ${status}.` });
     setBusy(true);
     try {
-      localStorage.setItem("tally.actor", actor.trim());
+      localStorage.setItem("trueup.actor", actor.trim());
       await api(`/api/exceptions/${id}`, { method: "PATCH", body: JSON.stringify({ status, note: note.trim(), actor: actor.trim() }) });
       setMsg({ ok: true, text: "Saved. The history below has your entry." });
       reload();

@@ -1,7 +1,7 @@
 # Operations runbook
 
 ## What runs
-`python -m tally run` (or the Airflow DAG) processes one day in four steps. Each step records its **input hash** in the run ledger and is skipped when it already succeeded for the same run with the same inputs.
+`python -m trueup run` (or the Airflow DAG) processes one day in four steps. Each step records its **input hash** in the run ledger and is skipped when it already succeeded for the same run with the same inputs.
 
 | Step | Does | Fails how |
 |---|---|---|
@@ -12,13 +12,13 @@
 
 ## Commands
 ```bash
-python -m tally run --db data/warehouse.duckdb --batches data/batches --day 2026-01-05
-python -m tally backfill --db ... --batches ... --start 2026-01-01 --end 2026-01-31          # one run over the range
-python -m tally backfill --db ... --batches ... --start 2026-01-01 --end 2026-01-31 --per-day # day by day
-python -m tally runs --db ...        # the run ledger
-python -m tally alerts --db ...      # recent alerts
-python -m tally freshness --db ... --as-of 2026-01-05
-python -m tally lineage              # Mermaid graph (below)
+python -m trueup run --db data/warehouse.duckdb --batches data/batches --day 2026-01-05
+python -m trueup backfill --db ... --batches ... --start 2026-01-01 --end 2026-01-31          # one run over the range
+python -m trueup backfill --db ... --batches ... --start 2026-01-01 --end 2026-01-31 --per-day # day by day
+python -m trueup runs --db ...        # the run ledger
+python -m trueup alerts --db ...      # recent alerts
+python -m trueup freshness --db ... --as-of 2026-01-05
+python -m trueup lineage              # Mermaid graph (below)
 ```
 
 ## Guarantees (each is a test in `tests/test_ops.py`)
@@ -26,12 +26,12 @@ python -m tally lineage              # Mermaid graph (below)
 - **Backfill equals a clean run:** processing three days one at a time gives a state hash-identical to one run over all three (raw, staging, marts and recon tables). Audit history in `ops.*` legitimately differs.
 - **Resumable:** a run killed between steps resumes at the next step; ingest is not repeated and nothing is duplicated.
 - **Retries:** transient failures retry with exponential backoff (2s, 4s, ...). Data problems never retry.
-- **Alerts:** failures, rejected batches, missing deliveries, quarantine spikes, stale sources and SLA breaches are written to `ops.alerts` and, if `TALLY_ALERT_WEBHOOK` is set, posted there. A down webhook never breaks a run.
+- **Alerts:** failures, rejected batches, missing deliveries, quarantine spikes, stale sources and SLA breaches are written to `ops.alerts` and, if `TRUEUP_ALERT_WEBHOOK` is set, posted there. A down webhook never breaks a run.
 
 ## Airflow
-`orchestration/airflow/dags/tally_daily.py` runs the same steps as four tasks. Airflow owns scheduling and retries (3 retries, exponential backoff, 30 minute timeout); `max_active_runs=1` because the warehouse file is single-writer; a data problem raises `AirflowFailException` so it fails fast.
+`orchestration/airflow/dags/trueup_daily.py` runs the same steps as four tasks. Airflow owns scheduling and retries (3 retries, exponential backoff, 30 minute timeout); `max_active_runs=1` because the warehouse file is single-writer; a data problem raises `AirflowFailException` so it fails fast.
 
-Verified on Airflow 3.0.6 (Python 3.12): the DAG registers with no import errors, and `airflow dags test tally_daily <day>` ran ingest, build, reconcile and publish for each of three days. The resulting warehouse was **hash-identical to a clean three-day run across 41 tables**.
+Verified on Airflow 3.0.6 (Python 3.12): the DAG registers with no import errors, and `airflow dags test trueup_daily <day>` ran ingest, build, reconcile and publish for each of three days. The resulting warehouse was **hash-identical to a clean three-day run across 41 tables**.
 
 Not verified here: a long-running scheduler and webserver.
 

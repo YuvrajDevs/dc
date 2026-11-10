@@ -7,18 +7,18 @@ from pathlib import Path
 import duckdb
 import pytest
 
-from tally.ask import ask
-from tally.ask.evalset import run_eval
-from tally.ask.execute import lock_down
-from tally.ask.provider import extract_sql
-from tally.ask.redteam import UNSAFE_QUESTIONS, UNSAFE_SQL
-from tally.ask.validate import MAX_ESTIMATED_ROWS, Refused, check_plan, validate
-from tally.pipeline import load_world
-from tally.recon import ReconConfig, reconcile
-from tally.recon import queue as xq
-from tally.synth.config import HARD, Config
-from tally.synth.generate import generate
-from tally.warehouse import Warehouse
+from trueup.ask import ask
+from trueup.ask.evalset import run_eval
+from trueup.ask.execute import lock_down
+from trueup.ask.provider import extract_sql
+from trueup.ask.redteam import UNSAFE_QUESTIONS, UNSAFE_SQL
+from trueup.ask.validate import MAX_ESTIMATED_ROWS, Refused, check_plan, validate
+from trueup.pipeline import load_world
+from trueup.recon import ReconConfig, reconcile
+from trueup.recon import queue as xq
+from trueup.synth.config import HARD, Config
+from trueup.synth.generate import generate
+from trueup.warehouse import Warehouse
 
 PASS_FLOOR = 0.95
 
@@ -139,7 +139,7 @@ def test_ctes_joins_and_unions_over_allowed_tables_work(con):
 
 
 def test_a_slow_query_is_stopped(con, monkeypatch):
-    from tally.ask import execute
+    from trueup.ask import execute
 
     monkeypatch.setattr(execute, "TIMEOUT_SECONDS", 0.001)
     r = ask(
@@ -183,7 +183,7 @@ def test_every_question_is_logged_with_its_outcome(con):
 
 
 def test_a_database_file_name_with_a_hyphen_does_not_confuse_the_plan_check():
-    """Found when deploying: a file called tally-demo.duckdb made every question refused."""
-    check_plan("Table: tally-demo.recon.findings\n~120 rows")  # must not raise
+    """Found when deploying: a file called trueup-demo.duckdb made every question refused."""
+    check_plan("Table: trueup-demo.recon.findings\n~120 rows")  # must not raise
     with pytest.raises(Refused):
-        check_plan("Table: tally-demo.secret.passwords")
+        check_plan("Table: trueup-demo.secret.passwords")
