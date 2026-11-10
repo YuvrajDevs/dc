@@ -22,6 +22,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import PlainTextResponse
 from pydantic import BaseModel, Field
 
+from trueup.api import network as network_api
 from trueup.api import queries
 from trueup.ask import service as ask_service
 from trueup.ask.execute import lock_down
@@ -427,6 +428,8 @@ def create_app(
     def ask(body: Question):
         res = ask_service.ask(cur(), body.question, llm, actor=body.actor)
         return res.__dict__
+
+    network_api.register(app, cur, _rows)
 
     @app.get("/api/ask/log")
     def ask_log(limit: int = Query(20, ge=1, le=100)):

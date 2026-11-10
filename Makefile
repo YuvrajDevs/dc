@@ -45,9 +45,9 @@ clean:
 # Builds a 60-day demo world through the real pipeline (backfill), then you start the two servers.
 demo-ui:
 	rm -rf data/ui && mkdir -p data/ui
-	$(PY) -m trueup generate --seed $(SEED) --days 60 --out data/ui/world
+	$(PY) -m trueup generate --seed $(SEED) --days 120 --out data/ui/world
 	$(PY) -m trueup split --world data/ui/world --out data/ui/batches --late-rate 0.05 --seed 1
-	$(PY) -m trueup backfill --db data/ui/serve.duckdb --batches data/ui/batches --start 2026-01-01 --end 2026-03-04
+	$(PY) -m trueup backfill --db data/ui/serve.duckdb --batches data/ui/batches --start 2026-01-01 --end 2026-05-03
 	@echo "Now run:  make serve   (API, port 8000)   and   make dashboard   (UI, port 3000)"
 
 serve:

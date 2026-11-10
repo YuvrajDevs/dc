@@ -26,7 +26,7 @@ export default function PayoutsPage() {
           <div role="group" aria-label="Filter by status" className="mb-4 flex flex-wrap gap-2">
             {[{ status: "", n: data?.facets.reduce((a, f) => a + f.n, 0) ?? 0 }, ...(data?.facets ?? [])].map((f) => (
               <button key={f.status || "all"} aria-pressed={status === f.status} onClick={() => { setStatus(f.status); setPage(0); }}
-                className={`rounded-full px-4 py-2 text-[13px] font-medium transition ${status === f.status ? "bg-teal text-white" : "bg-card text-ink hover:bg-white/70"}`}>
+                className={`rounded-full px-4 py-2 text-[13px] font-medium transition ${status === f.status ? "bg-teal text-white" : "text-ink ring-1 ring-ink/20 hover:bg-ink/5"}`}>
                 {f.status === "" ? "All" : text(f.status)} <span className="font-light opacity-70">({num(f.n)})</span>
               </button>
             ))}

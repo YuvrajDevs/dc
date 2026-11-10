@@ -265,6 +265,7 @@ class Pipeline:
                 "warning", "missing_delivery", f"no delivery found for {d}", run_id
             )
         loaded = quarantined = 0
+        by_source: dict[str, list[int]] = {}  # source -> [loaded, quarantined]
         names = []
         with Warehouse(self.db) as wh:
             for d in dirs:
@@ -272,18 +273,24 @@ class Pipeline:
                 names.append(f"{d.name}:{res.status}")
                 n_loaded, n_bad = sum(res.rows_loaded.values()), sum(res.rows_quarantined.values())
                 loaded, quarantined = loaded + n_loaded, quarantined + n_bad
+                for src, n in res.rows_loaded.items():
+                    by_source.setdefault(src, [0, 0])[0] += n
+                for src, n in res.rows_quarantined.items():
+                    by_source.setdefault(src, [0, 0])[1] += n
                 self._record_input(run_id, d.name, res, n_loaded, n_bad, wh)
                 if res.status == "rejected":
                     self.alerter.raise_alert(
                         "critical", "batch_rejected", f"{d.name}: {'; '.join(res.reasons)}", run_id
                     )
                     raise PermanentError(f"batch {d.name} rejected: {'; '.join(res.reasons)}")
-        total = loaded + quarantined
-        if total and quarantined / total > self.cfg.quarantine_alert_rate:
-            self.alerter.raise_alert(
-                "warning", "quarantine_spike",
-                f"{quarantined} of {total} rows quarantined ({quarantined / total:.2%})", run_id,
-            )  # fmt: skip
+        # Rate per source: a spike in one feed matters however large the other feeds are.
+        for src, (ok, bad) in sorted(by_source.items()):
+            total = ok + bad
+            if total and bad / total > self.cfg.quarantine_alert_rate:
+                self.alerter.raise_alert(
+                    "warning", "quarantine_spike",
+                    f"{src}: {bad} of {total} rows quarantined ({bad / total:.2%})", run_id,
+                )  # fmt: skip
         return {"batches": names, "rows_loaded": loaded, "rows_quarantined": quarantined,
                 "missing_deliveries": len(missing)}  # fmt: skip
 

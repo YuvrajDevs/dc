@@ -13,21 +13,40 @@ async function scenario(id, title, fn) {
   catch (e) { results.push([id, title, false, String(e.message).split("\n")[0]]); }
 }
 const ok = (c, m) => { if (!c) throw new Error(m); };
-const browser = await chromium.launch();
+const browser = await chromium.launch(process.env.PW_CHROMIUM_PATH ? { executablePath: process.env.PW_CHROMIUM_PATH } : {});
 const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 }, acceptDownloads: true });
 const p = await ctx.newPage();
 const consoleErrors = [];
 p.on("pageerror", (e) => consoleErrors.push(String(e)));
 p.on("console", (m) => m.type() === "error" && consoleErrors.push(m.text()));
+const PAGES = ["/", "/dashboard", "/approvals", "/disputes", "/fees", "/exceptions", "/payouts", "/scorecard", "/runs", "/ask"];
 const go = async (path) => { await p.goto(BASE + path, { waitUntil: "networkidle" }); };
 
-await scenario("A1", "Overview shows expected, received and difference", async () => {
+await scenario("A1", "Landing leads to a dashboard that explains what needs attention", async () => {
   await go("/");
-  await p.getByText("Money flow").waitFor();
+  await p.getByRole("link", { name: "Open dashboard" }).first().click();
+  await p.waitForURL(/\/dashboard$/);
+  await p.getByText("What needs attention").waitFor();
+  await p.getByText("Open reconciliation errors").waitFor();
   const t = await p.locator("main").innerText();
-  ok(/expected/i.test(t) && /received/i.test(t) && /difference/i.test(t), "expected/received/difference missing");
-  const ov = await (await p.request.get(BASE + "/api/overview")).json();
-  ok(ov && Object.keys(ov).length > 0, "overview api empty");
+  ok(/stopped answering/.test(t) && /Card testing/.test(t), "planted incidents not surfaced");
+});
+await scenario("N1", "Approvals drill into one issuer", async () => {
+  await go("/approvals?dim=issuer");
+  await p.getByRole("button", { name: /Issuer \d+ Bank/ }).first().click();
+  await p.waitForURL(/issuer=ISS/);
+  await p.getByRole("button", { name: /issuer ISS\d+ ✕/ }).waitFor();
+});
+await scenario("N2", "Disputes grid flags a merchant over the threshold", async () => {
+  await go("/disputes");
+  await p.getByText("Monthly dispute ratio vs thresholds").waitFor();
+  const rows = await (await p.request.get(BASE + "/api/network/disputes")).json();
+  ok(rows.monitoring.some((r) => r.programme_status === "excessive"), "no excessive merchant");
+});
+await scenario("N3", "Fees shows interchange paid above the rate card", async () => {
+  await go("/fees");
+  await p.getByText("Merchant economics").waitFor();
+  ok(/txns/.test(await p.locator("main").innerText()), "no overpaid merchant flagged");
 });
 await scenario("A2", "Filter exceptions by kind narrows the list", async () => {
   await go("/exceptions");
@@ -102,7 +121,7 @@ await scenario("D1", "Runs page lists pipeline runs", async () => {
 await scenario("R4", "No horizontal scroll on a phone", async () => {
   const m = await browser.newContext({ viewport: { width: 390, height: 844 } });
   const mp = await m.newPage();
-  for (const path of ["/", "/exceptions", "/payouts", "/scorecard", "/runs", "/ask"]) {
+  for (const path of PAGES) {
     await mp.goto(BASE + path, { waitUntil: "networkidle" });
     ok(!(await mp.evaluate(() => document.documentElement.scrollWidth > innerWidth)), `overflow on ${path}`);
   }
@@ -118,7 +137,7 @@ await scenario("X2", "Service down shows a clear message with retry", async () =
 });
 await scenario("R5", "Axe: no serious/critical a11y violations on any page", async () => {
   const bad = [];
-  for (const path of ["/", "/exceptions", "/payouts", "/scorecard", "/runs", "/ask"]) {
+  for (const path of PAGES) {
     await go(path);
     await p.addScriptTag({ content: axeSrc });
     const r = await p.evaluate(() => axe.run(document, { runOnly: ["wcag2a", "wcag2aa", "wcag21aa"] }));

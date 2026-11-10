@@ -59,14 +59,14 @@ function ExceptionsInner() {
       <PageHeader
         title="Exceptions"
         intro="Every disagreement between your ledger, the processor and the bank. Open one to see exactly what was matched, then explain or resolve it."
-        actions={<a href={exportHref} download><Button variant="ghost">Export CSV</Button></a>}
+        actions={<a href={exportHref} download><Button variant="lime">Export CSV</Button></a>}
       />
 
       <Card className="mb-4 p-4 sm:p-5">
         <div role="group" aria-label="Status" className="mb-4 flex flex-wrap gap-2">
           {STATUSES.map((s) => (
             <button key={s.text} onClick={() => { setStatus(s.value); setPage(0); }} aria-pressed={status === s.value}
-              className={`rounded-full px-4 py-2 text-[13px] font-medium transition ${status === s.value ? "bg-teal text-white" : "bg-page/70 text-ink hover:bg-line"}`}>
+              className={`rounded-full px-4 py-2 text-[13px] font-medium transition ${status === s.value ? "bg-teal text-white" : "bg-white text-ink ring-1 ring-ink/10 hover:bg-lime-soft"}`}>
               {s.text}
             </button>
           ))}
@@ -74,16 +74,16 @@ function ExceptionsInner() {
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
           <label className="block text-[12px] font-light text-muted lg:col-span-2">Search
             <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Reason text or exception ID"
-              className="mt-1 w-full rounded-2xl bg-page/60 px-4 py-2.5 text-[14px] text-ink ring-1 ring-line" />
+              className="mt-1 w-full rounded-2xl bg-white px-4 py-2.5 text-[14px] text-ink ring-1 ring-line" />
           </label>
           <label className="block text-[12px] font-light text-muted">Kind
-            <select value={cls} onChange={(e) => { setCls(e.target.value); setPage(0); }} className="mt-1 w-full rounded-2xl bg-page/60 px-3 py-2.5 text-[14px] text-ink ring-1 ring-line">
+            <select value={cls} onChange={(e) => { setCls(e.target.value); setPage(0); }} className="mt-1 w-full rounded-2xl bg-white px-3 py-2.5 text-[14px] text-ink ring-1 ring-line">
               <option value="">All kinds</option>
               {classes.map((f) => <option key={f.class} value={f.class}>{CLASS_LABELS[f.class] ?? f.class} ({f.n})</option>)}
             </select>
           </label>
           <label className="block text-[12px] font-light text-muted">Merchant
-            <select value={merchant} onChange={(e) => { setMerchant(e.target.value); setPage(0); }} className="mt-1 w-full rounded-2xl bg-page/60 px-3 py-2.5 text-[14px] text-ink ring-1 ring-line">
+            <select value={merchant} onChange={(e) => { setMerchant(e.target.value); setPage(0); }} className="mt-1 w-full rounded-2xl bg-white px-3 py-2.5 text-[14px] text-ink ring-1 ring-line">
               <option value="">All merchants</option>
               {(data?.merchants ?? []).map((m) => <option key={m} value={m}>{m}</option>)}
             </select>
@@ -91,10 +91,10 @@ function ExceptionsInner() {
           <div className="grid grid-cols-2 gap-3">
             <label className="block text-[12px] font-light text-muted">Min. USD
               <input inputMode="decimal" value={min} onChange={(e) => { setMin(e.target.value); setPage(0); }} placeholder="0"
-                className="mt-1 w-full rounded-2xl bg-page/60 px-3 py-2.5 text-[14px] text-ink ring-1 ring-line" />
+                className="mt-1 w-full rounded-2xl bg-white px-3 py-2.5 text-[14px] text-ink ring-1 ring-line" />
             </label>
             <label className="block text-[12px] font-light text-muted">Sort
-              <select value={sort} onChange={(e) => setSort(e.target.value)} className="mt-1 w-full rounded-2xl bg-page/60 px-3 py-2.5 text-[14px] text-ink ring-1 ring-line">
+              <select value={sort} onChange={(e) => setSort(e.target.value)} className="mt-1 w-full rounded-2xl bg-white px-3 py-2.5 text-[14px] text-ink ring-1 ring-line">
                 <option value="amount">Amount</option><option value="date">Newest</option><option value="class">Kind</option><option value="status">Status</option>
               </select>
             </label>
@@ -118,16 +118,16 @@ function ExceptionsInner() {
             <ul className="divide-y divide-line" aria-busy={loading}>
               {data?.items.map((e) => (
                 <li key={e.finding_id}>
-                  <button onClick={() => setFocus(e.finding_id)} className="grid w-full grid-cols-[1fr_auto] items-center gap-x-4 gap-y-1 rounded-2xl px-4 py-3.5 text-left transition hover:bg-lime-soft/50 sm:grid-cols-[170px_1fr_auto_110px]">
-                    <span className="flex items-center gap-2 sm:block">
-                      <span className="block text-[14px] font-medium">{label(e.class)}</span>
-                      <Chip tone={statusTone(e.status)} className="mt-0.5 sm:mt-1">{e.status.replace("_", " ")}</Chip>
+                  <button onClick={() => setFocus(e.finding_id)} className="grid w-full grid-cols-[1fr_auto] items-center gap-x-4 gap-y-1 rounded-xl px-3 py-2 text-left transition hover:bg-lime-soft/60 sm:grid-cols-[180px_1fr_auto_100px]">
+                    <span className="flex items-center gap-2">
+                      <Chip tone={statusTone(e.status)}>{e.status.replace("_", " ")}</Chip>
+                      <span className="truncate text-[14px] font-semibold">{label(e.class)}</span>
                     </span>
                     <span className="order-3 col-span-2 min-w-0 text-[13px] font-light leading-snug text-muted sm:order-none sm:col-span-1">
-                      <span className="line-clamp-2">{e.reason}</span>
+                      <span className="line-clamp-1">{e.reason}</span>
                     </span>
                     <span className="hidden text-right text-[12px] font-light text-muted sm:block">
-                      {e.merchant_id ?? "Bank"}<br />{day(e.occurred_on)}
+                      {e.merchant_id ?? "Bank"} · {day(e.occurred_on)}
                     </span>
                     <span className="text-right text-[15px] font-medium tabular-nums">{usd(e.amount_usd, 2)}</span>
                   </button>

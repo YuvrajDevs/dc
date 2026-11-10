@@ -1,163 +1,165 @@
-"use client";
-
 import Link from "next/link";
-import { DailyBars, Meter } from "@/components/charts";
-import { Button, Card, CardSkeleton, CardTitle, Chip, EmptyState, ErrorState, Eyebrow, PageHeader } from "@/components/ui";
-import { type Overview, useApi } from "@/lib/api";
-import { CLASS_LABELS, day, label, num, usd, when } from "@/lib/format";
+import { Logo } from "@/components/nav";
 
-export default function OverviewPage() {
-  const { data, error, loading, reload } = useApi<Overview>("/api/overview");
+const REPO = "https://github.com/YuvrajDevs/dc";
 
-  if (error) return <><PageHeader title="Overview" /><ErrorState message={error} onRetry={reload} /></>;
-  if (loading || !data)
-    return (
-      <>
-        <PageHeader title="Overview" />
-        <div className="grid gap-4 lg:grid-cols-12">
-          <div className="lg:col-span-5"><CardSkeleton lines={5} /></div>
-          <div className="lg:col-span-7"><CardSkeleton lines={5} /></div>
-          <div className="lg:col-span-4"><CardSkeleton /></div>
-          <div className="lg:col-span-8"><CardSkeleton /></div>
-        </div>
-      </>
-    );
+const TOPICS = [
+  { href: "/approvals", label: "Approvals" },
+  { href: "/disputes", label: "Disputes" },
+  { href: "/fees", label: "Fees" },
+  { href: "/exceptions", label: "Reconciliation" },
+  { href: "/scorecard", label: "Scorecard" },
+  { href: "/ask", label: "Ask in English" },
+];
 
-  const { kpi, counts, by_class, trend, top } = data;
-  const totalErrors = kpi.open_errors + kpi.resolved + kpi.explained_errors;
-  const cleared = kpi.resolved + kpi.explained_errors;
-  const maxClass = Math.max(1, ...by_class.map((c) => c.amount_usd));
+const FINDS = [
+  { dot: "bg-[#f08c7a]", title: "An issuer stops answering", body: "Timeouts spike for one bank for a few hours and its approval rate falls; the dashboard names the bank and the window." },
+  { dot: "bg-[#f08c7a]", title: "A card-testing attack", body: "Hundreds of tiny online attempts on fresh cards in one hour, scored against the merchant's own baseline." },
+  { dot: "bg-[#e9c46a]", title: "A merchant over the dispute threshold", body: "Monthly chargeback ratio against monitoring thresholds, with reason codes, win rates and response deadlines." },
+  { dot: "bg-lime", title: "Interchange above the rate card", body: "The rate card is rebuilt in SQL, so every downgraded transaction and overpaid dollar is traceable." },
+];
 
+const STEPS = [
+  ["Generate", "Messy card and payment data with a hidden answer key"],
+  ["Gate", "Schema contracts and quality checks; bad rows quarantined"],
+  ["Model", "dbt staging, facts and analytics marts on DuckDB"],
+  ["Reconcile", "Ledger, processor and bank matched in five tiers"],
+  ["Grade", "Every finding scored against the answer key in CI"],
+];
+
+export default function Landing() {
   return (
-    <>
-      <PageHeader
-        title="Overview"
-        intro={data.as_of ? `Reconciled as of ${day(data.as_of)}. Three sources, one picture: your ledger, the processor and the bank.` : undefined}
-        actions={
-          <div className="flex gap-2">
-            <Link href="/exceptions"><Button variant="lime">Review exceptions</Button></Link>
-            <Link href="/ask"><Button>Ask a question</Button></Link>
-          </div>
-        }
-      />
+    <div className="mx-auto w-full max-w-[1320px] p-2 sm:p-4">
+      <div className="panel px-3 pb-8 pt-2 sm:px-6">
+        <header className="flex items-center gap-3">
+          <Logo className="text-ink" />
+          <nav aria-label="Landing" className="ml-auto flex items-center gap-1">
+            <a href="#how" className="hidden rounded-full px-4 py-2 text-[14px] text-on-panel-muted hover:text-ink sm:block">How it works</a>
+            <a href={REPO} target="_blank" rel="noopener noreferrer" className="hidden rounded-full px-4 py-2 text-[14px] text-on-panel-muted hover:text-ink sm:block">GitHub</a>
+            <Link href="/dashboard" className="rounded-full bg-teal px-5 py-2.5 text-[14px] font-semibold text-white hover:bg-black">
+              Open dashboard
+            </Link>
+          </nav>
+        </header>
 
-      <div className="grid gap-4 lg:grid-cols-12">
-        <Card className="lg:col-span-5">
-          <CardTitle>Findings per day</CardTitle>
-          {trend.length ? <DailyBars data={trend} /> : <EmptyState title="No findings yet" hint="Run the pipeline to see activity here." />}
-        </Card>
-
-        <section aria-labelledby="open-title" className="rounded-[28px] bg-lime p-6 lg:col-span-7">
-          <div className="flex items-start justify-between gap-3">
+        <main id="main" className="rise">
+          <section className="mt-10 grid items-end gap-8 lg:grid-cols-[1.4fr_auto_1fr_1fr_1fr]">
             <div>
-              <Eyebrow>Open errors, amount at stake</Eyebrow>
-              <h2 id="open-title" className="sr-only">Open exceptions</h2>
-              <p className="mt-1 text-[44px] font-medium leading-none tracking-tight text-teal-deep">{usd(kpi.open_amount_usd)}</p>
-              <p className="mt-2 text-[13px] text-teal-deep/80">{num(kpi.open_errors)} open exceptions need a decision</p>
+              <p className="mb-3 inline-flex items-center gap-2 rounded-full bg-card px-3 py-1 text-[13px] text-on-panel-muted">
+                <span className="h-1.5 w-1.5 rounded-full bg-lime" /> Live demo · synthetic data, no sign-in
+              </p>
+              <h1 className="text-[44px] font-semibold leading-[1.0] tracking-tight text-ink sm:text-[60px]">
+                Payments,
+                <br />
+                explained.
+              </h1>
+              <p className="mt-3 max-w-md text-[15px] text-on-panel-muted">
+                Card approvals, disputes, interchange and reconciliation in one place, with every number graded against a known answer key.
+              </p>
             </div>
-            <Chip tone="teal">{num(kpi.benign_explained)} look-alikes explained</Chip>
+            <figure className="relative h-28 w-28 shrink-0" role="img" aria-label="Error precision 99.9%">
+              <svg viewBox="0 0 100 100" className="h-full w-full -rotate-90">
+                <circle cx="50" cy="50" r="42" fill="none" stroke="var(--lime-soft)" strokeWidth="10" />
+                <circle cx="50" cy="50" r="42" fill="none" stroke="var(--teal)" strokeWidth="10" strokeLinecap="round" strokeDasharray={`${2 * Math.PI * 42 * 0.999} 999`} />
+              </svg>
+              <span className="num absolute inset-0 grid place-items-center text-[17px] font-semibold text-ink">99.9%</span>
+            </figure>
+            {[
+              ["Error precision", "0.999", "graded vs answer key"],
+              ["Error recall", "0.994", "on the hard world"],
+              ["1M ledger rows", "~7", "seconds to reconcile"],
+            ].map(([l, v, h]) => (
+              <div key={l}>
+                <p className="text-[13px] font-medium text-on-panel-muted">{l}</p>
+                <p className="num mt-1 text-[44px] font-light leading-none text-ink sm:text-[52px]">{v}</p>
+                <p className="mt-1.5 text-[12.5px] text-on-panel-muted">{h}</p>
+              </div>
+            ))}
+          </section>
+
+          <div className="mt-9 flex flex-wrap items-center gap-2">
+            {TOPICS.map((t, i) => (
+              <Link
+                key={t.href}
+                href={t.href}
+                className={
+                  i === 0
+                    ? "rounded-full bg-teal px-5 py-2.5 text-[15px] font-medium text-white"
+                    : "rounded-full px-5 py-2.5 text-[15px] font-medium text-ink ring-1 ring-ink/20 hover:bg-ink/5"
+                }
+              >
+                {t.label}
+              </Link>
+            ))}
           </div>
-          <ul className="mt-5 divide-y divide-teal-deep/10 rounded-2xl bg-white">
-            {top.length === 0 && <li><EmptyState title="Nothing open" hint="Every error has been explained or resolved." /></li>}
-            {top.map((t) => (
-              <li key={t.finding_id}>
-                <Link href={`/exceptions?focus=${t.finding_id}`} className="flex items-center gap-3 px-4 py-3 hover:bg-lime-soft/50">
-                  <span aria-hidden className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-lime-soft text-[13px] font-semibold text-teal-deep">
-                    {label(t.class).slice(0, 1)}
-                  </span>
-                  <span className="min-w-0 flex-1">
-                    <span className="block truncate text-[14px] font-medium">{label(t.class)}</span>
-                    <span className="block truncate text-[12px] font-light text-muted">
-                      {t.merchant_id ?? "Bank"} · {day(t.occurred_on)}
+
+          <section className="mt-5 grid gap-4 lg:grid-cols-12">
+            <div className="rounded-[26px] bg-teal p-6 text-white lg:col-span-8">
+              <div className="mb-4 flex items-center justify-between">
+                <h2 className="text-[16px] font-semibold">What it finds on its own</h2>
+                <span className="text-[12px] text-on-dark-muted">planted in the data, found by SQL, checked by tests</span>
+              </div>
+              <ul className="divide-y divide-white/10">
+                {FINDS.map((f) => (
+                  <li key={f.title} className="flex gap-3 py-3">
+                    <span className={`mt-1.5 h-2.5 w-2.5 shrink-0 rounded-full ${f.dot}`} aria-hidden />
+                    <span>
+                      <span className="block text-[15px] font-semibold">{f.title}</span>
+                      <span className="block text-[13.5px] leading-snug text-on-dark-muted">{f.body}</span>
                     </span>
-                  </span>
-                  <span className="text-[14px] font-medium tabular-nums">{usd(t.amount_usd, 2)}</span>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </section>
-
-        <Card className="lg:col-span-12">
-          <CardTitle>Money flow</CardTitle>
-          <dl className="grid gap-4 sm:grid-cols-3">
-            {[["Expected (booked in the ledger)", data.flow.booked_usd], ["Received (landed at the bank)", data.flow.received_usd], ["Difference", data.flow.difference_usd]].map(([k, v]) => (
-              <div key={k as string}>
-                <dt className="text-[12px] font-light text-muted">{k}</dt>
-                <dd className="text-[26px] font-medium tabular-nums">{usd(v as number)}</dd>
-              </div>
-            ))}
-          </dl>
-          <p className="mt-3 text-[12px] font-light text-muted">
-            The gap is mostly processor fees; the rest is timing and what the exceptions explain. Everything converted at the latest rate.
-          </p>
-        </Card>
-
-        <Card className="lg:col-span-4">
-          <CardTitle>What we reconciled</CardTitle>
-          <dl className="grid grid-cols-2 gap-x-4 gap-y-5">
-            {[["Ledger entries", counts.ledger_entries], ["Transactions", counts.transactions], ["Payouts", counts.payouts], ["Bank lines", counts.bank_lines]].map(([k, v]) => (
-              <div key={k as string}>
-                <dt className="text-[12px] font-light text-muted">{k}</dt>
-                <dd className="text-[22px] font-medium tabular-nums">{num(v as number)}</dd>
-              </div>
-            ))}
-          </dl>
-          {counts.pending_payouts > 0 && (
-            <p className="mt-5 rounded-2xl bg-lime-soft px-4 py-3 text-[13px] text-teal-deep">
-              {counts.pending_payouts} payouts are not due yet, so they are not counted as missing.
-            </p>
-          )}
-        </Card>
-
-        <section className="rounded-[28px] bg-teal p-6 text-white lg:col-span-3" aria-label="Progress">
-          <p className="text-[13px] font-light text-white/70">Cleared so far</p>
-          <p className="mt-2 text-[34px] font-medium leading-none tabular-nums">
-            {cleared}<span className="text-white/50"> / {totalErrors}</span>
-          </p>
-          <p className="mt-1 text-[13px] text-white/70">errors explained or resolved</p>
-          <div className="mt-5"><Meter value={cleared} max={totalErrors} tone="lime" /></div>
-          <p className="mt-3 text-[12px] text-white/70">{totalErrors ? Math.round((cleared / totalErrors) * 100) : 0}% complete</p>
-        </section>
-
-        <Card className="lg:col-span-5">
-          <CardTitle aside={<Link href="/exceptions" className="text-[13px] text-teal underline-offset-4 hover:underline">See all</Link>}>
-            Open errors by kind
-          </CardTitle>
-          {by_class.length === 0 ? (
-            <EmptyState title="All clear" hint="No open errors." />
-          ) : (
-            <ul className="space-y-3">
-              {by_class.slice(0, 6).map((c) => (
-                <li key={c.class}>
-                  <Link href={`/exceptions?class=${c.class}`} className="block rounded-xl py-1 hover:bg-line/50">
-                    <div className="mb-1 flex items-baseline justify-between text-[13px]">
-                      <span className="font-medium">{CLASS_LABELS[c.class] ?? c.class}</span>
-                      <span className="tabular-nums text-muted">{num(c.findings)} · {usd(c.amount_usd)}</span>
+                  </li>
+                ))}
+              </ul>
+              <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-white/10 pt-5">
+                <dl className="flex flex-wrap gap-8">
+                  {[["Authorizations", "54k"], ["Disputes", "200+"], ["Issuers", "20"], ["Tests", "216"]].map(([a, b]) => (
+                    <div key={a}>
+                      <dt className="text-[12.5px] text-on-dark-muted">{a}</dt>
+                      <dd className="num text-[30px] font-light leading-none">{b}</dd>
                     </div>
-                    <Meter value={c.amount_usd} max={maxClass} />
-                  </Link>
+                  ))}
+                </dl>
+                <Link href="/dashboard" className="grid h-12 w-12 place-items-center rounded-full bg-lime text-[20px] text-ink hover:brightness-95" aria-label="Open the dashboard">
+                  →
+                </Link>
+              </div>
+            </div>
+
+            <div className="grid gap-4 lg:col-span-4">
+              <div className="rounded-[26px] bg-card p-6 text-ink">
+                <p className="text-[13px] font-medium text-muted">Graded, not claimed</p>
+                <p className="num mt-2 text-[44px] font-light leading-none">0.561 → 0.999</p>
+                <p className="mt-2 text-[13px] text-muted">The first engine fell for typo&apos;d references on the hard world. The rewrite is measured on 8 seeds and floors are enforced in CI.</p>
+              </div>
+              <div className="rounded-[26px] bg-card p-6 text-ink">
+                <p className="text-[13px] font-medium text-muted">Plain-English questions</p>
+                <p className="mt-2 text-[22px] font-semibold leading-tight">&ldquo;Approval rate by issuer last week&rdquo;</p>
+                <p className="mt-2 text-[13px] text-muted">Becomes validated, read-only SQL: 45 of 45 evaluation questions answered, 68 of 68 unsafe requests refused.</p>
+              </div>
+            </div>
+          </section>
+
+          <section id="how" className="mt-10 scroll-mt-6">
+            <h2 className="text-[26px] font-semibold tracking-tight text-ink">How it works</h2>
+            <ol className="mt-4 grid gap-3 sm:grid-cols-5">
+              {STEPS.map(([t, d], i) => (
+                <li key={t} className="rounded-[20px] bg-card p-4">
+                  <span className="num text-[12px] text-on-panel-muted">0{i + 1}</span>
+                  <span className="block text-[16px] font-semibold text-ink">{t}</span>
+                  <span className="mt-1 block text-[13px] leading-snug text-on-panel-muted">{d}</span>
                 </li>
               ))}
-            </ul>
-          )}
-        </Card>
-
-        <Card className="lg:col-span-12">
-          <CardTitle>Pipeline</CardTitle>
-          <div className="flex flex-wrap items-center gap-3 text-[14px]">
-            {data.last_run ? (
-              <>
-                <Chip tone={data.last_run.status === "succeeded" ? "lime" : "bad"}>Last run {data.last_run.status}</Chip>
-                <span className="font-light text-muted">{when(data.last_run.started_at)}</span>
-              </>
-            ) : (
-              <span className="font-light text-muted">No pipeline runs recorded yet.</span>
-            )}
-            <Link href="/runs" className="ml-auto text-teal underline-offset-4 hover:underline">Runs, alerts and freshness</Link>
-          </div>
-        </Card>
+            </ol>
+            <p className="mt-4 text-[13px] text-on-panel-muted">
+              Python · DuckDB · dbt · FastAPI · Airflow · Next.js. All data is synthetic; codes follow ISO 8583, Visa and Mastercard conventions.
+            </p>
+          </section>
+        </main>
       </div>
-    </>
+      <footer className="flex flex-wrap items-center justify-between gap-2 px-4 py-5 text-[12.5px] text-muted">
+        <span>TrueUp · a portfolio project by Yuvraj Singh Shekhawat</span>
+        <Link href="/dashboard" className="font-semibold text-ink hover:underline">Open the dashboard →</Link>
+      </footer>
+    </div>
   );
 }

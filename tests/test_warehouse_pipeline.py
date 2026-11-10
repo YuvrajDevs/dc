@@ -130,13 +130,16 @@ def test_a_later_delivery_corrects_an_earlier_one(tmp_path, deliveries):
 
 def test_corrupted_batch_is_blocked_and_the_marts_stay_untouched(tmp_path, deliveries):
     db = tmp_path / "w.duckdb"
-    good = deliveries["ordered"][:-1]
+    # The last deliveries can carry only late disputes; corrupt the last one with bank lines.
+    ordered = deliveries["ordered"]
+    last = max(i for i, b in enumerate(ordered) if (b / "bank_lines.csv").exists())
+    good = ordered[:last]
     load(db, good)
     assert dbt_runner.build(db).success
     before = marts(db)
 
     bad = tmp_path / "bad"
-    shutil.copytree(deliveries["ordered"][-1], bad)
+    shutil.copytree(ordered[last], bad)
     path = bad / "bank_lines.csv"
     if not path.exists():
         path = next(bad.glob("ledger_entries.csv"))

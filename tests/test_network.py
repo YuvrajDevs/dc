@@ -205,3 +205,53 @@ def test_manifest_records_the_incidents_but_they_never_reach_the_warehouse(built
     )
     assert tables == []
     assert "incidents.csv" not in json.dumps(manifest["sha256"])
+
+
+# ---- the API ------------------------------------------------------------------------------------
+@pytest.fixture(scope="module")
+def client(built):
+    import shutil
+
+    from fastapi.testclient import TestClient
+
+    from trueup.api.app import create_app
+
+    root, _ = built
+    shutil.copy(root / "w.duckdb", root / "api.duckdb")
+    return TestClient(create_app(root / "api.duckdb", provider=None))
+
+
+def test_summary_turns_planted_incidents_into_insights(client, built):
+    _, manifest = built
+    body = client.get("/api/network/summary").json()
+    kinds = {i["kind"] for i in body["insights"]}
+    assert {"issuer_outage", "card_testing", "interchange_leakage", "excessive_disputes"} <= kinds
+    outage = next(i for i in body["insights"] if i["kind"] == "issuer_outage")
+    assert _incident(manifest, "issuer_outage")["date"] in outage["detail"]
+    assert all(i["href"].startswith("/") for i in body["insights"])
+    assert 0.8 < body["kpi"]["approval_rate"] < 0.95
+
+
+def test_approvals_breakdown_adds_up_and_filters(client):
+    all_ = client.get("/api/network/approvals?dim=channel").json()
+    by_issuer = client.get("/api/network/approvals?dim=issuer").json()
+    total = sum(r["attempts"] for r in all_["breakdown"])
+    assert total == sum(r["attempts"] for r in by_issuer["breakdown"])
+    one = by_issuer["breakdown"][0]["key"]
+    filtered = client.get(f"/api/network/approvals?dim=issuer&issuer={one}").json()
+    assert [r["key"] for r in filtered["breakdown"]] == [one]
+    assert client.get("/api/network/approvals?dim=nope").status_code == 400
+
+
+def test_disputes_and_fees_endpoints(client, built):
+    _, manifest = built
+    d = client.get("/api/network/disputes").json()
+    assert any(r["programme_status"] == "excessive" for r in d["monitoring"])
+    f = client.get("/api/network/fees").json()
+    leaking = [r["merchant_id"] for r in f["by_merchant"] if r["leakage_usd"] > 0]
+    assert leaking == [_incident(manifest, "interchange_downgrade")["merchant_id"]]
+
+
+def test_filters_are_bound_parameters_not_sql(client):
+    r = client.get("/api/network/disputes?merchant=m01' OR '1'='1")
+    assert r.status_code == 200 and r.json()["monitoring"] == []

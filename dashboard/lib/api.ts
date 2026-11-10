@@ -97,3 +97,33 @@ export type AskResult = {
   columns: string[]; rows: (string | number | null)[][]; truncated: boolean; notes: string[]; reason: string; code: string;
   milliseconds: number; examples: string[];
 };
+
+/* ---- card network ---- */
+export type Insight = { kind: string; severity: "high" | "medium" | "low"; title: string; detail: string; href: string };
+export type NetworkSummary = {
+  kpi: {
+    attempts: number; approvals: number; soft_declines: number; recovered: number; cleared: number;
+    volume_usd: number; interchange_usd: number; scheme_usd: number; margin_usd: number; leakage_usd: number;
+    disputes: number; disputes_won: number; disputes_lost: number; disputes_open: number; dispute_loss_usd: number;
+    approval_rate: number; retry_recovery_rate: number; dispute_rate: number; dispute_win_rate: number;
+    effective_interchange_bps: number;
+  };
+  daily: { day: string; attempts: number; approvals: number; approval_rate_bps: number }[];
+  insights: Insight[];
+};
+export type Approvals = {
+  dim: string;
+  breakdown: { key: string; label: string; attempts: number; approvals: number; soft_declines: number; hard_declines: number; approval_rate_bps: number; approved_usd: number }[];
+  declines: { code: string; label: string; soft: boolean; declines: number; online: number }[];
+  daily: { day: string; attempts: number; approval_rate_bps: number }[];
+};
+export type Disputes = {
+  monitoring: { merchant_id: string; month: string; cleared_txns: number; disputes: number; dispute_ratio_bps: number; cohort_dispute_ratio_bps: number; programme_status: "ok" | "warning" | "excessive" }[];
+  by_reason: { category: string; label: string; disputes: number; won: number; lost: number; accepted: number; liability_shift: number; open: number; median_days: number; loss_usd: number }[];
+  open: { dispute_id: string; merchant_id: string; reason_code: string; reason_label: string; network: string; opened_date: string; response_due: string; deadline_state: string; amount_usd: number }[];
+  cohort: { cohort_month: string; day_bucket: number; cumulative_dispute_rate_bps: number }[];
+};
+export type Fees = {
+  by_merchant: { merchant_id: string; category: string; region: string; transactions: number; volume_usd: number; processor_fee_usd: number; interchange_usd: number; scheme_usd: number; margin_usd: number; leakage_usd: number; downgraded: number; effective_ic_bps: number }[];
+  by_segment: { product: string; channel: string; cross_border: boolean; transactions: number; overpaid_usd: number; effective_ic_bps: number; rate_card_bps: number }[];
+};

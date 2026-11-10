@@ -1,24 +1,35 @@
 @import "tailwindcss";
 
+/*
+ * TrueUp: a white page, black cards for analysis, cream cards for side facts, sage and lime accents, black cards for analysis, cream cards for
+ * side facts, lime as the single accent. Existing token names are kept so every page follows.
+ */
 :root {
-  --page: #dfe9e6;
-  --card: #ffffff;
-  --ink: #0f1f1c;
-  --muted: #4a5f5a;
-  --line: #e4ece9;
-  --teal: #0b5d54;
-  --teal-deep: #08463f;
-  --lime: #c6e69a;
-  --lime-soft: #e7f4d3;
-  --warn: #9a4708;
-  --warn-soft: #fdeed9;
-  --bad: #a3262a;
-  --bad-soft: #fbe4e4;
+  --page: #ffffff;
+  --panel: #4a6238;
+  --panel-2: #557044;
+  --card: #eef2e4; /* cream: side cards, tables */
+  --ink: #0f130d;
+  --muted: #535d49; /* on cream: 6.1:1 */
+  --line: #d9e0cc;
+  --teal: #121611; /* "dark": black cards and primary buttons */
+  --teal-deep: #0b0e0a;
+  --lime: #a8d67c;
+  --lime-soft: #dcebc9;
+  --warn: #8a4a0c;
+  --warn-soft: #f5e6cd;
+  --bad: #ad2229;
+  --bad-soft: #f6dbd9;
+  --on-panel: #0f130d;
+  --on-panel-muted: #586150; /* on white: 6.4:1 */
+  --on-dark-muted: #a9b1a2; /* on black cards: 8:1 */
 }
 
 @theme inline {
-  --font-sans: var(--font-poppins);
+  --font-sans: var(--font-urbanist);
   --color-page: var(--page);
+  --color-panel: var(--panel);
+  --color-panel-2: var(--panel-2);
   --color-card: var(--card);
   --color-ink: var(--ink);
   --color-muted: var(--muted);
@@ -31,22 +42,93 @@
   --color-warn-soft: var(--warn-soft);
   --color-bad: var(--bad);
   --color-bad-soft: var(--bad-soft);
+  --color-on-panel: var(--on-panel);
+  --color-on-panel-muted: var(--on-panel-muted);
+  --color-on-dark-muted: var(--on-dark-muted);
 }
 
-html { background: var(--page); }
-body { background: var(--page); color: var(--ink); font-family: var(--font-poppins), system-ui, sans-serif; }
+html {
+  background: var(--page);
+}
+body {
+  color: var(--ink);
+  font-family: var(--font-urbanist), system-ui, sans-serif;
+  background: var(--page);
+}
 
-:focus-visible { outline: 3px solid var(--teal); outline-offset: 2px; border-radius: 8px; }
-::selection { background: var(--lime); color: var(--ink); }
+.panel {
+  background: var(--page);
+  color: var(--on-panel);
+}
+
+:focus-visible {
+  outline: 3px solid var(--lime);
+  outline-offset: 2px;
+  border-radius: 10px;
+}
+::selection {
+  background: var(--lime);
+  color: var(--ink);
+}
+
+.num {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+
+/* Smooth, calm motion */
+a,
+button,
+select,
+input {
+  transition:
+    background-color 200ms cubic-bezier(0.22, 1, 0.36, 1),
+    color 200ms cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 200ms,
+    opacity 200ms,
+    transform 200ms;
+}
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+.rise {
+  animation: rise 360ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
 
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 
-@keyframes shimmer { from { background-position: 200% 0; } to { background-position: -200% 0; } }
+@keyframes shimmer {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
 .skeleton {
-  background: linear-gradient(90deg, #eef3f1 25%, #f7faf9 50%, #eef3f1 75%);
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.12) 25%, rgba(255, 255, 255, 0.22) 50%, rgba(255, 255, 255, 0.12) 75%);
   background-size: 200% 100%;
   animation: shimmer 1.6s linear infinite;
-  border-radius: 12px;
+  border-radius: 14px;
+}
+.bg-card .skeleton {
+  background: linear-gradient(90deg, #e2e8d6 25%, #eef2e4 50%, #e2e8d6 75%);
+  background-size: 200% 100%;
+}
+
+/* Grid and flex children default to min-width:auto, which lets a wide table push a
+   single-column phone layout past the screen. Tables scroll inside their own card instead. */
+.grid > *,
+.flex > * {
+  min-width: 0;
 }

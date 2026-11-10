@@ -15,14 +15,15 @@ models:
       - name: auth_id
         tests:
           - unique
-          - relationships: {to: ref('stg_authorizations'), field: auth_id}
+          # Late-arriving rows: clearing can land a day before its authorization.
+          - relationships: {to: ref('stg_authorizations'), field: auth_id, config: {severity: warn}}
   - name: stg_disputes
     columns:
       - name: dispute_id
         tests: [unique, not_null]
       - name: order_ref
         tests:
-          - relationships: {to: ref('stg_clearing_records'), field: order_ref}
+          - relationships: {to: ref('stg_clearing_records'), field: order_ref, config: {severity: warn}}
   - name: stg_refunds
     columns:
       - name: refund_id

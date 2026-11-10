@@ -117,7 +117,7 @@ export function ExceptionDrawer({ id, onClose, onChanged }: { id: string; onClos
         aria-modal="true"
         aria-labelledby="drawer-title"
         tabIndex={-1}
-        className="absolute inset-y-0 right-0 flex w-full max-w-[520px] flex-col overflow-y-auto bg-page p-4 shadow-2xl outline-none sm:p-5"
+        className="absolute inset-y-0 right-0 flex w-full max-w-[520px] flex-col overflow-y-auto bg-card p-4 text-ink shadow-2xl outline-none sm:p-5"
       >
         <div className="mb-3 flex items-center justify-between">
           <h2 id="drawer-title" className="text-[18px] font-medium">
@@ -148,7 +148,7 @@ export function ExceptionDrawer({ id, onClose, onChanged }: { id: string; onClos
               <h3 className="mb-3 text-[14px] font-medium">What was matched</h3>
               <div className="space-y-4">
                 {data.records.map((r) => (
-                  <div key={`${r.source}-${r.id}`} className="rounded-2xl bg-page/60 p-4">
+                  <div key={`${r.source}-${r.id}`} className="rounded-2xl bg-white p-4">
                     <p className="mb-2 text-[12px] font-medium uppercase tracking-wide text-teal">{SOURCE_TITLES[r.source] ?? r.source}</p>
                     {r.record ? <RecordFacts source={r.source} rec={r.record} /> : <p className="text-[13px] text-muted">Record no longer available.</p>}
                     {r.links && r.links.length > 0 && (
@@ -180,12 +180,12 @@ export function ExceptionDrawer({ id, onClose, onChanged }: { id: string; onClos
                     Note {needsNote && <span className="text-bad">(required)</span>}
                   </label>
                   <textarea id="note" value={note} onChange={(e) => setNote(e.target.value)} rows={3} placeholder="Why is this fine, or what fixed it?"
-                    className="w-full rounded-2xl bg-page/60 px-4 py-3 text-[14px] ring-1 ring-line placeholder:text-muted/70" />
+                    className="w-full rounded-2xl bg-white px-4 py-3 text-[14px] ring-1 ring-line placeholder:text-muted/70" />
                 </div>
                 <div>
                   <label htmlFor="actor" className="mb-1 block text-[13px] font-light text-muted">Your name</label>
                   <input id="actor" value={actor} onChange={(e) => setActor(e.target.value)} autoComplete="name"
-                    className="w-full rounded-2xl bg-page/60 px-4 py-3 text-[14px] ring-1 ring-line" />
+                    className="w-full rounded-2xl bg-white px-4 py-3 text-[14px] ring-1 ring-line" />
                 </div>
                 <div aria-live="polite" className="min-h-5 text-[13px]">
                   {msg && <p className={msg.ok ? "text-teal" : "text-bad"}>{msg.text}</p>}

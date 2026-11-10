@@ -36,12 +36,12 @@ export default function AskPage() {
           <label className="sr-only" htmlFor="question">Your question</label>
           <input id="question" value={q} onChange={(e) => setQ(e.target.value)} maxLength={400} autoComplete="off"
             placeholder="e.g. Which merchants have the most exceptions?"
-            className="flex-1 rounded-2xl bg-page/60 px-5 py-3.5 text-[15px] ring-1 ring-line" />
+            className="flex-1 rounded-2xl bg-white px-5 py-3.5 text-[15px] ring-1 ring-line" />
           <Button type="submit" variant="lime" disabled={busy || !q.trim()}>{busy ? "Thinking…" : "Ask"}</Button>
         </form>
         <div className="mt-4 flex flex-wrap gap-2" aria-label="Example questions">
           {(ex?.examples ?? FALLBACK).map((s) => (
-            <button key={s} onClick={() => { setQ(s); submit(s); }} className="rounded-full bg-page/70 px-4 py-2 text-[13px] hover:bg-line">{s}</button>
+            <button key={s} onClick={() => { setQ(s); submit(s); }} className="rounded-full bg-white px-4 py-2 text-[13px] ring-1 ring-ink/10 hover:bg-lime-soft">{s}</button>
           ))}
         </div>
       </Card>
@@ -56,7 +56,7 @@ export default function AskPage() {
               <div className="overflow-x-auto rounded-2xl ring-1 ring-line">
                 <table className="w-full text-left text-[13px]">
                   <caption className="sr-only">Answer</caption>
-                  <thead className="bg-page/60"><tr>{res.columns.map((c) => <th key={c} scope="col" className="px-4 py-2.5 font-medium">{c.replaceAll("_", " ")}</th>)}</tr></thead>
+                  <thead className="bg-white"><tr>{res.columns.map((c) => <th key={c} scope="col" className="px-4 py-2.5 font-medium">{c.replaceAll("_", " ")}</th>)}</tr></thead>
                   <tbody className="divide-y divide-line">
                     {res.rows.map((r, i) => <tr key={i}>{r.map((v, j) => <td key={j} className="max-w-[420px] px-4 py-2.5 align-top tabular-nums">{v === null ? "–" : String(v)}</td>)}</tr>)}
                   </tbody>
@@ -64,7 +64,7 @@ export default function AskPage() {
               </div>
             )}
             {res.notes.map((n) => <p key={n} className="mt-3 text-[12px] text-muted">{n}</p>)}
-            <details className="mt-4 rounded-2xl bg-page/60 p-4">
+            <details className="mt-4 rounded-2xl bg-white p-4">
               <summary className="cursor-pointer text-[13px] font-medium">Show the query that ran</summary>
               <pre className="mt-3 max-h-72 overflow-auto whitespace-pre-wrap text-[12px] leading-relaxed">{res.sql}</pre>
               <Button variant="ghost" className="mt-3 !py-1.5 !text-[12px]" onClick={() => { navigator.clipboard?.writeText(res.sql); setCopied(true); }}>{copied ? "Copied" : "Copy query"}</Button>
@@ -77,7 +77,7 @@ export default function AskPage() {
         {res && res.status === "no_answer" && (
           <Card><h2 className="text-[15px] font-medium">I don’t know how to answer that yet</h2>
             <p className="mt-1 text-[14px] font-light text-muted">Try one of these:</p>
-            <div className="mt-3 flex flex-wrap gap-2">{res.examples.map((s) => <button key={s} onClick={() => { setQ(s); submit(s); }} className="rounded-full bg-page/70 px-4 py-2 text-[13px] hover:bg-line">{s}</button>)}</div>
+            <div className="mt-3 flex flex-wrap gap-2">{res.examples.map((s) => <button key={s} onClick={() => { setQ(s); submit(s); }} className="rounded-full bg-white px-4 py-2 text-[13px] ring-1 ring-ink/10 hover:bg-lime-soft">{s}</button>)}</div>
           </Card>
         )}
         {res && res.status === "error" && <ErrorState message={res.reason} />}

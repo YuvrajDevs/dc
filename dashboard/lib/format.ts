@@ -42,3 +42,12 @@ export const CLASS_LABELS: Record<string, string> = {
   ref_noise: "Mangled reference",
 };
 export const label = (c: string) => CLASS_LABELS[c] ?? c.replaceAll("_", " ");
+
+export const bps = (n: number, digits = 2) => `${(n / 100).toFixed(digits)}%`;
+export const compactUsd = (n: number) =>
+  new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", notation: "compact", maximumFractionDigits: 1 }).format(n);
+export const PRODUCT_LABELS: Record<string, string> = {
+  debit: "Debit", credit_classic: "Credit", credit_premium: "Premium credit", commercial: "Commercial",
+};
+export const month = (iso: string) =>
+  new Date(`${iso.slice(0, 10)}T00:00:00Z`).toLocaleDateString("en-GB", { month: "short", year: "2-digit", timeZone: "UTC" });

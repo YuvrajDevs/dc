@@ -134,7 +134,7 @@ class NetworkConfig:
     card_testing_merchant: str = "m10"
     card_testing_day: int = 24
     card_testing_attempts: int = 420
-    downgrade_merchant: str = "m04"
+    downgrade_merchant: str = "m05"  # a USD retailer with mostly online sales
     downgrade_share: float = 0.35
     excessive_dispute_merchant: str = "m12"
     excessive_dispute_multiplier: float = 1.0  # m12 is high-risk by category (MCC 5967)
@@ -277,7 +277,7 @@ def build(
         outage_day=min(ncfg.outage_day, max(cfg.days - 2, 0)),
         card_testing_day=min(ncfg.card_testing_day, max(cfg.days - 1, 0)),
         card_testing_merchant=_merchant(ncfg.card_testing_merchant, -3),
-        downgrade_merchant=_merchant(ncfg.downgrade_merchant, 3),
+        downgrade_merchant=_merchant(ncfg.downgrade_merchant, 4),
         excessive_dispute_merchant=_merchant(ncfg.excessive_dispute_merchant, -1),
     )
     bins = build_bins(_rng(seed, "bins"))
@@ -290,12 +290,15 @@ def build(
         b = card_rng.choice(bins)
         cards.append({"card_token": f"card_{i:06d}", "bin": b["bin"]})
     if not ncfg.outage_issuer:
-        per_issuer: dict[str, int] = {}
+        # The outage hits the issuer with the most expected traffic: cards weighted by how
+        # many merchants sit in the card's region (78% of spend is domestic to the region).
+        regions = [p["region"] for p in profiles]
+        expected: dict[str, float] = {}
         for c in cards:
-            per_issuer[by_bin[c["bin"]]["issuer_id"]] = (
-                per_issuer.get(by_bin[c["bin"]]["issuer_id"], 0) + 1
-            )
-        ncfg = replace(ncfg, outage_issuer=max(sorted(per_issuer), key=per_issuer.get))
+            b = by_bin[c["bin"]]
+            share = regions.count(b["issuer_region"]) / len(regions)
+            expected[b["issuer_id"]] = expected.get(b["issuer_id"], 0.0) + 0.22 + 0.78 * share
+        ncfg = replace(ncfg, outage_issuer=max(sorted(expected), key=expected.get))
     cards_by_region: dict[str, list[dict]] = {}
     for c in cards:
         cards_by_region.setdefault(by_bin[c["bin"]]["issuer_region"], []).append(c)

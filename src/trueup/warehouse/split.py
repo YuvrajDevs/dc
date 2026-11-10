@@ -18,8 +18,14 @@ DATE_COLUMN = {
     "processor_txns": "captured_at",
     "processor_payouts": "payout_date",
     "bank_lines": "value_date",
+    # card network (absent from older worlds, so optional)
+    "authorizations": "requested_at",
+    "clearing_records": "cleared_at",
+    "refunds": "refunded_at",
+    "disputes": "opened_at",  # disputes keep arriving weeks after the sales window
 }
 REFERENCE = ("merchants", "fee_schedule", "fx_rates")
+OPTIONAL_REFERENCE = ("merchant_profiles", "card_bins", "interchange_schedule")
 
 
 def split_world(
@@ -32,7 +38,9 @@ def split_world(
     late_counts: dict[str, int] = defaultdict(int)
 
     ref_key = "0000-reference"
-    for name in REFERENCE:
+    for name in REFERENCE + OPTIONAL_REFERENCE:
+        if name in OPTIONAL_REFERENCE and not (world_dir / f"{name}.csv").exists():
+            continue
         with (world_dir / f"{name}.csv").open(newline="", encoding="utf-8") as f:
             reader = csv.DictReader(f)
             headers[name] = list(reader.fieldnames or [])
@@ -40,6 +48,8 @@ def split_world(
 
     all_days: list[date] = []
     for name, col in DATE_COLUMN.items():
+        if not (world_dir / f"{name}.csv").exists():
+            continue
         with (world_dir / f"{name}.csv").open(newline="", encoding="utf-8") as f:
             reader = csv.DictReader(f)
             headers[name] = list(reader.fieldnames or [])

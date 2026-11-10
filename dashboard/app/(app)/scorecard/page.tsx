@@ -34,10 +34,10 @@ export default function ScorecardPage() {
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {tiles.map((t, i) => (
-          <Card key={t.name} className={i === 0 ? "bg-lime" : i === 1 ? "bg-teal text-white" : ""}>
-            <p className={`text-[13px] font-light ${i === 1 ? "text-white/75" : "text-muted"}`}>{t.name}</p>
+          <Card key={t.name} className={i === 0 ? "!bg-lime" : i === 1 ? "!bg-teal text-white" : ""}>
+            <p className={`text-[13px] font-medium ${i === 1 ? "text-on-dark-muted" : i === 0 ? "text-ink" : "text-muted"}`}>{t.name}</p>
             <p className="mt-2 text-[34px] font-medium leading-none tabular-nums">{t.value}</p>
-            <p className={`mt-2 text-[12px] font-light leading-snug ${i === 1 ? "text-white/75" : "text-muted"}`}>{t.sub}</p>
+            <p className={`mt-2 text-[12px] leading-snug ${i === 1 ? "text-on-dark-muted" : i === 0 ? "text-ink" : "text-muted"}`}>{t.sub}</p>
             {t.base && <p className={`mt-3 text-[12px] ${i === 1 ? "text-lime" : "text-teal-deep"}`}>First version of the engine: {t.base}</p>}
           </Card>
         ))}

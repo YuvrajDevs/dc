@@ -148,6 +148,7 @@ def test_runs_alerts_freshness_and_lineage(client):
         "processor_txns",
         "processor_payouts",
         "bank_lines",
+        "authorizations",
     }
     assert ["recon.findings", "ops.exceptions"] in d["lineage"]
 
