@@ -10,7 +10,7 @@
   --panel-2: #4b51c2;
   --card: #eceefb; /* lavender: supporting cards, tables */
   --ink: #0e1230;
-  --muted: #4a5078; /* on lavender: 6.6:1 */
+  --muted: #4a5078; /* on lavender: 6.7:1 */
   --line: #d5d9f2;
   --dark: #10143a; /* deep navy: analysis cards and primary buttons */
   --dark-deep: #0a0d28;
@@ -24,7 +24,7 @@
   --alert: #f08c7a;
   --caution: #e9c46a;
   --on-panel: #0e1230;
-  --on-panel-muted: #555b83; /* on white: 6.6:1 */
+  --on-panel-muted: #555b83; /* on white: 6.5:1 */
   --on-dark-muted: #a9aed8; /* on navy cards: 8:1 */
 }
 
