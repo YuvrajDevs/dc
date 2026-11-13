@@ -24,9 +24,9 @@ export default function RunsPage() {
           {data.freshness.length === 0 ? <EmptyState title="No data yet" /> : (
             <ul className="space-y-3">
               {data.freshness.map((f) => (
-                <li key={f.source} className="flex items-center justify-between gap-3 text-[14px]">
-                  <span><span className="block font-medium">{f.source.replaceAll("_", " ")}</span><span className="text-[12px] font-light text-muted">latest {day(f.latest)}{f.lag_days !== null && ` · ${f.lag_days} day(s) behind`}</span></span>
-                  <Chip tone={f.status === "ok" ? "lime" : "bad"}>{f.status === "ok" ? "Fresh" : f.status}</Chip>
+                <li key={f.source} className="flex items-center justify-between gap-3 text-body">
+                  <span><span className="block font-medium">{f.source.replaceAll("_", " ")}</span><span className="text-caption font-light text-muted">latest {day(f.latest)}{f.lag_days !== null && ` · ${f.lag_days} day(s) behind`}</span></span>
+                  <Chip tone={f.status === "ok" ? "accent" : "bad"}>{f.status === "ok" ? "Fresh" : f.status}</Chip>
                 </li>
               ))}
             </ul>
@@ -38,10 +38,10 @@ export default function RunsPage() {
           {data.alerts.length === 0 ? <EmptyState title="No alerts" hint="Nothing has gone wrong." /> : (
             <ul className="divide-y divide-line">
               {data.alerts.slice(0, 8).map((a, i) => (
-                <li key={i} className="flex items-start gap-3 py-3 text-[13px]">
+                <li key={i} className="flex items-start gap-3 py-3 text-body-sm">
                   <Chip tone={sev(a.severity)}>{a.severity}</Chip>
                   <span className="min-w-0 flex-1"><span className="block font-medium">{a.kind.replaceAll("_", " ")}</span><span className="font-light text-muted">{a.message}</span></span>
-                  <span className="shrink-0 text-[12px] font-light text-muted">{when(a.raised_at)}</span>
+                  <span className="shrink-0 text-caption font-light text-muted">{when(a.raised_at)}</span>
                 </li>
               ))}
             </ul>
@@ -53,13 +53,13 @@ export default function RunsPage() {
           {data.runs.length === 0 ? <EmptyState title="No runs recorded" hint="Run python -m trueup run ... to record one." /> : (
             <ul className="divide-y divide-line">
               {data.runs.map((r) => (
-                <li key={r.run_id} className="flex flex-wrap items-center gap-x-4 gap-y-2 py-3 text-[13px]">
-                  <Chip tone={r.status === "succeeded" ? "lime" : r.status === "failed" ? "bad" : "warn"}>{r.status}</Chip>
+                <li key={r.run_id} className="flex flex-wrap items-center gap-x-4 gap-y-2 py-3 text-body-sm">
+                  <Chip tone={r.status === "succeeded" ? "accent" : r.status === "failed" ? "bad" : "warn"}>{r.status}</Chip>
                   <span className="min-w-0 flex-1 font-medium">{r.run_id}</span>
                   <ol className="flex flex-wrap gap-1.5" aria-label="Steps">
-                    {r.steps.map((s, i) => <li key={i}><Chip tone={s.status === "succeeded" ? "lime" : s.status === "skipped" ? "neutral" : "bad"}>{s.step}{s.status === "skipped" ? " (skipped)" : ""}</Chip></li>)}
+                    {r.steps.map((s, i) => <li key={i}><Chip tone={s.status === "succeeded" ? "accent" : s.status === "skipped" ? "neutral" : "bad"}>{s.step}{s.status === "skipped" ? " (skipped)" : ""}</Chip></li>)}
                   </ol>
-                  <span className="text-[12px] font-light text-muted">{when(r.started_at)}</span>
+                  <span className="text-caption font-light text-muted">{when(r.started_at)}</span>
                   {r.error && <p className="basis-full text-bad">{r.error}</p>}
                 </li>
               ))}
@@ -72,8 +72,8 @@ export default function RunsPage() {
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {byLayer.filter((g) => g.edges.length).map(({ l, edges }) => (
               <div key={l}>
-                <h3 className="mb-2 text-[12px] font-medium uppercase tracking-wide text-teal">{l}</h3>
-                <ul className="space-y-1.5 text-[12px]">
+                <h3 className="mb-2 text-caption font-medium uppercase tracking-wide text-dark">{l}</h3>
+                <ul className="space-y-1.5 text-caption">
                   {Object.entries(edges.reduce<Record<string, string[]>>((a, [p, c]) => ((a[c] ??= []).push(p), a), {})).map(([child, parents]) => (
                     <li key={child}><span className="font-medium">{child}</span><br /><span className="font-light text-muted">← {parents.join(", ")}</span></li>
                   ))}

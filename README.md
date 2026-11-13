@@ -59,6 +59,8 @@ make uat           # browser acceptance tests
 ## Status
 Delivery is planned in phases through to user acceptance testing and release. See [docs/ROADMAP.md](docs/ROADMAP.md).
 
+The interface follows a small design system: tokens, type scale and component rules in [docs/DESIGN_SYSTEM.md](docs/DESIGN_SYSTEM.md).
+
 | Phase | | |
 |---|---|---|
 | 0 Foundation | Done | repo, CI, tooling |

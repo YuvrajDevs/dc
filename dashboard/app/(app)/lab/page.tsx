@@ -66,9 +66,9 @@ const KIND = {
 } as const;
 
 const VERDICT = {
-  found: { label: "Found", cls: "bg-lime text-ink" },
-  missed: { label: "Missed", cls: "bg-[#f08c7a] text-ink" },
-  false_alarm: { label: "False alarm", cls: "bg-[#e9c46a] text-ink" },
+  found: { label: "Found", cls: "bg-accent text-ink" },
+  missed: { label: "Missed", cls: "bg-alert text-ink" },
+  false_alarm: { label: "False alarm", cls: "bg-caution text-ink" },
   quiet: { label: "Quiet, correctly", cls: "bg-white/10 text-white" },
   too_faint: { label: "Too faint to see", cls: "bg-white/10 text-white" },
 } as const;
@@ -123,14 +123,14 @@ export default function LabPage() {
       />
       <div className="grid gap-4 md:grid-cols-12">
         <Card className="md:col-span-5">
-          <CardTitle aside={<span className="text-[12px] text-muted">same settings, same world</span>}>What to plant</CardTitle>
+          <CardTitle aside={<span className="text-caption text-muted">same settings, same world</span>}>What to plant</CardTitle>
           <div className="mb-5 flex flex-wrap gap-2">
             {PRESETS.map((p) => (
               <button
                 key={p.label}
                 type="button"
                 onClick={() => setS({ ...s, ...p.s })}
-                className="rounded-full px-3 py-1.5 text-[13px] font-medium text-ink ring-1 ring-ink/20 hover:bg-ink/5"
+                className="rounded-full px-3 py-1.5 text-body-sm font-medium text-ink ring-1 ring-ink/20 hover:bg-ink/5"
               >
                 {p.label}
               </button>
@@ -140,8 +140,8 @@ export default function LabPage() {
             {KNOBS.map((k) => (
               <label key={k.key} className="block">
                 <span className="flex items-baseline justify-between gap-3">
-                  <span className="text-[14px] font-semibold">{k.label}</span>
-                  <span className="num text-[13px] font-semibold">{k.fmt ? k.fmt(s[k.key]) : s[k.key]}</span>
+                  <span className="text-body font-semibold">{k.label}</span>
+                  <span className="num text-body-sm font-semibold">{k.fmt ? k.fmt(s[k.key]) : s[k.key]}</span>
                 </span>
                 <input
                   type="range"
@@ -150,13 +150,13 @@ export default function LabPage() {
                   step={k.step}
                   value={s[k.key]}
                   onChange={(e) => setS({ ...s, [k.key]: Number(e.target.value) })}
-                  className="mt-1 w-full accent-[#121611]"
+                  className="mt-1 w-full accent-dark"
                 />
-                <span className="block text-[12px] text-muted">{k.hint}</span>
+                <span className="block text-caption text-muted">{k.hint}</span>
               </label>
             ))}
             <label className="flex items-center justify-between gap-3">
-              <span className="text-[14px] font-semibold">Seed</span>
+              <span className="text-body font-semibold">Seed</span>
               <span className="flex items-center gap-2">
                 <input
                   type="number"
@@ -164,12 +164,12 @@ export default function LabPage() {
                   max={99999}
                   value={s.seed}
                   onChange={(e) => setS({ ...s, seed: Number(e.target.value) || 1 })}
-                  className="num w-24 rounded-full bg-white px-3 py-1.5 text-right text-[14px] ring-1 ring-ink/15"
+                  className="num w-24 rounded-full bg-white px-3 py-1.5 text-right text-body ring-1 ring-ink/15"
                 />
                 <button
                   type="button"
                   onClick={() => setS({ ...s, seed: 1 + Math.floor(Math.random() * 99999) })}
-                  className="rounded-full px-3 py-1.5 text-[13px] font-medium ring-1 ring-ink/20 hover:bg-ink/5"
+                  className="rounded-full px-3 py-1.5 text-body-sm font-medium ring-1 ring-ink/20 hover:bg-ink/5"
                 >
                   Random
                 </button>
@@ -180,7 +180,7 @@ export default function LabPage() {
             {busy ? "Generating and detecting…" : "Run the lab"}
           </Button>
           {err && (
-            <p role="alert" className="mt-3 text-[13px] text-bad">
+            <p role="alert" className="mt-3 text-body-sm text-bad">
               {err}. The demo API sleeps when idle; try again in a few seconds.
             </p>
           )}
@@ -188,11 +188,23 @@ export default function LabPage() {
 
         <DarkCard className="md:col-span-7" aria-live="polite" aria-busy={busy}>
           {!run ? (
-            <div className="flex h-full min-h-[320px] flex-col justify-center gap-3">
-              <p className="text-[22px] font-semibold leading-tight">Nothing run yet.</p>
-              <p className="max-w-md text-[14px] text-on-dark-muted">
+            <div className="flex h-full flex-col">
+              <p className="text-micro font-medium uppercase tracking-wide text-on-dark-muted">How a run works</p>
+              <p className="mt-2 text-title font-semibold">Plant incidents on the left, then run the lab.</p>
+              <p className="mt-2 max-w-md text-body text-on-dark-muted">
                 Each run builds a new world of authorizations, clearing and disputes from your settings, runs four detectors in DuckDB, and grades them against what you planted.
               </p>
+              {/* A preview of the result, so the empty panel explains what will appear here */}
+              <ol className="mt-6 divide-y divide-white/10 border-y border-white/10" aria-label="Detectors that will be graded">
+                {Object.values(KIND).map(({ title: d }, i) => (
+                  <li key={d} className="flex items-center gap-3 py-3.5 text-body">
+                    <span className="num w-5 text-caption text-on-dark-muted">{String(i + 1).padStart(2, "0")}</span>
+                    <span className="flex-1">{d}</span>
+                    <span className="rounded-full border border-dashed border-white/25 px-2.5 py-0.5 text-caption text-on-dark-muted">Caught or missed</span>
+                  </li>
+                ))}
+              </ol>
+              <p className="mt-auto pt-6 text-caption text-on-dark-muted">A run takes a few seconds; the free API can take up to a minute to wake.</p>
             </div>
           ) : (
             <div className={cx(busy && "opacity-50 transition-opacity")}>
@@ -205,12 +217,12 @@ export default function LabPage() {
                     ...(run.score.too_faint ? [["Too faint", run.score.too_faint]] : []),
                   ].map(([a, b]) => (
                     <div key={a}>
-                      <dt className="text-[12.5px] text-on-dark-muted">{a}</dt>
-                      <dd className="num text-[34px] font-light leading-none">{b}</dd>
+                      <dt className="text-body-sm text-on-dark-muted">{a}</dt>
+                      <dd className="num text-stat font-light leading-none">{b}</dd>
                     </div>
                   ))}
                 </dl>
-                <p className="text-[12px] text-on-dark-muted">
+                <p className="text-caption text-on-dark-muted">
                   {num(run.world.authorizations)} authorizations · {num(run.world.disputes)} disputes · {run.world.days} days · {(run.seconds.generate + run.seconds.detect).toFixed(1)}s
                 </p>
               </div>
@@ -218,15 +230,15 @@ export default function LabPage() {
                 {run.results.map((r) => (
                   <li key={r.kind} className="py-4">
                     <div className="flex flex-wrap items-center justify-between gap-2">
-                      <span className="text-[15px] font-semibold">{KIND[r.kind].title}</span>
-                      <span className={cx("rounded-full px-2.5 py-0.5 text-[12px] font-semibold", VERDICT[r.verdict].cls)}>
+                      <span className="text-lead font-semibold">{KIND[r.kind].title}</span>
+                      <span className={cx("rounded-full px-2.5 py-0.5 text-caption font-semibold", VERDICT[r.verdict].cls)}>
                         {VERDICT[r.verdict].label}
                         {r.false_alarms > 0 && r.verdict !== "false_alarm" ? ` · ${r.false_alarms} false alarm${r.false_alarms > 1 ? "s" : ""}` : ""}
                       </span>
                     </div>
-                    <p className="mt-1 text-[13px]"><span className="text-on-dark-muted">Planted:</span> {plantedText(r)}</p>
-                    <p className="text-[13px]"><span className="text-on-dark-muted">Detected:</span> {evidenceText(r)}</p>
-                    <p className="mt-1 text-[12px] text-on-dark-muted">Rule: {KIND[r.kind].rule}</p>
+                    <p className="mt-1 text-body-sm"><span className="text-on-dark-muted">Planted:</span> {plantedText(r)}</p>
+                    <p className="text-body-sm"><span className="text-on-dark-muted">Detected:</span> {evidenceText(r)}</p>
+                    <p className="mt-1 text-caption text-on-dark-muted">Rule: {KIND[r.kind].rule}</p>
                   </li>
                 ))}
               </ul>

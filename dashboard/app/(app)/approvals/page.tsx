@@ -2,7 +2,7 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense } from "react";
-import { Bars, Meter } from "@/components/charts";
+import { Bars, niceFloor, Meter } from "@/components/charts";
 import { Card, CardTitle, Chip, DarkCard, ErrorState, PageHeader, Pills, Skeleton, Stat } from "@/components/ui";
 import { type Approvals, useApi } from "@/lib/api";
 import { PRODUCT_LABELS, bps, compactUsd, day, num, pct } from "@/lib/format";
@@ -58,7 +58,7 @@ function View() {
         intro="Who says yes, who says no and why. Slice by any dimension; click a merchant or issuer to drill in."
       />
       <div className="mb-6 grid grid-cols-2 gap-x-4 gap-y-6 sm:grid-cols-4 sm:gap-6">
-        <Stat label="Approval rate" value={total ? (100 * approved / total).toFixed(1) : "–"} unit="%" hint={filter ?? "all traffic"} />
+        <Stat label="Approval rate" value={total ? (100 * approved / total).toFixed(1) : "–"} suffix="%" hint={filter ?? "all traffic"} />
         <Stat label="Attempts" value={num(total)} />
         <Stat label="Soft declines" value={num(soft)} hint="retry can succeed" />
         <Stat label="Hard declines" value={num(hard)} hint="do not retry" />
@@ -69,7 +69,7 @@ function View() {
           <button
             type="button"
             onClick={() => set({ merchant: null, issuer: null })}
-            className="rounded-full bg-lime px-4 py-2 text-[14px] font-semibold text-ink hover:brightness-95"
+            className="rounded-full bg-accent px-4 py-2 text-body font-semibold text-ink hover:brightness-95"
           >
             {filter} ✕
           </button>
@@ -85,7 +85,7 @@ function View() {
               data={data.daily.map((d) => ({ key: d.day, label: day(d.day), value: d.approval_rate_bps / 10000 }))}
               format={(v) => pct(v, 1)}
               height={265}
-              min={Math.max(0, Math.min(...data.daily.map((d) => d.approval_rate_bps / 10000)) - 0.05)}
+              min={niceFloor(data.daily.map((d) => d.approval_rate_bps / 10000))}
             />
           ) : (
             <Skeleton className="h-40" />
@@ -99,13 +99,13 @@ function View() {
             <ul className="space-y-3">
               {data.declines.slice(0, 7).map((d) => (
                 <li key={d.code}>
-                  <div className="mb-1 flex items-center justify-between gap-2 text-[13px]">
+                  <div className="mb-1 flex items-center justify-between gap-2 text-body-sm">
                     <span className="flex min-w-0 items-center gap-2">
                       <span className="num w-6 shrink-0 font-semibold text-muted">{d.code}</span>
                       <span className="truncate font-medium">{d.label}</span>
                     </span>
                     <span className="flex shrink-0 items-center gap-2">
-                      <Chip tone={d.soft ? "lime" : "neutral"}>{d.soft ? "soft" : "hard"}</Chip>
+                      <Chip tone={d.soft ? "accent" : "neutral"}>{d.soft ? "soft" : "hard"}</Chip>
                       <span className="num w-12 text-right">{num(d.declines)}</span>
                     </span>
                   </div>
@@ -122,9 +122,9 @@ function View() {
             <Skeleton className="h-48" />
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[640px] text-[14px]">
+              <table className="w-full min-w-[640px] text-body">
                 <thead>
-                  <tr className="text-left text-[12px] text-muted">
+                  <tr className="text-left text-caption text-muted">
                     <th scope="col" className="py-2 font-medium">{DIMS.find((d) => d.value === dim)?.label}</th>
                     <th scope="col" className="py-2 text-right font-medium">Attempts</th>
                     <th scope="col" className="w-[30%] py-2 pl-6 font-medium">Approval rate</th>

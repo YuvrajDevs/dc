@@ -36,12 +36,12 @@ export default function AskPage() {
           <label className="sr-only" htmlFor="question">Your question</label>
           <input id="question" value={q} onChange={(e) => setQ(e.target.value)} maxLength={400} autoComplete="off"
             placeholder="e.g. Which merchants have the most exceptions?"
-            className="flex-1 rounded-2xl bg-white px-5 py-3.5 text-[15px] ring-1 ring-line" />
-          <Button type="submit" variant="lime" disabled={busy || !q.trim()}>{busy ? "Thinking…" : "Ask"}</Button>
+            className="flex-1 rounded-2xl bg-white px-5 py-3.5 text-lead ring-1 ring-line" />
+          <Button type="submit" variant="accent" disabled={busy || !q.trim()}>{busy ? "Thinking…" : "Ask"}</Button>
         </form>
         <div className="mt-4 flex flex-wrap gap-2" aria-label="Example questions">
           {(ex?.examples ?? FALLBACK).map((s) => (
-            <button key={s} onClick={() => { setQ(s); submit(s); }} className="rounded-full bg-white px-4 py-2 text-[13px] ring-1 ring-ink/10 hover:bg-lime-soft">{s}</button>
+            <button key={s} onClick={() => { setQ(s); submit(s); }} className="rounded-full bg-white px-4 py-2 text-body-sm ring-1 ring-ink/10 hover:bg-accent-soft">{s}</button>
           ))}
         </div>
       </Card>
@@ -50,11 +50,11 @@ export default function AskPage() {
         {err && <ErrorState message={err} />}
         {res && res.status === "ok" && (
           <Card>
-            <CardTitle aside={<Chip tone="lime">{res.source === "llm" ? "Language model, checked" : "Built-in"} · {res.milliseconds} ms</Chip>}>{res.question}</CardTitle>
-            {res.explanation && <p className="mb-4 text-[14px] font-light text-muted">{res.explanation}</p>}
+            <CardTitle aside={<Chip tone="accent">{res.source === "llm" ? "Language model, checked" : "Built-in"} · {res.milliseconds} ms</Chip>}>{res.question}</CardTitle>
+            {res.explanation && <p className="mb-4 text-body font-light text-muted">{res.explanation}</p>}
             {res.rows.length === 0 ? <EmptyState title="No rows" hint="The query ran and found nothing." /> : (
               <div className="overflow-x-auto rounded-2xl ring-1 ring-line">
-                <table className="w-full text-left text-[13px]">
+                <table className="w-full text-left text-body-sm">
                   <caption className="sr-only">Answer</caption>
                   <thead className="bg-white"><tr>{res.columns.map((c) => <th key={c} scope="col" className="px-4 py-2.5 font-medium">{c.replaceAll("_", " ")}</th>)}</tr></thead>
                   <tbody className="divide-y divide-line">
@@ -63,21 +63,21 @@ export default function AskPage() {
                 </table>
               </div>
             )}
-            {res.notes.map((n) => <p key={n} className="mt-3 text-[12px] text-muted">{n}</p>)}
+            {res.notes.map((n) => <p key={n} className="mt-3 text-caption text-muted">{n}</p>)}
             <details className="mt-4 rounded-2xl bg-white p-4">
-              <summary className="cursor-pointer text-[13px] font-medium">Show the query that ran</summary>
-              <pre className="mt-3 max-h-72 overflow-auto whitespace-pre-wrap text-[12px] leading-relaxed">{res.sql}</pre>
-              <Button variant="ghost" className="mt-3 !py-1.5 !text-[12px]" onClick={() => { navigator.clipboard?.writeText(res.sql); setCopied(true); }}>{copied ? "Copied" : "Copy query"}</Button>
+              <summary className="cursor-pointer text-body-sm font-medium">Show the query that ran</summary>
+              <pre className="mt-3 max-h-72 overflow-auto whitespace-pre-wrap text-caption leading-relaxed">{res.sql}</pre>
+              <Button variant="ghost" className="mt-3 !py-1.5 !text-caption" onClick={() => { navigator.clipboard?.writeText(res.sql); setCopied(true); }}>{copied ? "Copied" : "Copy query"}</Button>
             </details>
           </Card>
         )}
         {res && res.status === "refused" && (
-          <Card className="bg-warn-soft"><h2 className="text-[15px] font-medium text-warn">I can’t run that</h2><p className="mt-1 text-[14px]">{res.reason}</p></Card>
+          <Card className="bg-warn-soft"><h2 className="text-lead font-medium text-warn">I can’t run that</h2><p className="mt-1 text-body">{res.reason}</p></Card>
         )}
         {res && res.status === "no_answer" && (
-          <Card><h2 className="text-[15px] font-medium">I don’t know how to answer that yet</h2>
-            <p className="mt-1 text-[14px] font-light text-muted">Try one of these:</p>
-            <div className="mt-3 flex flex-wrap gap-2">{res.examples.map((s) => <button key={s} onClick={() => { setQ(s); submit(s); }} className="rounded-full bg-white px-4 py-2 text-[13px] ring-1 ring-ink/10 hover:bg-lime-soft">{s}</button>)}</div>
+          <Card><h2 className="text-lead font-medium">I don’t know how to answer that yet</h2>
+            <p className="mt-1 text-body font-light text-muted">Try one of these:</p>
+            <div className="mt-3 flex flex-wrap gap-2">{res.examples.map((s) => <button key={s} onClick={() => { setQ(s); submit(s); }} className="rounded-full bg-white px-4 py-2 text-body-sm ring-1 ring-ink/10 hover:bg-accent-soft">{s}</button>)}</div>
           </Card>
         )}
         {res && res.status === "error" && <ErrorState message={res.reason} />}

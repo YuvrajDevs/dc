@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { Bars } from "@/components/charts";
-import { ArrowLink, Card, CardTitle, DarkCard, ErrorState, Pills, Ring, Skeleton, Stat, cx } from "@/components/ui";
+import { Bars, niceFloor } from "@/components/charts";
+import { ArrowLink, Card, CardTitle, DarkCard, ErrorState, PageHeader, Pills, Skeleton, Stat, cx } from "@/components/ui";
 import { type Insight, type NetworkSummary, type Overview, useApi } from "@/lib/api";
 import { bps, compactUsd, day, num, pct, usd } from "@/lib/format";
 
@@ -16,7 +16,7 @@ const TOPIC_OF: Record<string, Topic> = {
   interchange_leakage: "fees",
   negative_margin: "fees",
 };
-const SEVERITY = { high: "bg-[#f08c7a]", medium: "bg-[#e9c46a]", low: "bg-lime" } as const;
+const SEVERITY = { high: "bg-alert", medium: "bg-caution", low: "bg-accent" } as const;
 
 export default function DashboardPage() {
   const net = useApi<NetworkSummary>("/api/network/summary");
@@ -27,7 +27,7 @@ export default function DashboardPage() {
   const outageDays = useMemo(() => {
     const s = new Set<string>();
     net.data?.insights.forEach((i) => {
-      const m = i.detail.match(/on (\d{4}-\d{2}-\d{2})/);
+      const m = i.detail.match(/(\d{4}-\d{2}-\d{2})/);
       if (m && (i.kind === "issuer_outage" || i.kind === "card_testing")) s.add(m[1]);
     });
     return s;
@@ -42,27 +42,21 @@ export default function DashboardPage() {
 
   return (
     <>
-      {/* Header row: title, ring, three big numbers */}
-      <section className="grid grid-cols-2 items-end gap-x-4 gap-y-6 lg:grid-cols-[1.2fr_auto_1fr_1fr_1fr] lg:gap-6">
-        <h1 className="col-span-2 text-[40px] font-semibold leading-[1.02] tracking-tight text-ink sm:text-[52px] lg:col-span-1">
-          Card
-          <br />
-          payments
-        </h1>
-        {k ? <Ring value={k.approval_rate} label="Approval rate" /> : <Skeleton className="h-24 w-24 rounded-full" />}
+      <PageHeader
+        title="Card payments"
+        intro="What needs a decision today across approvals, disputes, fees and reconciliation. Every finding links to the rows behind it."
+      />
+      {/* Same KPI row as every other page: four figures with where each comes from */}
+      <section className="grid grid-cols-2 gap-x-4 gap-y-6 lg:grid-cols-4 lg:gap-6" aria-label="Key figures">
         {k && rec.data ? (
           <>
-            <Stat label="Approved volume" value={compactUsd(k.volume_usd).replace("$", "")} unit="$" hint={`${num(k.cleared)} cleared payments`} />
-            <Stat
-              label="Open reconciliation errors"
-              value={compactUsd(rec.data.kpi.open_amount_usd).replace("$", "")}
-              unit="$"
-              hint={`${num(rec.data.kpi.open_errors)} findings to decide`}
-            />
-            <Stat label="Dispute ratio" value={(k.dispute_rate * 100).toFixed(2)} unit="%" hint={`${k.disputes} disputes · ${k.disputes_open} open`} />
+            <Stat label="Approval rate" value={(k.approval_rate * 100).toFixed(1)} suffix="%" hint="all traffic" />
+            <Stat label="Approved volume" value={compactUsd(k.volume_usd)} hint={`${num(k.cleared)} cleared payments`} />
+            <Stat label="Open reconciliation errors" value={compactUsd(rec.data.kpi.open_amount_usd)} hint={`${num(rec.data.kpi.open_errors)} findings to decide`} />
+            <Stat label="Dispute ratio" value={(k.dispute_rate * 100).toFixed(2)} suffix="%" hint={`${k.disputes} disputes · ${k.disputes_open} open`} />
           </>
         ) : (
-          [0, 1, 2].map((i) => <Skeleton key={i} className="h-20" />)
+          [0, 1, 2, 3].map((i) => <Skeleton key={i} className="h-24" />)
         )}
       </section>
 
@@ -78,7 +72,7 @@ export default function DashboardPage() {
             { value: "fees", label: "Fees" },
           ]}
         />
-        <Link href="/lab" className="rounded-full bg-lime px-4 py-2 text-[14px] font-semibold text-ink hover:brightness-95">
+        <Link href="/lab" className="rounded-full bg-accent px-4 py-2 text-body font-semibold text-ink hover:brightness-95">
           Plant an attack in the lab →
         </Link>
       </div>
@@ -86,7 +80,7 @@ export default function DashboardPage() {
       <div className="mt-5 grid gap-4 lg:grid-cols-12">
         {/* What needs attention */}
         <DarkCard className="lg:col-span-8">
-          <CardTitle dark aside={<span className="text-[12px] text-on-dark-muted">{insights.length} found in the data</span>}>
+          <CardTitle dark aside={<span className="text-caption text-on-dark-muted">{insights.length} found in the data</span>}>
             What needs attention
           </CardTitle>
           {!net.data ? (
@@ -98,10 +92,10 @@ export default function DashboardPage() {
                   <Link href={i.href} className="group flex items-start gap-3 rounded-xl px-2 py-3 hover:bg-white/5">
                     <span className={cx("mt-1.5 h-2.5 w-2.5 shrink-0 rounded-full", SEVERITY[i.severity])} aria-label={`${i.severity} severity`} />
                     <span className="min-w-0 flex-1">
-                      <span className="block text-[15px] font-semibold">{i.title}</span>
-                      <span className="block text-[13.5px] leading-snug text-on-dark-muted">{i.detail}</span>
+                      <span className="block text-lead font-semibold">{i.title}</span>
+                      <span className="block text-body leading-snug text-on-dark-muted">{i.detail}</span>
                     </span>
-                    <span aria-hidden className="mt-1 text-on-dark-muted transition group-hover:translate-x-0.5 group-hover:text-lime">→</span>
+                    <span aria-hidden className="mt-1 text-on-dark-muted transition group-hover:translate-x-0.5 group-hover:text-accent">→</span>
                   </Link>
                 </li>
               ))}
@@ -116,9 +110,9 @@ export default function DashboardPage() {
                 ["Processor margin", compactUsd(k.margin_usd), "after network costs"],
               ].map(([a, b, c]) => (
                 <div key={a}>
-                  <dt className="text-[12.5px] text-on-dark-muted">{a}</dt>
-                  <dd className="num mt-1 text-[28px] font-light leading-none">{b}</dd>
-                  <dd className="mt-1 text-[12px] text-on-dark-muted">{c}</dd>
+                  <dt className="text-body-sm text-on-dark-muted">{a}</dt>
+                  <dd className="num mt-1 text-section font-light leading-none">{b}</dd>
+                  <dd className="mt-1 text-caption text-on-dark-muted">{c}</dd>
                 </div>
               ))}
             </dl>
@@ -131,10 +125,10 @@ export default function DashboardPage() {
             <CardTitle aside={<ArrowLink href="/exceptions">Review</ArrowLink>}>Reconciliation</CardTitle>
             {rec.data ? (
               <>
-                <p className="text-[13px] text-muted">Ledger vs processor vs bank</p>
-                <p className="num mt-1 text-[40px] font-light leading-none">{num(rec.data.kpi.open_errors)}</p>
-                <p className="mt-1 text-[13px] text-muted">open errors · {usd(rec.data.kpi.open_amount_usd)} at stake</p>
-                <p className="mt-3 rounded-2xl bg-lime-soft px-3 py-2 text-[12.5px]">
+                <p className="text-body-sm text-muted">Ledger vs processor vs bank</p>
+                <p className="num mt-1 text-stat font-light leading-none">{num(rec.data.kpi.open_errors)}</p>
+                <p className="mt-1 text-body-sm text-muted">open errors · {usd(rec.data.kpi.open_amount_usd)} at stake</p>
+                <p className="mt-3 rounded-2xl bg-accent-soft px-3 py-2 text-body-sm">
                   {num(rec.data.kpi.benign_explained)} look-alikes explained automatically, not raised.
                 </p>
               </>
@@ -146,9 +140,9 @@ export default function DashboardPage() {
             <CardTitle aside={<ArrowLink href="/disputes">Open</ArrowLink>}>Disputes</CardTitle>
             {k ? (
               <>
-                <p className="text-[13px] text-muted">Lost or accepted, plus fees</p>
-                <p className="num mt-1 text-[40px] font-light leading-none">{usd(k.dispute_loss_usd)}</p>
-                <p className="mt-1 text-[13px] text-muted">
+                <p className="text-body-sm text-muted">Lost or accepted, plus fees</p>
+                <p className="num mt-1 text-stat font-light leading-none">{usd(k.dispute_loss_usd)}</p>
+                <p className="mt-1 text-body-sm text-muted">
                   {k.disputes_won} won · {k.disputes_lost} lost · {k.disputes_open} awaiting a response
                 </p>
               </>
@@ -160,9 +154,9 @@ export default function DashboardPage() {
             <CardTitle aside={<ArrowLink href="/fees">Audit</ArrowLink>}>Fees</CardTitle>
             {k ? (
               <>
-                <p className="text-[13px] text-muted">Interchange paid to issuers</p>
-                <p className="num mt-1 text-[40px] font-light leading-none">{bps(k.effective_interchange_bps)}</p>
-                <p className="mt-1 text-[13px] text-muted">
+                <p className="text-body-sm text-muted">Interchange paid to issuers</p>
+                <p className="num mt-1 text-stat font-light leading-none">{bps(k.effective_interchange_bps)}</p>
+                <p className="mt-1 text-body-sm text-muted">
                   of volume · {usd(k.leakage_usd)} charged above the rate card
                 </p>
               </>
@@ -177,8 +171,8 @@ export default function DashboardPage() {
           <CardTitle
             dark
             aside={
-              <span className="text-[12px] text-on-dark-muted">
-                <i className="mr-1 inline-block h-2 w-2 rounded-full bg-[#f08c7a]" /> incident day
+              <span className="text-caption text-on-dark-muted">
+                <i className="mr-1 inline-block h-2 w-2 rounded-full bg-alert" /> incident day
               </span>
             }
           >
@@ -189,7 +183,7 @@ export default function DashboardPage() {
               label="Approval rate by day"
               data={net.data.daily.map((d) => ({ key: d.day, label: day(d.day), value: d.approval_rate_bps / 10000 }))}
               format={(v) => pct(v, 1)}
-              min={0.8}
+              min={niceFloor(net.data.daily.map((d) => d.approval_rate_bps / 10000))}
               highlight={outageDays}
               selected={selectedDay}
               onSelect={setSelectedDay}
@@ -198,9 +192,9 @@ export default function DashboardPage() {
             <Skeleton className="h-40" />
           )}
           {day1 && (
-            <p className="rise mt-4 text-[13.5px] text-on-dark-muted">
+            <p className="rise mt-4 text-body text-on-dark-muted">
               {day(day1.day)}: {num(day1.attempts)} attempts, {num(day1.approvals)} approved.{" "}
-              <Link className="font-semibold text-lime hover:underline" href="/approvals?dim=issuer">
+              <Link className="font-semibold text-accent hover:underline" href="/approvals?dim=issuer">
                 Break down by issuer →
               </Link>
             </p>

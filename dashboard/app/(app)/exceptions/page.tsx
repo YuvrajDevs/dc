@@ -59,42 +59,42 @@ function ExceptionsInner() {
       <PageHeader
         title="Exceptions"
         intro="Every disagreement between your ledger, the processor and the bank. Open one to see exactly what was matched, then explain or resolve it."
-        actions={<a href={exportHref} download><Button variant="lime">Export CSV</Button></a>}
+        actions={<a href={exportHref} download><Button variant="accent">Export CSV</Button></a>}
       />
 
       <Card className="mb-4 p-4 sm:p-5">
         <div role="group" aria-label="Status" className="mb-4 flex flex-wrap gap-2">
           {STATUSES.map((s) => (
             <button key={s.text} onClick={() => { setStatus(s.value); setPage(0); }} aria-pressed={status === s.value}
-              className={`rounded-full px-4 py-2 text-[13px] font-medium transition ${status === s.value ? "bg-teal text-white" : "bg-white text-ink ring-1 ring-ink/10 hover:bg-lime-soft"}`}>
+              className={`rounded-full px-4 py-2 text-body-sm font-medium transition ${status === s.value ? "bg-dark text-white" : "bg-white text-ink ring-1 ring-ink/10 hover:bg-accent-soft"}`}>
               {s.text}
             </button>
           ))}
         </div>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
-          <label className="block text-[12px] font-light text-muted lg:col-span-2">Search
+          <label className="block text-caption font-light text-muted lg:col-span-2">Search
             <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Reason text or exception ID"
-              className="mt-1 w-full rounded-2xl bg-white px-4 py-2.5 text-[14px] text-ink ring-1 ring-line" />
+              className="mt-1 w-full rounded-2xl bg-white px-4 py-2.5 text-body text-ink ring-1 ring-line" />
           </label>
-          <label className="block text-[12px] font-light text-muted">Kind
-            <select value={cls} onChange={(e) => { setCls(e.target.value); setPage(0); }} className="mt-1 w-full rounded-2xl bg-white px-3 py-2.5 text-[14px] text-ink ring-1 ring-line">
+          <label className="block text-caption font-light text-muted">Kind
+            <select value={cls} onChange={(e) => { setCls(e.target.value); setPage(0); }} className="mt-1 w-full rounded-2xl bg-white px-3 py-2.5 text-body text-ink ring-1 ring-line">
               <option value="">All kinds</option>
               {classes.map((f) => <option key={f.class} value={f.class}>{CLASS_LABELS[f.class] ?? f.class} ({f.n})</option>)}
             </select>
           </label>
-          <label className="block text-[12px] font-light text-muted">Merchant
-            <select value={merchant} onChange={(e) => { setMerchant(e.target.value); setPage(0); }} className="mt-1 w-full rounded-2xl bg-white px-3 py-2.5 text-[14px] text-ink ring-1 ring-line">
+          <label className="block text-caption font-light text-muted">Merchant
+            <select value={merchant} onChange={(e) => { setMerchant(e.target.value); setPage(0); }} className="mt-1 w-full rounded-2xl bg-white px-3 py-2.5 text-body text-ink ring-1 ring-line">
               <option value="">All merchants</option>
               {(data?.merchants ?? []).map((m) => <option key={m} value={m}>{m}</option>)}
             </select>
           </label>
           <div className="grid grid-cols-2 gap-3">
-            <label className="block text-[12px] font-light text-muted">Min. USD
+            <label className="block text-caption font-light text-muted">Min. USD
               <input inputMode="decimal" value={min} onChange={(e) => { setMin(e.target.value); setPage(0); }} placeholder="0"
-                className="mt-1 w-full rounded-2xl bg-white px-3 py-2.5 text-[14px] text-ink ring-1 ring-line" />
+                className="mt-1 w-full rounded-2xl bg-white px-3 py-2.5 text-body text-ink ring-1 ring-line" />
             </label>
-            <label className="block text-[12px] font-light text-muted">Sort
-              <select value={sort} onChange={(e) => setSort(e.target.value)} className="mt-1 w-full rounded-2xl bg-white px-3 py-2.5 text-[14px] text-ink ring-1 ring-line">
+            <label className="block text-caption font-light text-muted">Sort
+              <select value={sort} onChange={(e) => setSort(e.target.value)} className="mt-1 w-full rounded-2xl bg-white px-3 py-2.5 text-body text-ink ring-1 ring-line">
                 <option value="amount">Amount</option><option value="date">Newest</option><option value="class">Kind</option><option value="status">Status</option>
               </select>
             </label>
@@ -104,7 +104,7 @@ function ExceptionsInner() {
 
       {error ? <ErrorState message={error} onRetry={reload} /> : loading && !data ? <CardSkeleton lines={6} /> : (
         <Card className="p-2 sm:p-3">
-          <p className="px-4 pb-2 pt-3 text-[13px] font-light text-muted" aria-live="polite">
+          <p className="px-4 pb-2 pt-3 text-body-sm font-light text-muted" aria-live="polite">
             {data ? `${num(data.total)} ${data.total === 1 ? "exception" : "exceptions"}` : ""}
             {filtered && " match your filters"}
           </p>
@@ -118,18 +118,18 @@ function ExceptionsInner() {
             <ul className="divide-y divide-line" aria-busy={loading}>
               {data?.items.map((e) => (
                 <li key={e.finding_id}>
-                  <button onClick={() => setFocus(e.finding_id)} className="grid w-full grid-cols-[1fr_auto] items-center gap-x-4 gap-y-1 rounded-xl px-3 py-2 text-left transition hover:bg-lime-soft/60 sm:grid-cols-[180px_1fr_auto_100px]">
+                  <button onClick={() => setFocus(e.finding_id)} className="grid w-full grid-cols-[1fr_auto] items-center gap-x-4 gap-y-1 rounded-xl px-3 py-2 text-left transition hover:bg-accent-soft/60 sm:grid-cols-[180px_1fr_auto_100px]">
                     <span className="flex items-center gap-2">
                       <Chip tone={statusTone(e.status)}>{e.status.replace("_", " ")}</Chip>
-                      <span className="truncate text-[14px] font-semibold">{label(e.class)}</span>
+                      <span className="truncate text-body font-semibold">{label(e.class)}</span>
                     </span>
-                    <span className="order-3 col-span-2 min-w-0 text-[13px] font-light leading-snug text-muted sm:order-none sm:col-span-1">
+                    <span className="order-3 col-span-2 min-w-0 text-body-sm font-light leading-snug text-muted sm:order-none sm:col-span-1">
                       <span className="line-clamp-1">{e.reason}</span>
                     </span>
-                    <span className="hidden text-right text-[12px] font-light text-muted sm:block">
+                    <span className="hidden text-right text-caption font-light text-muted sm:block">
                       {e.merchant_id ?? "Bank"} · {day(e.occurred_on)}
                     </span>
-                    <span className="text-right text-[15px] font-medium tabular-nums">{usd(e.amount_usd, 2)}</span>
+                    <span className="text-right text-lead font-medium tabular-nums">{usd(e.amount_usd, 2)}</span>
                   </button>
                 </li>
               ))}
@@ -138,7 +138,7 @@ function ExceptionsInner() {
           {data && data.total > PAGE && (
             <nav aria-label="Pages" className="flex items-center justify-between px-4 py-3">
               <Button variant="ghost" disabled={page === 0} onClick={() => setPage((p) => p - 1)}>Previous</Button>
-              <span className="text-[13px] text-muted">Page {page + 1} of {pages}</span>
+              <span className="text-body-sm text-muted">Page {page + 1} of {pages}</span>
               <Button variant="ghost" disabled={page + 1 >= pages} onClick={() => setPage((p) => p + 1)}>Next</Button>
             </nav>
           )}

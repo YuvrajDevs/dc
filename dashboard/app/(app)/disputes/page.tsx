@@ -9,8 +9,8 @@ import { bps, day, month, num, pct, usd } from "@/lib/format";
 
 const STATUS_STYLE = {
   ok: "bg-white/[0.06] text-on-dark-muted",
-  warning: "bg-[#e9c46a] text-ink",
-  excessive: "bg-[#f08c7a] text-ink",
+  warning: "bg-caution text-ink",
+  excessive: "bg-alert text-ink",
 } as const;
 
 function View() {
@@ -41,8 +41,8 @@ function View() {
       />
       <div className="mb-6 grid grid-cols-2 gap-x-4 gap-y-6 sm:grid-cols-4 sm:gap-6">
         <Stat label="Disputes" value={totals ? num(totals.n) : "–"} hint={merchant ?? "all merchants"} />
-        <Stat label="Win rate" value={totals && totals.won + totals.lost ? (100 * totals.won / (totals.won + totals.lost)).toFixed(0) : "–"} unit="%" hint="of contested disputes" />
-        <Stat label="Lost to disputes" value={totals ? usd(totals.loss).replace("$", "") : "–"} unit="$" hint="amounts plus fees" />
+        <Stat label="Win rate" value={totals && totals.won + totals.lost ? (100 * totals.won / (totals.won + totals.lost)).toFixed(0) : "–"} suffix="%" hint="of contested disputes" />
+        <Stat label="Lost to disputes" value={totals ? usd(totals.loss) : "–"} hint="amounts plus fees" />
         <Stat label="Awaiting response" value={totals ? num(totals.open) : "–"} hint="before the 30-day deadline" />
       </div>
 
@@ -52,11 +52,11 @@ function View() {
             dark
             aside={
               merchant ? (
-                <button type="button" onClick={() => setMerchant(null)} className="rounded-full bg-lime px-3 py-1 text-[12.5px] font-semibold text-ink">
+                <button type="button" onClick={() => setMerchant(null)} className="rounded-full bg-accent px-3 py-1 text-body-sm font-semibold text-ink">
                   {merchant} ✕
                 </button>
               ) : (
-                <span className="text-[12px] text-on-dark-muted">Click a merchant to filter</span>
+                <span className="text-caption text-on-dark-muted">Click a merchant to filter</span>
               )
             }
           >
@@ -66,7 +66,7 @@ function View() {
             <Skeleton className="h-56" />
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[420px] border-separate border-spacing-1 text-[12.5px]">
+              <table className="w-full min-w-[420px] border-separate border-spacing-1 text-body-sm">
                 <thead>
                   <tr className="text-on-dark-muted">
                     <th scope="col" className="text-left font-medium">Merchant</th>
@@ -79,7 +79,7 @@ function View() {
                   {merchants.map((m) => (
                     <tr key={m} className={cx(merchant && merchant !== m && "opacity-40")}>
                       <th scope="row" className="pr-2 text-left font-semibold">
-                        <button type="button" onClick={() => setMerchant(merchant === m ? null : m)} className="hover:text-lime">
+                        <button type="button" onClick={() => setMerchant(merchant === m ? null : m)} className="hover:text-accent">
                           {m}
                         </button>
                       </th>
@@ -96,9 +96,9 @@ function View() {
                   ))}
                 </tbody>
               </table>
-              <p className="mt-3 flex flex-wrap gap-4 text-[12px] text-on-dark-muted">
-                <span><i className="mr-1 inline-block h-2 w-2 rounded-full bg-[#e9c46a]" />warning ≥ 0.65%</span>
-                <span><i className="mr-1 inline-block h-2 w-2 rounded-full bg-[#f08c7a]" />excessive ≥ 0.90% and ≥ 10 disputes</span>
+              <p className="mt-3 flex flex-wrap gap-4 text-caption text-on-dark-muted">
+                <span><i className="mr-1 inline-block h-2 w-2 rounded-full bg-caution" />warning ≥ 0.65%</span>
+                <span><i className="mr-1 inline-block h-2 w-2 rounded-full bg-alert" />excessive ≥ 0.90% and ≥ 10 disputes</span>
                 <span>Complete months only. Ratio = disputes opened in the month ÷ sales cleared in it.</span>
               </p>
             </div>
@@ -116,11 +116,11 @@ function View() {
               {data.open.slice(0, 8).map((d) => (
                 <li key={d.dispute_id} className="flex items-center gap-3 py-2.5">
                   <span className="min-w-0 flex-1">
-                    <span className="block truncate text-[13.5px] font-semibold">{d.merchant_id} · {d.reason_label}</span>
-                    <span className="block text-[12px] text-muted">{d.network === "visa" ? "Visa" : "Mastercard"} {d.reason_code} · due {day(d.response_due)}</span>
+                    <span className="block truncate text-body font-semibold">{d.merchant_id} · {d.reason_label}</span>
+                    <span className="block text-caption text-muted">{d.network === "visa" ? "Visa" : "Mastercard"} {d.reason_code} · due {day(d.response_due)}</span>
                   </span>
                   <span className="text-right">
-                    <span className="num block text-[13.5px] font-semibold">{usd(d.amount_usd, 2)}</span>
+                    <span className="num block text-body font-semibold">{usd(d.amount_usd, 2)}</span>
                     <Chip tone={d.deadline_state === "overdue" ? "bad" : d.deadline_state === "due_in_7_days" ? "warn" : "neutral"}>
                       {d.deadline_state === "due_in_7_days" ? "due soon" : d.deadline_state}
                     </Chip>
@@ -137,9 +137,9 @@ function View() {
             <Skeleton className="h-48" />
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[520px] text-[13.5px]">
+              <table className="w-full min-w-[520px] text-body">
                 <thead>
-                  <tr className="text-left text-[12px] text-muted">
+                  <tr className="text-left text-caption text-muted">
                     <th scope="col" className="py-2 font-medium">Reason</th>
                     <th scope="col" className="py-2 text-right font-medium">Disputes</th>
                     <th scope="col" className="py-2 text-right font-medium">Win rate</th>
@@ -161,7 +161,7 @@ function View() {
                   ))}
                 </tbody>
               </table>
-              <p className="mt-3 text-[12px] text-muted">
+              <p className="mt-3 text-caption text-muted">
                 3DS shift: online fraud disputes on 3-D Secure payments move liability to the issuer, so the merchant does not lose them.
               </p>
             </div>
@@ -183,7 +183,7 @@ function View() {
               }))}
             />
           )}
-          <p className="mt-3 text-[12.5px] text-on-dark-muted">
+          <p className="mt-3 text-body-sm text-on-dark-muted">
             A month&apos;s sales keep drawing disputes for 60 to 90 days, so a young month always looks cleaner than it is.
           </p>
         </DarkCard>

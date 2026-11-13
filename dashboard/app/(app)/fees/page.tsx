@@ -27,10 +27,10 @@ function View() {
     <>
       <PageHeader title="Fees" intro="Where every dollar of card fees goes, and where a merchant paid more than the rate card says." />
       <div className="mb-6 grid grid-cols-2 gap-x-4 gap-y-6 sm:grid-cols-4 sm:gap-6">
-        <Stat label="Card volume" value={data ? compactUsd(t.vol).replace("$", "") : "–"} unit="$" />
-        <Stat label="Effective interchange" value={data ? (100 * t.ic / t.vol).toFixed(2) : "–"} unit="%" hint="paid to issuers" />
-        <Stat label="Processor margin" value={data ? compactUsd(t.mar).replace("$", "") : "–"} unit="$" hint={data ? `${(100 * t.mar / t.fee).toFixed(0)}% of fees charged` : ""} />
-        <Stat label="Overpaid interchange" value={data ? usd(t.leak).replace("$", "") : "–"} unit="$" hint="above the rate card" />
+        <Stat label="Card volume" value={data ? compactUsd(t.vol) : "–"} />
+        <Stat label="Effective interchange" value={data ? (100 * t.ic / t.vol).toFixed(2) : "–"} suffix="%" hint="paid to issuers" />
+        <Stat label="Processor margin" value={data ? compactUsd(t.mar) : "–"} hint={data ? `${(100 * t.mar / t.fee).toFixed(0)}% of fees charged` : ""} />
+        <Stat label="Overpaid interchange" value={data ? usd(t.leak) : "–"} hint="above the rate card" />
       </div>
 
       <div className="grid gap-4 lg:grid-cols-12 lg:items-start">
@@ -44,9 +44,9 @@ function View() {
                 {rows.map((r) => {
                   const total = r.processor_fee_usd || 1;
                   const seg = [
-                    { v: r.interchange_usd, c: "bg-lime", n: "Interchange" },
+                    { v: r.interchange_usd, c: "bg-accent", n: "Interchange" },
                     { v: r.scheme_usd, c: "bg-white", n: "Scheme" },
-                    { v: Math.max(0, r.margin_usd), c: "bg-[#6b7d5c]", n: "Margin" },
+                    { v: Math.max(0, r.margin_usd), c: "bg-panel-2", n: "Margin" },
                   ];
                   return (
                     <li key={r.merchant_id}>
@@ -56,22 +56,22 @@ function View() {
                         className={cx("grid w-full grid-cols-[3rem_1fr_4.5rem] items-center gap-3 rounded-lg py-0.5 text-left hover:bg-white/5", merchant && merchant !== r.merchant_id && "opacity-40")}
                         aria-pressed={merchant === r.merchant_id}
                       >
-                        <span className="text-[13px] font-semibold">{r.merchant_id}</span>
+                        <span className="text-body-sm font-semibold">{r.merchant_id}</span>
                         <span className="flex h-3 overflow-hidden rounded-full bg-white/10" aria-label={seg.map((s) => `${s.n} ${usd(s.v)}`).join(", ")}>
                           {seg.map((s) => (
                             <span key={s.n} className={s.c} style={{ width: `${(100 * s.v) / total}%`, transition: "width 700ms cubic-bezier(.22,1,.36,1)" }} />
                           ))}
                         </span>
-                        <span className="num text-right text-[13px]">{bps(r.effective_ic_bps)}</span>
+                        <span className="num text-right text-body-sm">{bps(r.effective_ic_bps)}</span>
                       </button>
                     </li>
                   );
                 })}
               </ul>
-              <p className="mt-4 flex flex-wrap gap-4 text-[12px] text-on-dark-muted">
-                <span><i className="mr-1 inline-block h-2 w-2 rounded-full bg-lime" />Interchange (issuer)</span>
+              <p className="mt-4 flex flex-wrap gap-4 text-caption text-on-dark-muted">
+                <span><i className="mr-1 inline-block h-2 w-2 rounded-full bg-accent" />Interchange (issuer)</span>
                 <span><i className="mr-1 inline-block h-2 w-2 rounded-full bg-white" />Scheme fees (network)</span>
-                <span><i className="mr-1 inline-block h-2 w-2 rounded-full bg-[#6b7d5c]" />Processor margin</span>
+                <span><i className="mr-1 inline-block h-2 w-2 rounded-full bg-panel-2" />Processor margin</span>
                 <span>Right column: effective interchange rate</span>
               </p>
             </>
@@ -83,9 +83,9 @@ function View() {
           {!data ? (
             <Skeleton className="h-64" />
           ) : (
-            <table className="w-full text-[13px]">
+            <table className="w-full text-body-sm">
               <thead>
-                <tr className="text-left text-[12px] text-muted">
+                <tr className="text-left text-caption text-muted">
                   <th scope="col" className="py-2 font-medium">Segment</th>
                   <th scope="col" className="py-2 text-right font-medium">Rate card</th>
                   <th scope="col" className="py-2 text-right font-medium">Charged</th>
@@ -120,9 +120,9 @@ function View() {
             <Skeleton className="h-48" />
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[760px] text-[13.5px]">
+              <table className="w-full min-w-[760px] text-body">
                 <thead>
-                  <tr className="text-left text-[12px] text-muted">
+                  <tr className="text-left text-caption text-muted">
                     <th scope="col" className="py-2 font-medium">Merchant</th>
                     <th scope="col" className="py-2 font-medium">Category</th>
                     <th scope="col" className="py-2 text-right font-medium">Volume</th>

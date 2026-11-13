@@ -1,31 +1,48 @@
 @import "tailwindcss";
 
 /*
- * TrueUp: a white page, black cards for analysis, cream cards for side facts, sage and lime accents, black cards for analysis, cream cards for
- * side facts, lime as the single accent. Existing token names are kept so every page follows.
+ * TrueUp design tokens. A white page, navy cards for analysis, lavender cards for supporting facts,
+ * violet as the one accent. Sizes, colours and radii come only from here (docs/DESIGN_SYSTEM.md).
  */
 :root {
   --page: #ffffff;
-  --panel: #4a6238;
-  --panel-2: #557044;
-  --card: #dde5cc; /* cream: side cards, tables */
-  --ink: #0f130d;
-  --muted: #4c5643; /* on cream: 6.2:1 */
-  --line: #c9d3b4;
-  --teal: #121611; /* "dark": black cards and primary buttons */
-  --teal-deep: #0b0e0a;
-  --lime: #a8d67c;
-  --lime-soft: #cfe3b4;
+  --panel: #2f3485;
+  --panel-2: #4b51c2;
+  --card: #eceefb; /* lavender: supporting cards, tables */
+  --ink: #0e1230;
+  --muted: #4a5078; /* on lavender: 6.6:1 */
+  --line: #d5d9f2;
+  --dark: #10143a; /* deep navy: analysis cards and primary buttons */
+  --dark-deep: #0a0d28;
+  --accent: #8f8bff; /* violet: the one accent */
+  --accent-soft: #dedcff;
   --warn: #8a4a0c;
   --warn-soft: #f5e6cd;
   --bad: #ad2229;
   --bad-soft: #f6dbd9;
-  --on-panel: #0f130d;
-  --on-panel-muted: #586150; /* on white: 6.4:1 */
-  --on-dark-muted: #a9b1a2; /* on black cards: 8:1 */
+  /* Severity on dark cards: high and medium. Low uses the accent. */
+  --alert: #f08c7a;
+  --caution: #e9c46a;
+  --on-panel: #0e1230;
+  --on-panel-muted: #555b83; /* on white: 6.6:1 */
+  --on-dark-muted: #a9aed8; /* on navy cards: 8:1 */
 }
 
 @theme inline {
+  /* Type scale, by role. Never write a raw pixel size. */
+  --text-micro: 11px; --text-micro--line-height: 14px;
+  --text-caption: 12px; --text-caption--line-height: 16px;
+  --text-body-sm: 13px; --text-body-sm--line-height: 19px;
+  --text-body: 14px; --text-body--line-height: 21px;
+  --text-lead: 15px; --text-lead--line-height: 23px;
+  --text-heading: 16px; --text-heading--line-height: 22px;
+  --text-title: 20px; --text-title--line-height: 26px; --text-title--letter-spacing: -0.01em;
+  --text-section: 28px; --text-section--line-height: 34px; --text-section--letter-spacing: -0.02em;
+  --text-stat: 40px; --text-stat--line-height: 40px; --text-stat--letter-spacing: -0.03em;
+  --text-display: 44px; --text-display--line-height: 46px; --text-display--letter-spacing: -0.03em;
+  --text-hero: 56px; --text-hero--line-height: 58px; --text-hero--letter-spacing: -0.035em;
+
+  --radius-card: 24px;
   --font-sans: var(--font-urbanist);
   --color-page: var(--page);
   --color-panel: var(--panel);
@@ -34,14 +51,16 @@
   --color-ink: var(--ink);
   --color-muted: var(--muted);
   --color-line: var(--line);
-  --color-teal: var(--teal);
-  --color-teal-deep: var(--teal-deep);
-  --color-lime: var(--lime);
-  --color-lime-soft: var(--lime-soft);
+  --color-dark: var(--dark);
+  --color-dark-deep: var(--dark-deep);
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
   --color-warn: var(--warn);
   --color-warn-soft: var(--warn-soft);
   --color-bad: var(--bad);
   --color-bad-soft: var(--bad-soft);
+  --color-alert: var(--alert);
+  --color-caution: var(--caution);
   --color-on-panel: var(--on-panel);
   --color-on-panel-muted: var(--on-panel-muted);
   --color-on-dark-muted: var(--on-dark-muted);
@@ -62,12 +81,12 @@ body {
 }
 
 :focus-visible {
-  outline: 3px solid var(--lime);
+  outline: 3px solid var(--accent);
   outline-offset: 2px;
   border-radius: 10px;
 }
 ::selection {
-  background: var(--lime);
+  background: var(--accent);
   color: var(--ink);
 }
 
@@ -122,7 +141,7 @@ input {
   border-radius: 14px;
 }
 .bg-card .skeleton {
-  background: linear-gradient(90deg, #d2dbbf 25%, #dde5cc 50%, #d2dbbf 75%);
+  background: linear-gradient(90deg, #dfe2f7 25%, #eceefb 50%, #dfe2f7 75%);
   background-size: 200% 100%;
 }
 

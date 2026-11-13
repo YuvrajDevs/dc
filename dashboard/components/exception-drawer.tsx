@@ -26,7 +26,7 @@ function RecordFacts({ source, rec }: { source: string; rec: Record<string, unkn
           ? [["ID", field(rec, "payout_id")], ["Due", day(String(rec.payout_date))], ["Payout total", m("net_minor_total")], ["Adds up to", m("net_minor_actual")], ["Transactions", field(rec, "txn_count")]]
           : [["ID", field(rec, "bank_line_id")], ["Reference", field(rec, "reference")], ["Amount", m("amount_minor")], ["Value date", day(String(rec.value_date))], ["Description", field(rec, "description")]];
   return (
-    <dl className="grid grid-cols-2 gap-x-4 gap-y-2 text-[13px]">
+    <dl className="grid grid-cols-2 gap-x-4 gap-y-2 text-body-sm">
       {rows.map(([k, v]) => (
         <div key={k} className="min-w-0">
           <dt className="font-light text-muted">{k}</dt>
@@ -120,7 +120,7 @@ export function ExceptionDrawer({ id, onClose, onChanged }: { id: string; onClos
         className="absolute inset-y-0 right-0 flex w-full max-w-[520px] flex-col overflow-y-auto bg-card p-4 text-ink shadow-2xl outline-none sm:p-5"
       >
         <div className="mb-3 flex items-center justify-between">
-          <h2 id="drawer-title" className="text-[18px] font-medium">
+          <h2 id="drawer-title" className="text-title font-medium">
             {data ? label(data.exception.class) : "Exception"}
           </h2>
           <button onClick={onClose} aria-label="Close details" className="grid h-10 w-10 place-items-center rounded-full bg-card text-lg hover:bg-line">×</button>
@@ -135,24 +135,24 @@ export function ExceptionDrawer({ id, onClose, onChanged }: { id: string; onClos
                 <Chip tone={statusTone(data.exception.status)}>{data.exception.status.replace("_", " ")}</Chip>
                 <Chip>{data.exception.merchant_id ?? "Bank"}</Chip>
                 <Chip>{day(data.exception.occurred_on)}</Chip>
-                {data.exception.confidence !== null && <Chip tone="lime">{Math.round((data.exception.confidence ?? 0) * 100)}% sure</Chip>}
+                {data.exception.confidence !== null && <Chip tone="accent">{Math.round((data.exception.confidence ?? 0) * 100)}% sure</Chip>}
               </div>
-              <p className="mt-3 text-[26px] font-medium leading-none tabular-nums">{usd(data.exception.amount_usd, 2)}</p>
-              <p className="mt-1 text-[12px] font-light text-muted">
+              <p className="mt-3 text-section font-medium leading-none tabular-nums">{usd(data.exception.amount_usd, 2)}</p>
+              <p className="mt-1 text-caption font-light text-muted">
                 {money(data.exception.amount_at_stake_minor, data.exception.currency)} at stake
               </p>
-              <p className="mt-4 text-[14px] leading-relaxed">{data.exception.reason}</p>
+              <p className="mt-4 text-body leading-relaxed">{data.exception.reason}</p>
             </Card>
 
             <Card className="p-5">
-              <h3 className="mb-3 text-[14px] font-medium">What was matched</h3>
+              <h3 className="mb-3 text-body font-medium">What was matched</h3>
               <div className="space-y-4">
                 {data.records.map((r) => (
                   <div key={`${r.source}-${r.id}`} className="rounded-2xl bg-white p-4">
-                    <p className="mb-2 text-[12px] font-medium uppercase tracking-wide text-teal">{SOURCE_TITLES[r.source] ?? r.source}</p>
-                    {r.record ? <RecordFacts source={r.source} rec={r.record} /> : <p className="text-[13px] text-muted">Record no longer available.</p>}
+                    <p className="mb-2 text-caption font-medium uppercase tracking-wide text-dark">{SOURCE_TITLES[r.source] ?? r.source}</p>
+                    {r.record ? <RecordFacts source={r.source} rec={r.record} /> : <p className="text-body-sm text-muted">Record no longer available.</p>}
                     {r.links && r.links.length > 0 && (
-                      <p className="mt-3 text-[12px] font-light text-muted">
+                      <p className="mt-3 text-caption font-light text-muted">
                         Linked to {r.links.map((l) => String(l.bank_line_id ?? l.linked_id)).join(", ")} ({String(r.links[0].method)} match)
                       </p>
                     )}
@@ -162,13 +162,13 @@ export function ExceptionDrawer({ id, onClose, onChanged }: { id: string; onClos
             </Card>
 
             <Card className="p-5">
-              <h3 className="mb-3 text-[14px] font-medium">Your decision</h3>
+              <h3 className="mb-3 text-body font-medium">Your decision</h3>
               <form onSubmit={save} className="space-y-4" noValidate>
                 <fieldset>
-                  <legend className="mb-2 text-[13px] font-light text-muted">Status</legend>
+                  <legend className="mb-2 text-body-sm font-light text-muted">Status</legend>
                   <div className="flex gap-2">
                     {STATUS_CHOICES.map((s) => (
-                      <label key={s.value} className={`flex-1 cursor-pointer rounded-2xl px-3 py-2 text-center text-[13px] font-medium ring-1 ring-line has-[:checked]:bg-teal has-[:checked]:text-white has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-teal`}>
+                      <label key={s.value} className={`flex-1 cursor-pointer rounded-2xl px-3 py-2 text-center text-body-sm font-medium ring-1 ring-line has-[:checked]:bg-dark has-[:checked]:text-white has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-accent`}>
                         <input type="radio" name="status" value={s.value} checked={status === s.value} onChange={() => setStatus(s.value)} className="sr-only" />
                         {s.text}
                       </label>
@@ -176,33 +176,33 @@ export function ExceptionDrawer({ id, onClose, onChanged }: { id: string; onClos
                   </div>
                 </fieldset>
                 <div>
-                  <label htmlFor="note" className="mb-1 block text-[13px] font-light text-muted">
+                  <label htmlFor="note" className="mb-1 block text-body-sm font-light text-muted">
                     Note {needsNote && <span className="text-bad">(required)</span>}
                   </label>
                   <textarea id="note" value={note} onChange={(e) => setNote(e.target.value)} rows={3} placeholder="Why is this fine, or what fixed it?"
-                    className="w-full rounded-2xl bg-white px-4 py-3 text-[14px] ring-1 ring-line placeholder:text-muted/70" />
+                    className="w-full rounded-2xl bg-white px-4 py-3 text-body ring-1 ring-line placeholder:text-muted/70" />
                 </div>
                 <div>
-                  <label htmlFor="actor" className="mb-1 block text-[13px] font-light text-muted">Your name</label>
+                  <label htmlFor="actor" className="mb-1 block text-body-sm font-light text-muted">Your name</label>
                   <input id="actor" value={actor} onChange={(e) => setActor(e.target.value)} autoComplete="name"
-                    className="w-full rounded-2xl bg-white px-4 py-3 text-[14px] ring-1 ring-line" />
+                    className="w-full rounded-2xl bg-white px-4 py-3 text-body ring-1 ring-line" />
                 </div>
-                <div aria-live="polite" className="min-h-5 text-[13px]">
-                  {msg && <p className={msg.ok ? "text-teal" : "text-bad"}>{msg.text}</p>}
+                <div aria-live="polite" className="min-h-5 text-body-sm">
+                  {msg && <p className={msg.ok ? "text-dark" : "text-bad"}>{msg.text}</p>}
                 </div>
                 <Button type="submit" disabled={busy} className="w-full">{busy ? "Saving…" : "Save decision"}</Button>
               </form>
             </Card>
 
             <Card className="p-5">
-              <h3 className="mb-3 text-[14px] font-medium">History</h3>
+              <h3 className="mb-3 text-body font-medium">History</h3>
               <ol className="space-y-3 border-l-2 border-line pl-4">
                 {[...data.history].reverse().map((h, i) => (
-                  <li key={i} className="relative text-[13px]">
-                    <span aria-hidden className="absolute -left-[22px] top-1.5 h-2.5 w-2.5 rounded-full bg-teal" />
+                  <li key={i} className="relative text-body-sm">
+                    <span aria-hidden className="absolute -left-[22px] top-1.5 h-2.5 w-2.5 rounded-full bg-dark" />
                     <p><span className="font-medium">{h.actor}</span> {h.from ? <>changed <b>{h.from.replace("_", " ")}</b> to <b>{h.to.replace("_", " ")}</b></> : <>reported it as <b>{h.to}</b></>}</p>
                     {h.note && <p className="font-light text-muted">“{h.note}”</p>}
-                    <p className="text-[12px] font-light text-muted">{when(h.at ?? h.occurred_at)}</p>
+                    <p className="text-caption font-light text-muted">{when(h.at ?? h.occurred_at)}</p>
                   </li>
                 ))}
               </ol>
