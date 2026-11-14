@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect, useRef } from "react";
 import { cx } from "@/components/ui";
 
 const GROUPS = [
@@ -44,13 +45,18 @@ export function Logo({ className }: { className?: string }) {
 /** Left sidebar on large screens; a scrollable row of pills on small ones. */
 export function Nav() {
   const path = usePathname();
+  const navRef = useRef<HTMLElement>(null);
+  useEffect(() => {
+    navRef.current?.querySelector('[aria-current="page"]')?.scrollIntoView({ inline: "center", block: "nearest" });
+  }, [path]);
   const active = (href: string) => path === href || path.startsWith(`${href}/`);
   return (
     <aside className="flex flex-col gap-3 rounded-card bg-card p-3 lg:sticky lg:top-4 lg:h-[calc(100vh-3rem)] lg:gap-6 lg:p-4">
       <Link href="/" aria-label="TrueUp home" className="px-1 pt-1 text-ink">
         <Logo />
       </Link>
-      <nav aria-label="Main" className="-mx-1 overflow-x-auto [scrollbar-width:none] lg:mx-0 lg:overflow-visible">
+      {/* On phones the row scrolls: a fade on the right edge says there is more, and the current page is scrolled into view */}
+      <nav ref={navRef} aria-label="Main" className="-mx-1 overflow-x-auto [scrollbar-width:none] [mask-image:linear-gradient(to_right,black_82%,transparent)] lg:mx-0 lg:overflow-visible lg:[mask-image:none]">
         <div className="flex w-max gap-1 px-1 lg:w-auto lg:flex-col lg:gap-5 lg:px-0">
           {GROUPS.map((g) => (
             <div key={g.title} className="flex gap-1 lg:flex-col">

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Button, Card, CardTitle, Chip, EmptyState, ErrorState, PageHeader } from "@/components/ui";
+import { Button, Card, CardTitle, Chip, EmptyState, ErrorState, PageHeader, cx } from "@/components/ui";
 import { type AskResult, api, useApi } from "@/lib/api";
 
 const FALLBACK = ["Which payouts are missing from the bank?", "How many open exceptions are there?", "Show the 10 largest fee variances"];
@@ -56,9 +56,9 @@ export default function AskPage() {
               <div className="overflow-x-auto rounded-2xl ring-1 ring-line">
                 <table className="w-full text-left text-body-sm">
                   <caption className="sr-only">Answer</caption>
-                  <thead className="bg-white"><tr>{res.columns.map((c) => <th key={c} scope="col" className="px-4 py-2.5 font-medium">{c.replaceAll("_", " ")}</th>)}</tr></thead>
+                  <thead className="bg-white"><tr>{res.columns.map((c) => <th key={c} scope="col" className={cx("px-4 py-2.5 font-medium", isNumeric(res.rows, res.columns.indexOf(c)) && "text-right")}>{columnLabel(c)}</th>)}</tr></thead>
                   <tbody className="divide-y divide-line">
-                    {res.rows.map((r, i) => <tr key={i}>{r.map((v, j) => <td key={j} className="max-w-[420px] px-4 py-2.5 align-top tabular-nums">{v === null ? "–" : String(v)}</td>)}</tr>)}
+                    {res.rows.map((r, i) => <tr key={i}>{r.map((v, j) => <td key={j} className={cx("max-w-[420px] px-4 py-2.5 align-top tabular-nums", typeof v === "number" && "text-right")}>{formatCell(res.columns[j], v)}</td>)}</tr>)}
                   </tbody>
                 </table>
               </div>
@@ -85,3 +85,22 @@ export default function AskPage() {
     </>
   );
 }
+
+/** Column names from SQL ("amount_usd") read as labels ("Amount (USD)"). */
+function columnLabel(c: string): string {
+  const words = c.replace(/_usd$/, "").replaceAll("_", " ").replace(/\bid\b/, "ID");
+  const label = words.charAt(0).toUpperCase() + words.slice(1);
+  return c.endsWith("_usd") ? `${label} (USD)` : label;
+}
+
+/** Money as money, counts with separators, everything else as given. */
+function formatCell(column: string, v: unknown): string {
+  if (v === null || v === undefined) return "–";
+  if (typeof v === "number") {
+    if (/(_usd|amount|cost|fee)/.test(column)) return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(v);
+    return new Intl.NumberFormat("en-US", { maximumFractionDigits: 4 }).format(v);
+  }
+  return String(v);
+}
+
+const isNumeric = (rows: unknown[][], j: number) => rows.length > 0 && typeof rows[0][j] === "number";
